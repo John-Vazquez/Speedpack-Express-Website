@@ -6,92 +6,127 @@ body, ul {
 }
 
 body {
-    font-family: 'Roboto', sans-serif; /* Use modern font */
-    background-color: #f4f4f9;
+    font-family: 'Roboto', sans-serif;
+    background: url('website images/airportphoto.png') no-repeat center center fixed; /* Add the background image */
+    background-size: cover; /* Ensure the image covers the entire background */
     color: #333;
+    margin: 0; /* Remove margin */
+    padding: 0; /* Remove padding */
 }
 
 nav {
-    background-color: #f4f40c;
-    padding: 10px 20px; /* Adjusted padding */
+    background-color: transparent;
+    padding: 10px 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: fixed; /* Fix position to the top */
+    top: 0; /* Ensure it is at the top of the viewport */
+    width: 100%; /* Ensure nav bar spans the entire width */
+    z-index: 10; /* Ensure it stays on top */
+    transform: translateY(0); /* Initial state */
+    transition: transform 0.3s ease-in-out; /* Add transition */
+}
+
+/* Hide navbar when scrolled down */
+.navbar-hidden {
+    transform: translateY(-100%); /* Hide navbar */
 }
 
 .navbar-container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center; /* Center the items horizontally */
+    position: relative; /* Add relative positioning */
+}
+
+.navbar-logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .navbar-logo {
     height: 60px; /* Adjusted height */
-    margin-right: 20px;
-}
-
-.navbar-title-container {
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 10px; /* Space between the logo and text */
 }
 
 .navbar-title {
-    color: rgb(2, 1, 18);
     font-size: 1.8em; /* Adjusted font size */
     font-weight: bold; /* Bold text */
-    font-style: italic; /* Italic text */
     text-align: center;
-    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4), 0 0 5px #f4f40c, 0 0 10px #f4f40c; /* Thicker text shadow with yellow outline */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Shadow */
+}
+
+.navbar-title .speed {
+    color: white; /* Yellow text for "Speed" */
+}
+
+.navbar-title .pack {
+    color: white; /* White text for "pack" */
+}
+
+.express-container {
+    display: flex;
+    align-items: center;
+    margin-top: 5px; /* Space between "Speedpack" and "Express" */
 }
 
 .express {
-    color: rgb(0, 0, 5);
+    color: white; /* Yellow text */
     font-size: 1.2em; /* Adjusted font size */
     font-weight: bold; /* Bold text */
-    font-style: italic; /* Italic text */
+    font-style: italic;
     text-align: center;
-    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4), 0 0 5px #f4f40c, 0 0 10px #f4f40c; 
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Shadow */
+    margin: 0 10px; /* Space between the lines and text */
 }
 
-.navbar-subhead {
-    color: rgb(1, 1, 10);
-    font-size: 0.8em; /* Adjusted font size */
-    font-weight: bold; /* Bold text */
-    text-align: left;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Text shadow */
+.line {
+    width: 50px; /* Adjust width as needed */
+    height: 2px; /* Adjust height as needed */
+    background-color: #fffb00; /* Yellow color */
 }
 
 nav ul {
     display: flex;
     align-items: center; /* Center align items vertically */
+    position: absolute; /* Position absolutely */
+    right: 20px; /* Align to the right side */
 }
 
 nav ul li {
     margin: 0 10px;
 }
 
-nav ul li a {
+nav ul li a { /* buttons to change between pages */
     display: block;
     padding: 8px 10px; /* Adjusted padding */
-    color: rgb(41, 36, 190);
+    font-size: 35;
+    color: rgb(248, 248, 249);
     text-decoration: none;
+    font-weight: bold;
     transition: background-color 0.3s, color 0.3s;
 }
 
+nav ul li a.active {
+    border-bottom: 2px solid rgb(248, 248, 249); /* Underline the active link */
+}
+
 nav ul li a:hover {
-    background-color: #333;
-    color: #fff;
+    background-color: rgba(0, 0, 0, 0.3); /* Changed hover background color to semi-transparent */
+    color: #fff; /* Text color change on hover */
 }
 
 /* Hero Section */
 .hero {
-    background: url('website images/airportphoto.png') no-repeat center center; /* Background image */
-    background-size: cover; /* Make the background cover the entire area */
+    margin-top: 80px; /* Pushes the hero section down by the height of the nav bar */
+    /* background: rgba(0, 0, 0, 0.5); /* Optional: Add a semi-transparent overlay */
     color: #fff;
     text-align: center;
-    padding: 75px 20px; /* Increased padding to 1.5 times */
-    box-shadow: 0 2px 4px rgba(246, 254, 3, 0.1);
+    padding: 75px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     height: calc(100vh * 1.5); /* Ensure the height is increased */
     position: relative; /* Relative positioning */
-    z-index: 1;
+    z-index: 1; /* Ensure it stays below the nav bar */
 }
 
 .hero-content {
@@ -110,7 +145,6 @@ nav ul li a:hover {
 .hero h2 {
     font-size: 2em;
     margin-bottom: 20px;
-
 }
 
 .hero p {
@@ -178,7 +212,6 @@ nav ul li a:hover {
     background-color: #e5e500;
 }
 
-
 /* Services Page Styling */
 
 /* Services Boxes Styling */
@@ -239,7 +272,6 @@ nav ul li a:hover {
     display: block;
 }
 
-
 /* Footer Section */
 footer {
     background-color: #333; /* Grey background color */
@@ -253,3 +285,51 @@ footer p {
     margin: 0;
 }
 
+/* about us page */
+.about-section {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align items at the top */
+    background-color: white; /* White background for the content section */
+    padding: 50px 20px;
+    margin-top: 300px; /* Increase margin to move the section down */
+    position: relative; /* Positioning to allow overlap */
+    z-index: 1;
+}
+
+.about-logo-container {
+    position: absolute;
+    bottom: 200px; /* Move logo higher up */
+    left: 20px; /* Position logo at the left */
+    z-index: 2;
+}
+
+.about-logo {
+    width: 250px; /* Increase size of the logo */
+    height: auto;
+}
+
+.about-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align items to the left */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 50px; /* Space to ensure the content starts after the nav bar */
+}
+
+.about-text {
+    margin-left: 300px; /* Move text to the right */
+    text-align: left; /* Align text to the left */
+    max-width: 800px;
+}
+
+.about-text h2 {
+    font-size: 2.5em; /* Adjust size as needed */
+    margin-bottom: 20px;
+}
+
+.about-text p {
+    font-size: 0.9em; /* Smaller font size */
+    margin-bottom: 20px;
+}
