@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services - Speedpack Express</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav>
+        <div class="navbar-container">
+            <div class="navbar-title-container">
+                <div class="navbar-title">Speedpack</div>
+                <div class="express">Express</div>
+                <div class="navbar-subhead">Time-Critical Courier and Air Freight Logistics</div>
+            </div>
+            <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="navbar-logo">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    <section class="content">
+        <h1>Our Services</h1>
+        <div class="services-boxes">
+            <div class="service-box">
+                <h2>Airport Services</h2>
+                <ul>
+                    <li class="interactive-item">AOG - Rushed Delivery
+                        <div class="description">Aircraft on Ground (AOG) services ensure your aircraft parts are delivered as quickly as possible to minimize downtime.</div>
+                    </li>
+                    <li class="interactive-item">Transfers
+                        <div class="description">Efficient transfer services to ensure smooth transitions between flights and destinations.</div>
+                    </li>
+                    <li class="interactive-item">Scheduled Routes
+                        <div class="description">Regularly scheduled routes to meet your ongoing logistics needs.</div>
+                    </li>
+                    <li class="interactive-item">TWIC Licensed Deliveries
+                        <div class="description">Transportation Worker Identification Credential (TWIC) licensed deliveries for secure and reliable service.</div>
+                    </li>
+                    <li class="interactive-item">Animal Delivery
+                        <div class="description">Safe and humane transport services for live animals.</div>
+                    </li>
+                    <li class="interactive-item">On-Board Courier
+                        <div class="description">Personalized courier services where an individual accompanies your shipment.</div>
+                    </li>
+                    <li class="interactive-item">Fragile Items
+                        <div class="description">Special handling and delivery services for fragile and delicate items.</div>
+                    </li>
+                </ul>
+            </div>
+            <div class="service-box">
+                <h2>Medical Services</h2>
+                <ul>
+                    <li class="interactive-item">Medical Courier
+                        <div class="description">Safe and reliable transportation of medical supplies and specimens.</div>
+                    </li>
+                    <li class="interactive-item">Emergency Delivery
+                        <div class="description">Immediate delivery services for urgent medical needs.</div>
+                    </li>
+                </ul>
+            </div>
+            <div class="service-box">
+                <h2>Temperature Control</h2>
+                <ul>
+                    <li class="interactive-item">Cold Chain Logistics
+                        <div class="description">Maintaining the integrity of temperature-sensitive shipments throughout the logistics process.</div>
+                    </li>
+                    <li class="interactive-item">Refrigerated Transport
+                        <div class="description">Specialized vehicles for transporting goods that require controlled temperatures.</div>
+                    </li>
+                </ul>
+            </div>
+            <div class="service-box">
+                <h2>Special Vehicles</h2>
+                <ul>
+                    <li class="interactive-item">Armored Transport
+                        <div class="description">Secure transportation for high-value and sensitive items.</div>
+                    </li>
+                    <li class="interactive-item">Heavy Load Transport
+                        <div class="description">Specialized vehicles for transporting oversized and heavy cargo.</div>
+                    </li>
+                </ul>
+            </div>
+            <div class="service-box">
+                <h2>Warehousing</h2>
+                <ul>
+                    <li class="interactive-item">Storage Solutions
+                        <div class="description">Flexible warehousing solutions to meet your storage needs.</div>
+                    </li>
+                    <li class="interactive-item">Inventory Management
+                        <div class="description">Comprehensive inventory management services to keep track of your goods.</div>
+                    </li>
+                </ul>
+            </div>
+            <div class="service-box">
+                <h2>Other</h2>
+                <ul>
+                    <li class="interactive-item">Custom Solutions
+                        <div class="description">Tailored logistics solutions to meet your unique requirements.</div>
+                    </li>
+                    <li class="interactive-item">Consulting Services
+                        <div class="description">Professional consulting to optimize your logistics operations.</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <p>Copyright © 2024 Speedpack Express Inc. All Rights Reserved. | Designed & Developed by <a href="https://www.linkedin.com/in/john-r-vazquez">John R Vazquez</a></p>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const items = document.querySelectorAll('.interactive-item');
+            items.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    const description = this.querySelector('.description');
+                    description.classList.add('active');
+                });
+                item.addEventListener('mouseleave', function() {
+                    const description = this.querySelector('.description');
+                    description.classList.remove('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
