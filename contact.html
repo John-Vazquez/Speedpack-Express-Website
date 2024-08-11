@@ -3,32 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us - Speedpack Express</title>
+    <title>Speedpack Express</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <nav>
         <div class="navbar-container">
-            <div class="navbar-title-container">
-                <div class="navbar-title">Speedpack</div>
-                <div class="express">Express</div>
-                <div class="navbar-subhead">Time-Critical Courier and Air Freight Logistics</div>
+            <div class="navbar-logo-container">
+                <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="navbar-logo">
+                <div class="navbar-title">
+                    <span class="speed">Speed</span><span class="pack">pack</span>
+                </div>
+                <div class="express-container">
+                    <span class="line"></span>
+                    <div class="express">Express</div>
+                    <span class="line"></span>
+                </div>
             </div>
-            <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="navbar-logo">
             <ul>
                 <li><a href="index.html">Home</a></li>
                 <li><a href="about.html">About</a></li>
                 <li><a href="services.html">Services</a></li>
-                <li><a href="contact.html">Contact</a></li>
+                <li class="dropdown">
+                    <a href="contact.html">Contact</a>
+                    <ul class="dropdown-content">
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="careers.html">Careers</a></li>
+                        <li><a href="support.html">Support</a></li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </nav>
-    <section class="content">
-        <h1>Contact Us</h1>
-        <p>If you have any questions or need further information, please feel free to contact us. We are here to assist you 24/7.</p>
-        <p>Email: support@speedpackexpress.com</p>
-        <p>Phone: (123) 456-7890</p>
+
+    
+    
+
+    <!-- Contact Form Section -->
+    <section class="contact-content">
+        <h2>Contact Information</h2>
+        <h3>Please fill out the form or use the phone number / email below. </h3>
+        <p>Email: Jv@speedpackexpress.com</p>
+        <p>Phone: 954-517-1942</p>
+        <p>Fax: 954-517-1855</p>
+        <form class="contact-form">
+            <div class="form-group">
+                <label for="fname">First Name *</label>
+                <input type="text" id="fname" name="firstname" required>
+            </div>
+            <div class="form-group">
+                <label for="lname">Last Name *</label>
+                <input type="text" id="lname" name="lastname" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="company">Company *</label>
+                <input type="text" id="company" name="company" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone *</label>
+                <input type="text" id="phone" name="phone" required>
+            </div>
+            <div class="form-group">
+                <label for="country">Country *</label>
+                <select id="country" name="country" required>
+                    <option value="" disabled selected>- Please Select -</option>
+                    <option value="usa">USA</option>
+                    <option value="canada">Canada</option>
+                    <!-- Add more countries as needed -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="question">Your Question *</label>
+                <textarea id="question" name="question" required></textarea>
+            </div>
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="agree" name="agree" required>
+                <label for="agree">I acknowledge that by clicking this button, I agree to the terms of the <a href="#">privacy policy</a>.</label>
+            </div>
+            <div class="form-group">
+                <button type="submit">Submit your request</button>
+            </div>
+        </form>
     </section>
+
     <footer>
         <p>Copyright © 2024 Speedpack Express Inc. All Rights Reserved. | Designed & Developed by <a href="https://www.linkedin.com/in/john-r-vazquez">John R Vazquez</a></p>
     </footer>
