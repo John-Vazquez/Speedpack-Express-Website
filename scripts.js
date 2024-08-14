@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Script loaded and running'); // Add this line
-    var path = window.location.pathname.split("/").pop(); // Get the current page file name
+    console.log('Script loaded and running');
+    var path = window.location.pathname.split("/").pop();
     if (path === '') {
-        path = 'index.html'; // Default to index.html if path is empty
+        path = 'index.html';
     }
     var navLinks = document.querySelectorAll('nav ul li a');
     navLinks.forEach(function(link) {
@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Handle navbar visibility on scroll
 let lastScrollTop = 0;
 const navbar = document.querySelector('nav');
 
@@ -24,3 +25,18 @@ window.addEventListener('scroll', function() {
     }
     lastScrollTop = scrollTop;
 });
+
+// EmailJS integration
+function sendEmail(form) {
+    emailjs.send("your_service_id", "your_template_id", {
+        from_name: form.firstname.value + " " + form.lastname.value,
+        to_name: "Speedpack Express",
+        message: form.question.value,
+        reply_to: form.email.value,
+        from_email: form.email.value,
+    }).then(function(response) {
+        alert('SUCCESS!', response.status, response.text);
+    }, function(error) {
+        alert('FAILED...', error);
+    });
+}

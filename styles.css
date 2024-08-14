@@ -420,7 +420,6 @@ footer p {
     margin-bottom: 10px; /* Move text up */
 }
 
-
 .contact-content {
     margin: 20px auto;
     margin-top: 150px;
@@ -493,4 +492,23 @@ footer p {
 
 .form-group button:hover {
     background-color: #003399; /* Darker background on hover */
+}
+
+/* Highlight the active page in the navbar */
+.navbar-container .dropdown-content a.active {
+    font-weight: bold;
+    color: #007bff; /* Adjust color to highlight the active page */
+}
+
+/* Adjustments for the message box */
+.message-box {
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    max-width: 80%;
+    margin: 20px auto;
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 300px; /* Ensure the white box appears below the navbar */
 }
