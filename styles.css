@@ -345,14 +345,15 @@ footer p {
     margin: 0;
 }
 
-/* About Us Page */
+
 /* About Us Page */
 .about-section {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
-    background-color: white;
+    background-color: rgba(0, 0, 0, 0.5); /* Transparent dark grey background */
+    color: white; /* White text */
     padding: 20px;
     position: relative;
     z-index: 1;
