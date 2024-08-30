@@ -1,0 +1,16 @@
+TOP PRIORITY BEFORE WEBSITE LAUNCH:
+
+1: (on hold until website launch) Change form to send to the proper email (jv@speedpackexpress.com)
+2: (on hold) Create capatcha security system for the contact page (cant do until website is launched)
+3: re-read for gramatical errors
+4. Create a references page that can be accessed in the support page.
+
+OTHER EDITS THAT CAN BE FIXED AFTER LAUNCH:
+
+1: Change hyperlinks to blue or another color that contrasts grey
+2: Create Carrers page with working resume uploads
+3: Create support page, and remove support page from navbar, instead have it located in the header.
+4: in services page, white background blocks out words in the "other section" so change the picture or edit text 
+color
+
+5: in services, change image of the special vehicles truck. does not match the asthetic of the page
