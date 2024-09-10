@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speedpack Express</title>
+    <title>Careers - Speedpack Express</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Add reCAPTCHA script -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
     <nav>
@@ -29,18 +31,59 @@
                     <a href="contact.html">Contact</a>
                     <ul class="dropdown-content">
                         <li><a href="contact.html">Contact Us</a></li>
-                        <li><a href="careers.html">Careers</a></li>
-                        <li><a href="support.html" class="active">Support</a></li>
+                        <li><a href="careers.html" class="active">Careers</a></li>
+                        <li><a href="support.html">Support</a></li>
                     </ul>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <!-- White Box with Message, placed right under the navbar -->
-    <section class="message-box">
-        <p>This page is currently down</p>
-        <p>Please use the "Contact Us" page to connect with us!</p>
+    <section class="form-section">
+        <div class="form-container">
+            <h2>Resume Submission Form</h2>
+            <form action="https://formspree.io/f/xzzpglan" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="name">Full Name:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number:</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="resume">Upload Resume:</label>
+                    <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
+                </div>
+                <div class="form-group">
+                    <label for="start-date">When can you start?</label>
+                    <input type="date" id="start-date" name="start-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="availability">Availability:</label>
+                    <select id="availability" name="availability" required>
+                        <option value="full-time">Full-Time</option>
+                        <option value="part-time">Part-Time</option>
+                        <option value="internship">Internship</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="message">Additional Comments:</label>
+                    <textarea id="message" name="message" rows="4" placeholder="Write any additional comments here..."></textarea>
+                </div>
+
+                <!-- Add the reCAPTCHA widget -->
+                <div class="g-recaptcha" data-sitekey="6LckKTIqAAAAAAgifqjIvk3dz1llg2--MXjTPaq6"></div>
+
+                <div class="form-group">
+                    <button type="submit" class="submit-btn">Submit</button>
+                </div>
+            </form>
+        </div>
     </section>
 
     <footer>

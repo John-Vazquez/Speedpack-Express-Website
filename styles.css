@@ -5,6 +5,11 @@ body, ul {
     list-style: none;
 }
 
+body, h1, h2, h3, h4, h5, h6, p {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
 body {
     font-family: 'Roboto', sans-serif;
     background: url('website images/airportphoto.png') no-repeat center center fixed; /* Add the background image */
@@ -16,7 +21,6 @@ body {
 
 nav {
     background-color: transparent;
-    padding: 10px 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: fixed; /* Fix position to the top */
     top: 0; /* Ensure it is at the top of the viewport */
@@ -24,6 +28,7 @@ nav {
     z-index: 10; /* Ensure it stays on top */
     transform: translateY(0); /* Initial state */
     transition: transform 0.3s ease-in-out; /* Add transition */
+    
 }
 
 /* Hide navbar when scrolled down */
@@ -51,29 +56,31 @@ nav {
 
 .navbar-title {
     font-size: 1.8em; /* Adjusted font size */
-    font-weight: bold; /* Bold text */
     text-align: center;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Shadow */
 }
 
 .navbar-title .speed {
     color: white; /* Yellow text for "Speed" */
+    font-family: 'Faster One', sans-serif;
 }
 
 .navbar-title .pack {
     color: white; /* White text for "pack" */
+    font-family: 'Faster One', sans-serif;
 }
 
 .express-container {
     display: flex;
     align-items: center;
     margin-top: 5px; /* Space between "Speedpack" and "Express" */
+    font-family: 'Faster One', sans-serif;
 }
 
 .express {
+    font-family: 'Faster One', sans-serif;
     color: white; 
-    font-size: 1.2em; 
-    font-weight: bold; 
+    font-size: 1.2em;  
     font-style: italic;
     text-align: center;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Shadow */
@@ -512,4 +519,57 @@ footer p {
     font-family: 'Roboto', sans-serif;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     margin-top: 300px; /* Ensure the white box appears below the navbar */
+}
+
+/* Resume Submission Form Section */
+.form-section {
+    margin: 20px auto;
+    margin-top: 150px;
+    background-color: #fff;
+    padding: 20px;
+    max-width: 800px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.form-container h2 {
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #0044cc;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+    background-color: #003399;
 }
