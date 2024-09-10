@@ -1,4 +1,13 @@
-/* Basic reset */
+/* HOMEPAGE CONTENT BEINGS HERE
+
+
+/////////////////////////////
+/////////////////////////////
+/////////////////////////////
+
+
+*/
+
 body, ul {
     margin: 0;
     padding: 0;
@@ -11,23 +20,36 @@ body, h1, h2, h3, h4, h5, h6, p {
 }
 
 body {
+    
     font-family: 'Roboto', sans-serif;
     background: url('website images/airportphoto.png') no-repeat center center fixed; /* Add the background image */
-    background-size: cover; /* Ensure the image covers the entire background */
+    background-size: cover;
     color: #333;
-    margin: 0; /* Remove margin */
-    padding: 0; /* Remove padding */
+    margin: 0; 
+    padding: 0; 
 }
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3); /* Grey overlay; adjust opacity for the effect */
+    z-index: -1; /* Ensures the overlay is below the content */
+}
+
 
 nav {
     background-color: transparent;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    position: fixed; /* Fix position to the top */
-    top: 0; /* Ensure it is at the top of the viewport */
-    width: 100%; /* Ensure nav bar spans the entire width */
-    z-index: 10; /* Ensure it stays on top */
-    transform: translateY(0); /* Initial state */
-    transition: transform 0.3s ease-in-out; /* Add transition */
+    position: fixed; 
+    top: 0; 
+    width: 100%; 
+    z-index: 10; 
+    transform: translateY(0); 
+    transition: transform 0.3s ease-in-out; 
     
 }
 
@@ -88,9 +110,9 @@ nav {
 }
 
 .line {
-    width: 50px; /* Adjust width as needed */
-    height: 2px; /* Adjust height as needed */
-    background-color: #fffb00; /* Yellow color */
+    width: 50px; 
+    height: 2px; 
+    background-color: #fffb00; 
 }
 
 nav ul {
@@ -250,13 +272,28 @@ nav ul li:hover .dropdown-content {
     background-color: #e5e500;
 }
 
-/* Services Page Styling */
 
-/* Services Boxes Styling */
+/* SERVICES PAGE BEGINS HERE
+
+///////////////////////////
+//////////////////////////
+////////////////////////////
+
+
+
+
+*/
+
+.content { /* Terrible name so for reference this is the area outside of the white box */
+    border: 2px solid #ccc; 
+    padding: 0 30px; 
+    box-sizing: border-box; 
+}
 
 .services-boxes {
     display: flex;
     flex-wrap: wrap;
+    border-radius: 10px;
     margin-top: 150px;
     justify-content: space-around;
     padding: 50px 20px;
