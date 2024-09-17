@@ -40,3 +40,21 @@ function sendEmail(form) {
         alert('FAILED...', error);
     });
 }
+
+
+//typing effect for homepage
+document.addEventListener('DOMContentLoaded', function () {
+    const text = "Let us handle your time critical logistics in South Florida.";
+    const typingElement = document.querySelector('.typing-text');
+    let index = 0;
+
+    function type() {
+        if (index < text.length) {
+            typingElement.textContent += text.charAt(index);
+            index++;
+            setTimeout(type, 100); // Adjust typing speed if needed
+        }
+    }
+
+    type();
+});

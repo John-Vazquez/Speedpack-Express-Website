@@ -14,3 +14,5 @@ OTHER EDITS THAT CAN BE FIXED AFTER LAUNCH:
 color
 
 5: in services, change image of the special vehicles truck. does not match the asthetic of the page
+
+6. Remove animal delivery
