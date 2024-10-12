@@ -297,6 +297,8 @@ nav ul li:hover .dropdown-content {
     box-sizing: border-box; 
 }
 
+
+
 .services-boxes {
     display: flex;
     flex-wrap: wrap;
@@ -320,30 +322,38 @@ nav ul li:hover .dropdown-content {
     color: white; /* Adjust text color for better visibility */
 }
 
-/* Different background images for each service box */
-.service-box:nth-child(1) {
-    background-image: url('website images/airplaneimageforservicespage.jpg');
+.services-title{
+    font-size:60px;
+    text-align:center;
+    margin-left:300px;
+    margin-right:300px;
 }
 
 .service-box:nth-child(2) {
-    background-image: url('website images/medicaldelivery.jpeg');
+    background-image: url('website images/airplaneimageforservicespage.jpg');
 }
 
 .service-box:nth-child(3) {
-    background-image: url('website images/dryiceboxpic.jpeg');
+    background-image: url('website images/medicaldelivery.jpeg');
 }
 
 .service-box:nth-child(4) {
-    background-image: url('website images/yellowboxtruckimage.jpeg');
+    background-image: url('website images/dryiceboxpic.jpeg');
 }
 
 .service-box:nth-child(5) {
-    background-image: url('website images/warehouseimage.jpg');
+    background-image: url('website images/yellowboxtruckimage.jpeg');
 }
 
 .service-box:nth-child(6) {
+    background-image: url('website images/warehouseimage.jpg');
+}
+
+.service-box:nth-child(7) {
     background-image: url('website images/shakinghandsimage.jpg');
 }
+
+
 
 .service-box h2 {
     font-size: 1.5em;
