@@ -7,25 +7,40 @@
   <link rel="stylesheet" href="styles.css" />
   <style>
     .dashboard {
-      padding: 100px 20px;
+      padding: 50px 20px;
       background: #f4f4f9;
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     .dashboard h1 {
       text-align: center;
       margin-bottom: 30px;
     }
+    .stats-container {
+      display: flex;
+      justify-content: space-between;
+      width: 90%;
+      max-width: 1200px;
+    }
     .stats-section {
-      margin: 30px auto;
-      max-width: 800px;
+      width: 48%;
       background: white;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     .stats-section h2 {
-      margin-bottom: 20px;
       text-align: center;
+      margin-bottom: 10px;
+    }
+    .count {
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
     }
     table {
       width: 100%;
@@ -38,6 +53,16 @@
     }
     th {
       background-color: #f4f40c;
+    }
+    @media (max-width: 768px) {
+      .stats-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .stats-section {
+        width: 100%;
+        margin-bottom: 20px;
+      }
     }
   </style>
 </head>
@@ -73,73 +98,84 @@
   </nav>
   <section class="dashboard">
     <h1>Bot Dashboard</h1>
-    <div class="stats-section">
-      <h2>Successful Uploads</h2>
-      <table id="success-table">
-        <thead>
-          <tr>
-            <th>Date & Time</th>
-            <th>Job Number</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Successful upload data rows will be injected here -->
-        </tbody>
-      </table>
-    </div>
-    <div class="stats-section">
-      <h2>Failed Uploads</h2>
-      <table id="failure-table">
-        <thead>
-          <tr>
-            <th>Date & Time</th>
-            <th>Job Number</th>
-            <th>Error Reason</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Failed upload data rows will be injected here -->
-        </tbody>
-      </table>
+    <div class="stats-container">
+      <div class="stats-section">
+        <h2>Successful Uploads</h2>
+        <div class="count" id="success-count">(0)</div>
+        <table id="success-table">
+          <thead>
+            <tr>
+              <th>Date & Time</th>
+              <th>Job Number</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="stats-section">
+        <h2>Failed Uploads</h2>
+        <div class="count" id="failure-count">(0)</div>
+        <table id="failure-table">
+          <thead>
+            <tr>
+              <th>Date & Time</th>
+              <th>Job Number</th>
+              <th>Error Reason</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
   </section>
+
   <script>
     function fetchLogs() {
-    fetch("https://speedpack-express-website-backend.onrender.com/api/search")
-    .then(response => response.json())
-    .then(data => {
-        updateTables(data);
-    })
-    .catch(error => console.error("Error fetching logs:", error));
-}
+      fetch("https://speedpack-express-website-backend.onrender.com/api/search")
+      .then(response => response.json())
+      .then(data => {
+          updateTables(data);
+      })
+      .catch(error => console.error("Error fetching logs:", error));
+    }
 
-function updateTables(logs) {
-    const successTable = document.getElementById("success-table").querySelector("tbody");
-    const failureTable = document.getElementById("failure-table").querySelector("tbody");
+    function updateTables(logs) {
+      const successTable = document.getElementById("success-table").querySelector("tbody");
+      const failureTable = document.getElementById("failure-table").querySelector("tbody");
+      const successCount = document.getElementById("success-count");
+      const failureCount = document.getElementById("failure-count");
 
-    // Clear old data
-    successTable.innerHTML = "";
-    failureTable.innerHTML = "";
+      // Clear old data
+      successTable.innerHTML = "";
+      failureTable.innerHTML = "";
 
-    logs.forEach(log => {
-        const row = document.createElement("tr");
+      let successCounter = 0;
+      let failureCounter = 0;
 
-        if (log.status === "success") {
-            row.innerHTML = `<td>${new Date(log.dateTime).toLocaleString()}</td><td>${log.jobNumber}</td>`;
-            successTable.appendChild(row);
-        } else if (log.status === "failure") {
-            row.innerHTML = `<td>${new Date(log.dateTime).toLocaleString()}</td><td>${log.jobNumber}</td><td>${log.error}</td>`;
-            failureTable.appendChild(row);
-        }
-    });
-}
+      logs.forEach(log => {
+          const row = document.createElement("tr");
 
-// Fetch logs every 5 seconds
-setInterval(fetchLogs, 5000);
+          if (log.status === "success") {
+              row.innerHTML = `<td>${new Date(log.dateTime).toLocaleString()}</td><td>${log.jobNumber}</td>`;
+              successTable.appendChild(row);
+              successCounter++;
+          } else if (log.status === "failure") {
+              row.innerHTML = `<td>${new Date(log.dateTime).toLocaleString()}</td><td>${log.jobNumber}</td><td>${log.error}</td>`;
+              failureTable.appendChild(row);
+              failureCounter++;
+          }
+      });
 
-// Initial load
-fetchLogs();
+      // Update counters
+      successCount.textContent = `(${successCounter})`;
+      failureCount.textContent = `(${failureCounter})`;
+    }
 
+    // Fetch logs every 5 seconds
+    setInterval(fetchLogs, 5000);
+
+    // Initial load
+    fetchLogs();
   </script>
 </body>
 </html>
