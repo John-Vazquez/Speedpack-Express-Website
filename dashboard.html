@@ -78,7 +78,7 @@
       <table id="success-table">
         <thead>
           <tr>
-            <th>Date &amp; Time</th>
+            <th>Date & Time</th>
             <th>Job Number</th>
           </tr>
         </thead>
@@ -92,7 +92,7 @@
       <table id="failure-table">
         <thead>
           <tr>
-            <th>Date &amp; Time</th>
+            <th>Date & Time</th>
             <th>Job Number</th>
             <th>Error Reason</th>
           </tr>
@@ -104,31 +104,45 @@
     </div>
   </section>
   <script>
-    // Sample data—replace with your dynamic data from an API or database integration
-    const successfulUploads = [
-      { dateTime: "2024-04-01 10:00", jobNumber: "001" },
-      { dateTime: "2024-04-02 11:30", jobNumber: "002" }
-    ];
-    const failedUploads = [
-      { dateTime: "2024-04-03 09:15", jobNumber: "003", error: "Network Error" },
-      { dateTime: "2024-04-04 14:45", jobNumber: "004", error: "Authentication Failed" }
-    ];
+    async function fetchLogs() {
+        try {
+            const response = await fetch("https://speedpack-express-website-backend.onrender.com/api/search?jobNumber=TEST123");
+            const logs = await response.json();
+            console.log(logs); // Debugging output
 
-    function populateTable(tableId, data, columns) {
-      const tbody = document.getElementById(tableId).querySelector('tbody');
-      data.forEach(item => {
-        const row = document.createElement('tr');
-        columns.forEach(col => {
-          const cell = document.createElement('td');
-          cell.textContent = item[col];
-          row.appendChild(cell);
-        });
-        tbody.appendChild(row);
-      });
+            let successTable = document.getElementById("success-table").querySelector('tbody');
+            let failureTable = document.getElementById("failure-table").querySelector('tbody');
+
+            successTable.innerHTML = '';  // Clear previous data
+            failureTable.innerHTML = '';  
+
+            logs.forEach(log => {
+                let row = document.createElement("tr");
+                let dateCell = document.createElement("td");
+                let jobCell = document.createElement("td");
+
+                dateCell.textContent = new Date(log.dateTime).toLocaleString();
+                jobCell.textContent = log.jobNumber;
+
+                row.appendChild(dateCell);
+                row.appendChild(jobCell);
+
+                if (log.status === "success") {
+                    successTable.appendChild(row);
+                } else {
+                    let errorCell = document.createElement("td");
+                    errorCell.textContent = log.error || "Unknown Error";
+                    row.appendChild(errorCell);
+                    failureTable.appendChild(row);
+                }
+            });
+
+        } catch (error) {
+            console.error("Error fetching logs:", error);
+        }
     }
 
-    populateTable('success-table', successfulUploads, ['dateTime', 'jobNumber']);
-    populateTable('failure-table', failedUploads, ['dateTime', 'jobNumber', 'error']);
+    document.addEventListener("DOMContentLoaded", fetchLogs);
   </script>
 </body>
 </html>
