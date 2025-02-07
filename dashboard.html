@@ -104,45 +104,42 @@
     </div>
   </section>
   <script>
-    async function fetchLogs() {
-        try {
-            const response = await fetch("https://speedpack-express-website-backend.onrender.com/api/search?jobNumber=TEST123");
-            const logs = await response.json();
-            console.log(logs); // Debugging output
+    function fetchLogs() {
+    fetch("https://speedpack-express-website-backend.onrender.com/api/search")
+    .then(response => response.json())
+    .then(data => {
+        updateTables(data);
+    })
+    .catch(error => console.error("Error fetching logs:", error));
+}
 
-            let successTable = document.getElementById("success-table").querySelector('tbody');
-            let failureTable = document.getElementById("failure-table").querySelector('tbody');
+function updateTables(logs) {
+    const successTable = document.getElementById("success-table").querySelector("tbody");
+    const failureTable = document.getElementById("failure-table").querySelector("tbody");
 
-            successTable.innerHTML = '';  // Clear previous data
-            failureTable.innerHTML = '';  
+    // Clear old data
+    successTable.innerHTML = "";
+    failureTable.innerHTML = "";
 
-            logs.forEach(log => {
-                let row = document.createElement("tr");
-                let dateCell = document.createElement("td");
-                let jobCell = document.createElement("td");
+    logs.forEach(log => {
+        const row = document.createElement("tr");
 
-                dateCell.textContent = new Date(log.dateTime).toLocaleString();
-                jobCell.textContent = log.jobNumber;
-
-                row.appendChild(dateCell);
-                row.appendChild(jobCell);
-
-                if (log.status === "success") {
-                    successTable.appendChild(row);
-                } else {
-                    let errorCell = document.createElement("td");
-                    errorCell.textContent = log.error || "Unknown Error";
-                    row.appendChild(errorCell);
-                    failureTable.appendChild(row);
-                }
-            });
-
-        } catch (error) {
-            console.error("Error fetching logs:", error);
+        if (log.status === "success") {
+            row.innerHTML = `<td>${new Date(log.dateTime).toLocaleString()}</td><td>${log.jobNumber}</td>`;
+            successTable.appendChild(row);
+        } else if (log.status === "failure") {
+            row.innerHTML = `<td>${new Date(log.dateTime).toLocaleString()}</td><td>${log.jobNumber}</td><td>${log.error}</td>`;
+            failureTable.appendChild(row);
         }
-    }
+    });
+}
 
-    document.addEventListener("DOMContentLoaded", fetchLogs);
+// Fetch logs every 5 seconds
+setInterval(fetchLogs, 5000);
+
+// Initial load
+fetchLogs();
+
   </script>
 </body>
 </html>
