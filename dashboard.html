@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bot Dashboard - Speedpack Express</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .dashboard {
+      padding: 100px 20px;
+      background: #f4f4f9;
+      min-height: 100vh;
+    }
+    .dashboard h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .stats-section {
+      margin: 30px auto;
+      max-width: 800px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .stats-section h2 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f4f40c;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="navbar-container">
+      <div class="navbar-logo-container">
+        <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="navbar-logo" />
+        <div class="navbar-title">
+          <span class="speed">Speed</span><span class="pack">pack</span>
+        </div>
+        <div class="express-container">
+          <span class="line"></span>
+          <div class="express">Express</div>
+          <span class="line"></span>
+        </div>
+      </div>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li class="dropdown">
+          <a href="contact.html">Contact</a>
+          <ul class="dropdown-content">
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="support.html">Support</a></li>
+          </ul>
+        </li>
+        <li><a href="login.html">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+  <section class="dashboard">
+    <h1>Bot Dashboard</h1>
+    <div class="stats-section">
+      <h2>Successful Uploads</h2>
+      <table id="success-table">
+        <thead>
+          <tr>
+            <th>Date &amp; Time</th>
+            <th>Job Number</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Successful upload data rows will be injected here -->
+        </tbody>
+      </table>
+    </div>
+    <div class="stats-section">
+      <h2>Failed Uploads</h2>
+      <table id="failure-table">
+        <thead>
+          <tr>
+            <th>Date &amp; Time</th>
+            <th>Job Number</th>
+            <th>Error Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Failed upload data rows will be injected here -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <script>
+    // Sample data—replace with your dynamic data from an API or database integration
+    const successfulUploads = [
+      { dateTime: "2024-04-01 10:00", jobNumber: "001" },
+      { dateTime: "2024-04-02 11:30", jobNumber: "002" }
+    ];
+    const failedUploads = [
+      { dateTime: "2024-04-03 09:15", jobNumber: "003", error: "Network Error" },
+      { dateTime: "2024-04-04 14:45", jobNumber: "004", error: "Authentication Failed" }
+    ];
+
+    function populateTable(tableId, data, columns) {
+      const tbody = document.getElementById(tableId).querySelector('tbody');
+      data.forEach(item => {
+        const row = document.createElement('tr');
+        columns.forEach(col => {
+          const cell = document.createElement('td');
+          cell.textContent = item[col];
+          row.appendChild(cell);
+        });
+        tbody.appendChild(row);
+      });
+    }
+
+    populateTable('success-table', successfulUploads, ['dateTime', 'jobNumber']);
+    populateTable('failure-table', failedUploads, ['dateTime', 'jobNumber', 'error']);
+  </script>
+</body>
+</html>
