@@ -147,13 +147,22 @@
   </section>
 
   <script>
-    function fetchLogs() {
-      fetch("https://speedpack-express-website-backend.onrender.com/api/search")
-      .then(response => response.json())
-      .then(data => {
-          updateTables(data);
-      })
-      .catch(error => console.error("Error fetching logs:", error));
+    async function fetchLogs() {
+      try {
+        const response = await fetch("https://speedpack-express-website-backend.onrender.com/api/search");
+        const logs = await response.json();
+
+        console.log("Fetched logs:", logs); // Debugging console log
+
+        if (!logs || logs.length === 0) {
+          console.log("No logs found.");
+          return;
+        }
+
+        updateTables(logs);
+      } catch (error) {
+        console.error("Error fetching logs:", error);
+      }
     }
 
     function updateTables(logs) {
@@ -170,17 +179,20 @@
       let failureCounter = 0;
 
       logs.forEach(log => {
-          const row = document.createElement("tr");
+        const row = document.createElement("tr");
+        let dateTime = new Date(log.dateTime).toLocaleString();
+        let jobNumber = log.jobNumber;
 
-          if (log.status === "success") {
-              row.innerHTML = `<td>${new Date(log.dateTime).toLocaleString()}</td><td>${log.jobNumber}</td>`;
-              successTable.appendChild(row);
-              successCounter++;
-          } else if (log.status === "failure") {
-              row.innerHTML = `<td>${new Date(log.dateTime).toLocaleString()}</td><td>${log.jobNumber}</td><td>${log.error}</td>`;
-              failureTable.appendChild(row);
-              failureCounter++;
-          }
+        if (log.status === "success") {
+          row.innerHTML = `<td>${dateTime}</td><td>${jobNumber}</td>`;
+          successTable.appendChild(row);
+          successCounter++;
+        } else if (log.status === "failure") {
+          let errorReason = log.error || "Unknown Error";
+          row.innerHTML = `<td>${dateTime}</td><td>${jobNumber}</td><td>${errorReason}</td>`;
+          failureTable.appendChild(row);
+          failureCounter++;
+        }
       });
 
       // Update counters
