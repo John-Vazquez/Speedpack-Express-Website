@@ -149,13 +149,14 @@
   <script>
     async function fetchLogs() {
       try {
-        const response = await fetch("https://speedpack-express-website-backend.onrender.com/api/search");
-        const logs = await response.json();
+        const response = await fetch("https://speedpack-express-website-backend.onrender.com/api/logs"); // ✅ Fetch all logs
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
+        const logs = await response.json();
         console.log("Fetched logs:", logs); // Debugging console log
 
-        if (!logs || logs.length === 0) {
-          console.log("No logs found.");
+        if (!Array.isArray(logs)) {
+          console.error("Invalid data format received:", logs);
           return;
         }
 
