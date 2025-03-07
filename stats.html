@@ -2,15 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Performance Stats - Speedpack Express</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
+    /* Inline CSS for demonstration */
     body {
       background: url('website images/airportphoto.png') no-repeat center center fixed;
       background-size: cover;
+      font-family: Arial, sans-serif;
     }
-
     .stats-page {
       padding: 100px 20px;
       min-height: 100vh;
@@ -18,7 +19,6 @@
       flex-direction: column;
       align-items: center;
     }
-
     .stats-page h1 {
       text-align: center;
       margin-bottom: 30px;
@@ -26,7 +26,6 @@
       padding: 10px 20px;
       border-radius: 10px;
     }
-
     .stats-container {
       display: flex;
       flex-wrap: wrap;
@@ -35,7 +34,6 @@
       width: 90%;
       max-width: 1200px;
     }
-
     .stats-box {
       width: 300px;
       background: white;
@@ -44,11 +42,9 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       text-align: center;
     }
-
     .stats-box h2 {
       margin-bottom: 10px;
     }
-
     .back-button {
       display: inline-block;
       margin-bottom: 20px;
@@ -61,13 +57,25 @@
       border-radius: 5px;
       transition: background-color 0.3s ease;
     }
-
     .back-button:hover {
       background-color: #0056b3;
+    }
+    form {
+      margin-top: 30px;
+      background: rgba(255,255,255,0.8);
+      padding: 20px;
+      border-radius: 10px;
+    }
+    form input,
+    form button {
+      margin: 5px;
+      padding: 5px;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
+  <!-- Navigation (simplified) -->
   <nav>
     <div class="navbar-container">
       <div class="navbar-logo-container">
@@ -75,24 +83,12 @@
         <div class="navbar-title">
           <span class="speed">Speed</span><span class="pack">pack</span>
         </div>
-        <div class="express-container">
-          <span class="line"></span>
-          <div class="express">Express</div>
-          <span class="line"></span>
-        </div>
       </div>
       <ul>
         <li><a href="index.html">Home</a></li>
         <li><a href="about.html">About</a></li>
         <li><a href="services.html">Services</a></li>
-        <li class="dropdown">
-          <a href="contact.html">Contact</a>
-          <ul class="dropdown-content">
-            <li><a href="contact.html">Contact Us</a></li>
-            <li><a href="careers.html">Careers</a></li>
-            <li><a href="support.html">Support</a></li>
-          </ul>
-        </li>
+        <li><a href="contact.html">Contact</a></li>
         <li><a href="login.html">Logout</a></li>
       </ul>
     </div>
@@ -102,47 +98,100 @@
     <a href="dashboard-home.html" class="back-button">Back to Dashboard Home</a>
     <h1>Performance Stats</h1>
     <div class="stats-container">
-      <div class="stats-box">
+      <!-- Each box has a unique ID that matches the lowercased category (with spaces replaced by dashes) plus "-box" -->
+      <div class="stats-box" id="tenders-box">
         <h2>Tenders</h2>
-        <p>Total Successful Uploads: 0</p>
-        <p>Total Failed Uploads: 0</p>
+        <p class="successful">Total Successful Uploads: 0</p>
+        <p class="failed">Total Failed Uploads: 0</p>
       </div>
-      <div class="stats-box">
+      <div class="stats-box" id="locals-box">
         <h2>Locals</h2>
-        <p>Total Successful Uploads: 0</p>
-        <p>Total Failed Uploads: 0</p>
+        <p class="successful">Total Successful Uploads: 0</p>
+        <p class="failed">Total Failed Uploads: 0</p>
       </div>
-      <div class="stats-box">
+      <div class="stats-box" id="drives-box">
         <h2>Drives</h2>
-        <p>Total Successful Uploads: 0</p>
-        <p>Total Failed Uploads: 0</p>
+        <p class="successful">Total Successful Uploads: 0</p>
+        <p class="failed">Total Failed Uploads: 0</p>
       </div>
-      <div class="stats-box">
+      <div class="stats-box" id="transfers-box">
         <h2>Transfers</h2>
-        <p>Total Successful Uploads: 0</p>
-        <p>Total Failed Uploads: 0</p>
+        <p class="successful">Total Successful Uploads: 0</p>
+        <p class="failed">Total Failed Uploads: 0</p>
       </div>
-      <div class="stats-box">
+      <div class="stats-box" id="airspace-tenders-box">
         <h2>Airspace Tenders</h2>
-        <p>Total Successful Uploads: 0</p>
-        <p>Total Failed Uploads: 0</p>
+        <p class="successful">Total Successful Uploads: 0</p>
+        <p class="failed">Total Failed Uploads: 0</p>
       </div>
-      <div class="stats-box">
+      <div class="stats-box" id="airspace-locals-box">
         <h2>Airspace Locals</h2>
-        <p>Total Successful Uploads: 0</p>
-        <p>Total Failed Uploads: 0</p>
+        <p class="successful">Total Successful Uploads: 0</p>
+        <p class="failed">Total Failed Uploads: 0</p>
       </div>
-      <div class="stats-box">
+      <div class="stats-box" id="airspace-drives-box">
         <h2>Airspace Drives</h2>
-        <p>Total Successful Uploads: 0</p>
-        <p>Total Failed Uploads: 0</p>
+        <p class="successful">Total Successful Uploads: 0</p>
+        <p class="failed">Total Failed Uploads: 0</p>
       </div>
-      <div class="stats-box">
+      <div class="stats-box" id="airspace-transfers-box">
         <h2>Airspace Transfers</h2>
-        <p>Total Successful Uploads: 0</p>
-        <p>Total Failed Uploads: 0</p>
+        <p class="successful">Total Successful Uploads: 0</p>
+        <p class="failed">Total Failed Uploads: 0</p>
       </div>
     </div>
+
+    <!-- Optional: A form to update stats from the frontend -->
+    <form id="updateForm">
+      <input type="text" name="category" placeholder="Category (e.g., Tenders)" required>
+      <input type="number" name="successful_uploads" placeholder="Successful Uploads" required>
+      <input type="number" name="failed_uploads" placeholder="Failed Uploads" required>
+      <button type="submit">Update Stats</button>
+    </form>
   </section>
+
+  <script>
+    // When the page loads, fetch performance stats from the backend
+    window.addEventListener('load', function() {
+      fetch('https://speedpack-express-website-backend.onrender.com/api/performance-stats')
+        .then(response => response.json())
+        .then(data => {
+          data.forEach(stat => {
+            // Convert the category name to lowercase and replace spaces with dashes,
+            // then append '-box' to match the HTML element's ID.
+            const elementId = stat.category.toLowerCase().replace(/\s+/g, '-') + '-box';
+            const box = document.getElementById(elementId);
+            if (box) {
+              box.querySelector('.successful').textContent = 'Total Successful Uploads: ' + stat.successful_uploads;
+              box.querySelector('.failed').textContent = 'Total Failed Uploads: ' + stat.failed_uploads;
+            }
+          });
+        })
+        .catch(error => console.error('Error fetching performance stats:', error));
+    });
+
+    // Optional: Form to update performance stats via the frontend
+    document.getElementById('updateForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = {
+        category: formData.get('category'),
+        successful_uploads: parseInt(formData.get('successful_uploads'), 10),
+        failed_uploads: parseInt(formData.get('failed_uploads'), 10)
+      };
+      fetch('https://speedpack-express-website-backend.onrender.com/api/update-performance-stats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(result => {
+        alert(result.message || result.error);
+        // Reload page to fetch updated stats
+        location.reload();
+      })
+      .catch(err => console.error('Error updating stats:', err));
+    });
+  </script>
 </body>
 </html>
