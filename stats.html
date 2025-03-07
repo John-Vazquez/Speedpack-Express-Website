@@ -2,195 +2,176 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>Performance Stats & Log Job - Speedpack Express</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Performance Stats - Speedpack Express</title>
-  <link rel="stylesheet" href="styles.css" />
   <style>
-    /* Inline CSS for demonstration */
+    /* Basic styling */
     body {
-      background: url('website images/airportphoto.png') no-repeat center center fixed;
-      background-size: cover;
       font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 20px;
     }
-    .stats-page {
-      padding: 100px 20px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
     }
-    .stats-page h1 {
+    .stats-section, .form-section {
+      background: #fff;
+      margin-bottom: 40px;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .stats-section h1, .form-section h2 {
       text-align: center;
-      margin-bottom: 30px;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 10px 20px;
-      border-radius: 10px;
+      margin-bottom: 20px;
     }
     .stats-container {
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
       gap: 20px;
-      width: 90%;
-      max-width: 1200px;
+      justify-content: center;
     }
     .stats-box {
-      width: 300px;
-      background: white;
+      background: #e8e8e8;
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      width: 250px;
       text-align: center;
     }
     .stats-box h2 {
       margin-bottom: 10px;
     }
-    .back-button {
-      display: inline-block;
-      margin-bottom: 20px;
-      padding: 10px 15px;
-      background-color: #007bff;
-      color: white;
-      text-decoration: none;
-      font-size: 16px;
+    .stats-box p {
+      margin: 5px 0;
       font-weight: bold;
-      border-radius: 5px;
-      transition: background-color 0.3s ease;
     }
-    .back-button:hover {
-      background-color: #0056b3;
+    .form-section form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 500px;
+      margin: 0 auto;
     }
-    form {
-      margin-top: 30px;
-      background: rgba(255,255,255,0.8);
-      padding: 20px;
-      border-radius: 10px;
-    }
-    form input,
-    form button {
-      margin: 5px;
-      padding: 5px;
+    .form-section input,
+    .form-section textarea,
+    .form-section button {
+      padding: 10px;
       font-size: 16px;
+    }
+    .form-section button {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
     }
   </style>
 </head>
 <body>
-  <!-- Navigation (simplified) -->
-  <nav>
-    <div class="navbar-container">
-      <div class="navbar-logo-container">
-        <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="navbar-logo" />
-        <div class="navbar-title">
-          <span class="speed">Speed</span><span class="pack">pack</span>
+  <div class="container">
+    <!-- Performance Stats Section -->
+    <section class="stats-section">
+      <h1>Performance Stats</h1>
+      <div class="stats-container">
+        <!-- Each box has a unique ID based on its category.
+             For example, "Tenders" becomes "tenders-box" and 
+             "Airspace Tenders" becomes "airspace-tenders-box". -->
+        <div class="stats-box" id="tenders-box">
+          <h2>Tenders</h2>
+          <p class="successful">Successful: 0</p>
+          <p class="failed">Failed: 0</p>
         </div>
+        <div class="stats-box" id="locals-box">
+          <h2>Locals</h2>
+          <p class="successful">Successful: 0</p>
+          <p class="failed">Failed: 0</p>
+        </div>
+        <div class="stats-box" id="drives-box">
+          <h2>Drives</h2>
+          <p class="successful">Successful: 0</p>
+          <p class="failed">Failed: 0</p>
+        </div>
+        <div class="stats-box" id="transfers-box">
+          <h2>Transfers</h2>
+          <p class="successful">Successful: 0</p>
+          <p class="failed">Failed: 0</p>
+        </div>
+        <div class="stats-box" id="airspace-tenders-box">
+          <h2>Airspace Tenders</h2>
+          <p class="successful">Successful: 0</p>
+          <p class="failed">Failed: 0</p>
+        </div>
+        <!-- Add more boxes as needed -->
       </div>
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="services.html">Services</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li><a href="login.html">Logout</a></li>
-      </ul>
-    </div>
-  </nav>
+    </section>
 
-  <section class="stats-page">
-    <a href="dashboard-home.html" class="back-button">Back to Dashboard Home</a>
-    <h1>Performance Stats</h1>
-    <div class="stats-container">
-      <!-- Each box has a unique ID that matches the lowercased category (with spaces replaced by dashes) plus "-box" -->
-      <div class="stats-box" id="tenders-box">
-        <h2>Tenders</h2>
-        <p class="successful">Total Successful Uploads: 0</p>
-        <p class="failed">Total Failed Uploads: 0</p>
-      </div>
-      <div class="stats-box" id="locals-box">
-        <h2>Locals</h2>
-        <p class="successful">Total Successful Uploads: 0</p>
-        <p class="failed">Total Failed Uploads: 0</p>
-      </div>
-      <div class="stats-box" id="drives-box">
-        <h2>Drives</h2>
-        <p class="successful">Total Successful Uploads: 0</p>
-        <p class="failed">Total Failed Uploads: 0</p>
-      </div>
-      <div class="stats-box" id="transfers-box">
-        <h2>Transfers</h2>
-        <p class="successful">Total Successful Uploads: 0</p>
-        <p class="failed">Total Failed Uploads: 0</p>
-      </div>
-      <div class="stats-box" id="airspace-tenders-box">
-        <h2>Airspace Tenders</h2>
-        <p class="successful">Total Successful Uploads: 0</p>
-        <p class="failed">Total Failed Uploads: 0</p>
-      </div>
-      <div class="stats-box" id="airspace-locals-box">
-        <h2>Airspace Locals</h2>
-        <p class="successful">Total Successful Uploads: 0</p>
-        <p class="failed">Total Failed Uploads: 0</p>
-      </div>
-      <div class="stats-box" id="airspace-drives-box">
-        <h2>Airspace Drives</h2>
-        <p class="successful">Total Successful Uploads: 0</p>
-        <p class="failed">Total Failed Uploads: 0</p>
-      </div>
-      <div class="stats-box" id="airspace-transfers-box">
-        <h2>Airspace Transfers</h2>
-        <p class="successful">Total Successful Uploads: 0</p>
-        <p class="failed">Total Failed Uploads: 0</p>
-      </div>
-    </div>
-
-    <!-- Optional: A form to update stats from the frontend -->
-    <form id="updateForm">
-      <input type="text" name="category" placeholder="Category (e.g., Tenders)" required>
-      <input type="number" name="successful_uploads" placeholder="Successful Uploads" required>
-      <input type="number" name="failed_uploads" placeholder="Failed Uploads" required>
-      <button type="submit">Update Stats</button>
-    </form>
-  </section>
+    <!-- Log Job Form Section -->
+    <section class="form-section">
+      <h2>Log a Job</h2>
+      <form id="logJobForm">
+        <input type="text" name="jobNumber" placeholder="Job Number" required>
+        <input type="text" name="dateTime" placeholder="Date & Time" required>
+        <textarea name="status" placeholder="Status message (e.g., success or error message)" required></textarea>
+        <input type="text" name="category" placeholder="Category (e.g., Tenders or Airspace Tenders)" required>
+        <button type="submit">Log Job</button>
+      </form>
+    </section>
+  </div>
 
   <script>
-    // When the page loads, fetch performance stats from the backend
-    window.addEventListener('load', function() {
-      fetch('https://speedpack-express-website-backend.onrender.com/api/performance-stats')
+    // Set your backend URL (update if different)
+    const backendURL = 'https://speedpack-express-website-backend.onrender.com';
+
+    // Function to fetch and update performance stats from the backend
+    function fetchPerformanceStats() {
+      fetch(backendURL + '/api/performance-stats')
         .then(response => response.json())
         .then(data => {
           data.forEach(stat => {
-            // Convert the category name to lowercase and replace spaces with dashes,
-            // then append '-box' to match the HTML element's ID.
+            // Convert category to lowercase and replace spaces with dashes,
+            // then append '-box' to match the HTML ID.
             const elementId = stat.category.toLowerCase().replace(/\s+/g, '-') + '-box';
             const box = document.getElementById(elementId);
             if (box) {
-              box.querySelector('.successful').textContent = 'Total Successful Uploads: ' + stat.successful_uploads;
-              box.querySelector('.failed').textContent = 'Total Failed Uploads: ' + stat.failed_uploads;
+              box.querySelector('.successful').textContent = 'Successful: ' + stat.successful_uploads;
+              box.querySelector('.failed').textContent = 'Failed: ' + stat.failed_uploads;
             }
           });
         })
-        .catch(error => console.error('Error fetching performance stats:', error));
-    });
+        .catch(err => console.error('Error fetching performance stats:', err));
+    }
 
-    // Optional: Form to update performance stats via the frontend
-    document.getElementById('updateForm').addEventListener('submit', function(e) {
+    // Call fetchPerformanceStats when the page loads
+    window.addEventListener('load', fetchPerformanceStats);
+
+    // Handle Log Job form submission
+    document.getElementById('logJobForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const formData = new FormData(e.target);
-      const data = {
-        category: formData.get('category'),
-        successful_uploads: parseInt(formData.get('successful_uploads'), 10),
-        failed_uploads: parseInt(formData.get('failed_uploads'), 10)
+      const jobData = {
+        jobNumber: formData.get('jobNumber'),
+        dateTime: formData.get('dateTime'),
+        status: formData.get('status'),
+        category: formData.get('category')
       };
-      fetch('https://speedpack-express-website-backend.onrender.com/api/update-performance-stats', {
+
+      // Log the job by sending a POST request to the backend
+      fetch(backendURL + '/api/log-job', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body: JSON.stringify(jobData)
       })
       .then(response => response.json())
-      .then(result => {
-        alert(result.message || result.error);
-        // Reload page to fetch updated stats
-        location.reload();
+      .then(data => {
+        alert(data.message || data.error);
+        // Refresh performance stats after logging a job
+        fetchPerformanceStats();
+        // Optionally reset the form
+        e.target.reset();
       })
-      .catch(err => console.error('Error updating stats:', err));
+      .catch(err => console.error('Error logging job:', err));
     });
   </script>
 </body>
