@@ -174,10 +174,9 @@
     </div>
   </section>
 
- <script>
+  <script>
   const LOGS_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/logs";
   const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRicGN1aW1ieGRxbGtucXZwbWJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NjAxNjIsImV4cCI6MjA3MDQzNjE2Mn0.5O_hoeXuR4tLPMBWwveUTHUCQ9WbJTsiAZr4iwPcdMg";
-
 
   const searchInput = document.getElementById("searchJob");
   const rangeSelect = document.getElementById("timeRange");
@@ -188,63 +187,79 @@
     return null;
   }
 
-  // simple debounce so we don’t spam while typing
   function debounce(fn, ms = 300) {
     let t; 
     return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
   }
 
-  async function fetchLogs() {
+  async function fetchList(status) {
+    const params = new URLSearchParams({ status, limit: "500" });
+    const s = searchInput?.value?.trim();
+    const since = isoSince(rangeSelect?.value);
+    if (s) params.set("search", s);
+    if (since) params.set("since", since);
+
+    const res = await fetch(`${LOGS_URL}?${params.toString()}`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${ANON_KEY}` }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json(); // { items, successCount, failureCount } (counts may be 0 when filtered)
+  }
+
+  async function refresh() {
     try {
-      const params = new URLSearchParams({ status: "failure", limit: "500" });
-      const s = searchInput?.value?.trim();
-      const since = isoSince(rangeSelect?.value);
-
-      if (s) params.set("search", s);      // server does ILIKE %search%
-      if (since) params.set("since", since);
-
-      const res = await fetch(`${LOGS_URL}?${params.toString()}`, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${ANON_KEY}` }
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      const { items, successCount, failureCount } = await res.json();
-      updateTables(items, { successCount, failureCount });
+      const [fail, succ] = await Promise.all([
+        fetchList("failure"),
+        fetchList("success")
+      ]);
+      updateFailureTable(fail.items || []);
+      updateSuccessTable(succ.items || []);
+      // show counts based on what we actually rendered
+      document.getElementById("failure-count").textContent  = `(${(fail.items || []).length})`;
+      document.getElementById("success-count").textContent  = `(${(succ.items || []).length})`;
     } catch (err) {
       console.error("Error fetching logs:", err);
     }
   }
 
-  function updateTables(logs, counts) {
-    document.getElementById("success-count").textContent = `(${counts?.successCount ?? 0})`;
-    document.getElementById("failure-count").textContent = `(${counts?.failureCount ?? 0})`;
-
+  function updateFailureTable(logs) {
     const tbody = document.querySelector("#failure-table tbody");
     tbody.innerHTML = "";
-    (logs || []).forEach((log) => {
+    logs.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+    logs.forEach(log => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-  <td>${log.job_number}</td>
-  <td>${new Date(log.created_at).toLocaleString()}</td>
-  <td>${log.error_reason ?? "Unknown Error"}</td>
-`;
+        <td>${log.job_number}</td>
+        <td>${new Date(log.created_at).toLocaleString()}</td>
+        <td>${log.error_reason ?? "Unknown Error"}</td>
+      `;
       tbody.appendChild(tr);
     });
-
-    // keep the success table empty; you only care about failures
-    document.querySelector("#success-table tbody").innerHTML = "";
   }
 
-  // listeners
-  const refetchDebounced = debounce(fetchLogs, 300);
-  if (searchInput) searchInput.addEventListener("input", refetchDebounced);
-  if (rangeSelect) rangeSelect.addEventListener("change", fetchLogs);
+  function updateSuccessTable(logs) {
+    const tbody = document.querySelector("#success-table tbody");
+    tbody.innerHTML = "";
+    logs.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+    logs.forEach(log => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${log.job_number}</td>
+        <td>${new Date(log.created_at).toLocaleString()}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
 
-  // poll so the view stays fresh, using current filters
-  setInterval(fetchLogs, 5000);
-  fetchLogs();
+  const refetchDebounced = debounce(refresh, 300);
+  if (searchInput)  searchInput.addEventListener("input", refetchDebounced);
+  if (rangeSelect)  rangeSelect.addEventListener("change", refresh);
+
+  setInterval(refresh, 5000);
+  refresh();
 </script>
+
 
 
 </body>
