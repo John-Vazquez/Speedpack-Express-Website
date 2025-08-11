@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Upload Activity - Speedpack Express</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      background: url('website images/airportphoto.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .dashboard {
+      padding: 100px 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .dashboard h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 10px 20px;
+      border-radius: 10px;
+    }
+
+    .stats-container {
+      display: flex;
+      justify-content: space-between;
+      width: 90%;
+      max-width: 1200px;
+    }
+
+    .stats-section {
+      width: 48%;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .stats-section h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .count {
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f4f40c;
+    }
+
+    .back-button {
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .back-button:hover {
+      background-color: #0056b3;
+    }
+
+    @media (max-width: 768px) {
+      .stats-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .stats-section {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="navbar-container">
+      <div class="navbar-logo-container">
+        <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="navbar-logo" />
+        <div class="navbar-title">
+          <span class="speed">Speed</span><span class="pack">pack</span>
+        </div>
+        <div class="express-container">
+          <span class="line"></span>
+          <div class="express">Express</div>
+          <span class="line"></span>
+        </div>
+      </div>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li class="dropdown">
+          <a href="contact.html">Contact</a>
+          <ul class="dropdown-content">
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="support.html">Support</a></li>
+          </ul>
+        </li>
+        <li><a href="login.html">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+  
+  <section class="dashboard">
+    <!-- Back Button Added Here -->
+    <a href="speedpack_online.html" class="back-button">Back to Speedpack Online</a>
+
+    <h1>Live Upload Activity</h1>
+    <div class="stats-container">
+      <div class="stats-section">
+        <h2>Successful Uploads</h2>
+        <div class="count" id="success-count">(0)</div>
+        <table id="success-table">
+          <thead>
+            <tr>
+              <th>Job Number</th>
+              <th>Date & Time</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="stats-section">
+        <h2>Failed Uploads</h2>
+        <div class="filters" style="display:flex;gap:10px;justify-content:center;align-items:center;margin:10px 0 5px;">
+  <input id="searchJob" type="text" placeholder="Search job #…" style="padding:8px 10px;border:1px solid #ccc;border-radius:6px;min-width:220px;">
+  <select id="timeRange" style="padding:8px 10px;border:1px solid #ccc;border-radius:6px;">
+    <option value="all">All time</option>
+    <option value="24h">Last 24h</option>
+    <option value="7d">Last 7 days</option>
+  </select>
+</div>
+        <div class="count" id="failure-count">(0)</div>
+        <table id="failure-table">
+          <thead>
+            <tr>
+              <th>Job Number</th>
+              <th>Date & Time</th>
+              <th>Error Reason</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+ <script>
+  const LOGS_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/logs";
+  const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRicGN1aW1ieGRxbGtucXZwbWJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NjAxNjIsImV4cCI6MjA3MDQzNjE2Mn0.5O_hoeXuR4tLPMBWwveUTHUCQ9WbJTsiAZr4iwPcdMg";
+
+
+  const searchInput = document.getElementById("searchJob");
+  const rangeSelect = document.getElementById("timeRange");
+
+  function isoSince(range) {
+    if (range === "24h") return new Date(Date.now() - 24*3600*1000).toISOString();
+    if (range === "7d")  return new Date(Date.now() - 7*24*3600*1000).toISOString();
+    return null;
+  }
+
+  // simple debounce so we don’t spam while typing
+  function debounce(fn, ms = 300) {
+    let t; 
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+  }
+
+  async function fetchLogs() {
+    try {
+      const params = new URLSearchParams({ status: "failure", limit: "500" });
+      const s = searchInput?.value?.trim();
+      const since = isoSince(rangeSelect?.value);
+
+      if (s) params.set("search", s);      // server does ILIKE %search%
+      if (since) params.set("since", since);
+
+      const res = await fetch(`${LOGS_URL}?${params.toString()}`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${ANON_KEY}` }
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const { items, successCount, failureCount } = await res.json();
+      updateTables(items, { successCount, failureCount });
+    } catch (err) {
+      console.error("Error fetching logs:", err);
+    }
+  }
+
+  function updateTables(logs, counts) {
+    document.getElementById("success-count").textContent = `(${counts?.successCount ?? 0})`;
+    document.getElementById("failure-count").textContent = `(${counts?.failureCount ?? 0})`;
+
+    const tbody = document.querySelector("#failure-table tbody");
+    tbody.innerHTML = "";
+    (logs || []).forEach((log) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+  <td>${log.job_number}</td>
+  <td>${new Date(log.created_at).toLocaleString()}</td>
+  <td>${log.error_reason ?? "Unknown Error"}</td>
+`;
+      tbody.appendChild(tr);
+    });
+
+    // keep the success table empty; you only care about failures
+    document.querySelector("#success-table tbody").innerHTML = "";
+  }
+
+  // listeners
+  const refetchDebounced = debounce(fetchLogs, 300);
+  if (searchInput) searchInput.addEventListener("input", refetchDebounced);
+  if (rangeSelect) rangeSelect.addEventListener("change", fetchLogs);
+
+  // poll so the view stays fresh, using current filters
+  setInterval(fetchLogs, 5000);
+  fetchLogs();
+</script>
+
+
+</body>
+</html>
