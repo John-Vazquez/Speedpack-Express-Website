@@ -6,97 +6,159 @@
   <title>Live Upload Activity - Speedpack Express</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
-    body {
-      background: url('website images/airportphoto.png') no-repeat center center fixed;
-      background-size: cover;
-    }
+    /* ===== Page background ===== */
+body {
+  background: url('website images/airportphoto.png') no-repeat center center fixed;
+  background-size: cover;
+}
 
-    .dashboard {
-      padding: 100px 20px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+/* ===== Layout ===== */
+.dashboard {
+  padding: 100px 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-    .dashboard h1 {
-      text-align: center;
-      margin-bottom: 30px;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 10px 20px;
-      border-radius: 10px;
-    }
+.dashboard h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 10px 20px;
+  border-radius: 10px;
+}
 
-    .stats-container {
-      display: flex;
-      justify-content: space-between;
-      width: 90%;
-      max-width: 1200px;
-    }
+.stats-container {
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
+  max-width: 1200px;
+  gap: 20px;
+}
 
-    .stats-section {
-      width: 48%;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
+.stats-section {
+  width: 48%;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-    .stats-section h2 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
+.stats-section h2 {
+  text-align: center;
+  margin-bottom: 10px;
+}
 
-    .count {
-      text-align: center;
-      font-size: 18px;
-      font-weight: bold;
-      color: #333;
-      margin-bottom: 10px;
-    }
+.count {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+/* ===== Tables ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
-    th, td {
-      padding: 10px;
-      text-align: center;
-      border-bottom: 1px solid #ddd;
-    }
+th, td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
 
-    th {
-      background-color: #f4f40c;
-    }
+th {
+  background-color: #f4f40c;
+}
 
-    .back-button {
-      display: inline-block;
-      margin-bottom: 20px;
-      padding: 10px 15px;
-      background-color: #007bff;
-      color: white;
-      text-decoration: none;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 5px;
-      transition: background-color 0.3s ease;
-    }
+/* Action column should be narrow and not wrap */
+th.actions, td.actions {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
 
-    .back-button:hover {
-      background-color: #0056b3;
-    }
+/* ===== Back button ===== */
+.back-button {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+.back-button:hover {
+  background-color: #0056b3;
+}
 
-    @media (max-width: 768px) {
-      .stats-container {
-        flex-direction: column;
-        align-items: center;
-      }
-      .stats-section {
-        width: 100%;
-        margin-bottom: 20px;
-      }
-    }
+/* ===== Trash icon button (hidden until hover) ===== */
+#failure-table tbody .del-btn,
+#success-table  tbody .del-btn {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .15s ease-in-out;
+}
+
+/* Show on row hover */
+#failure-table tbody tr:hover .del-btn,
+#success-table  tbody tr:hover .del-btn {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Icon look */
+.icon-btn {
+  background: transparent;
+  border: 0;
+  padding: 6px;
+  margin-left: 6px;
+  line-height: 0;
+  cursor: pointer;
+  border-radius: 6px;
+  color: #9aa1a6;         /* default icon color */
+}
+.icon-btn svg {
+  width: 16px;
+  height: 16px;
+}
+.icon-btn:hover,
+.icon-btn:focus-visible {
+  outline: none;
+  background: rgba(209, 26, 42, .08);
+  color: #d11a2a;         /* red on hover */
+}
+
+/* ===== Mobile: stack columns; show icons (no hover on touch) ===== */
+@media (max-width: 768px) {
+  .stats-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  .stats-section {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}
+@media (hover: none) {
+  #failure-table tbody .del-btn,
+  #success-table  tbody .del-btn {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
+
+
+
   </style>
 </head>
 <body>
@@ -138,12 +200,22 @@
     <div class="stats-container">
       <div class="stats-section">
         <h2>Successful Uploads</h2>
+        <div class="filters" style="display:flex;gap:10px;justify-content:center;align-items:center;margin:10px 0 5px;">
+        <input id="searchJobSuccess" type="text" placeholder="Search job #…" style="padding:8px 10px;border:1px solid #ccc;border-radius:6px;min-width:220px;">
+        <select id="timeRangeSuccess" style="padding:8px 10px;border:1px solid #ccc;border-radius:6px;">
+            <option value="all">All time</option>
+            <option value="24h">Last 24h</option>
+            <option value="7d">Last 7 days</option>
+        </select>
+        </div>
+
         <div class="count" id="success-count">(0)</div>
         <table id="success-table">
           <thead>
             <tr>
               <th>Job Number</th>
               <th>Date & Time</th>
+              <th></th> <!-- actions -->
             </tr>
           </thead>
           <tbody></tbody>
@@ -166,6 +238,7 @@
               <th>Job Number</th>
               <th>Date & Time</th>
               <th>Error Reason</th>
+              <th></th> <!-- actions -->
             </tr>
           </thead>
           <tbody></tbody>
@@ -174,91 +247,152 @@
     </div>
   </section>
 
-  <script>
+ <script>
+  // === CONFIG ===
   const LOGS_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/logs";
   const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRicGN1aW1ieGRxbGtucXZwbWJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NjAxNjIsImV4cCI6MjA3MDQzNjE2Mn0.5O_hoeXuR4tLPMBWwveUTHUCQ9WbJTsiAZr4iwPcdMg";
+  const BOT_API_KEY = "gR2u3p9z-7Qk1-48dD-9xYY-2mJpP4"; // same one you set in the Edge Function
 
-  const searchInput = document.getElementById("searchJob");
-  const rangeSelect = document.getElementById("timeRange");
+  // === HELPERS ===
+  const searchSuccess = document.getElementById("searchJobSuccess");
+  const rangeSuccess  = document.getElementById("timeRangeSuccess");
+  const searchFail    = document.getElementById("searchJob");
+  const rangeFail     = document.getElementById("timeRange");
 
-  function isoSince(range) {
-    if (range === "24h") return new Date(Date.now() - 24*3600*1000).toISOString();
-    if (range === "7d")  return new Date(Date.now() - 7*24*3600*1000).toISOString();
+  function isoSince(v) {
+    if (v === "24h") return new Date(Date.now()-24*3600*1000).toISOString();
+    if (v === "7d")  return new Date(Date.now()-7*24*3600*1000).toISOString();
     return null;
   }
 
-  function debounce(fn, ms = 300) {
-    let t; 
-    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
-  }
+  function debounce(fn, ms=300){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
 
-  async function fetchList(status) {
-    const params = new URLSearchParams({ status, limit: "500" });
-    const s = searchInput?.value?.trim();
-    const since = isoSince(rangeSelect?.value);
+  async function fetchLogsOnce(status, searchEl, rangeEl, limit=500) {
+    const params = new URLSearchParams({ status, limit: String(limit) });
+    const s = searchEl?.value?.trim();
+    const since = isoSince(rangeEl?.value);
     if (s) params.set("search", s);
     if (since) params.set("since", since);
 
-    const res = await fetch(`${LOGS_URL}?${params.toString()}`, {
-      method: "GET",
+    const res = await fetch(`${LOGS_URL}?${params}`, {
       headers: { Authorization: `Bearer ${ANON_KEY}` }
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json(); // { items, successCount, failureCount } (counts may be 0 when filtered)
+    return res.json(); // { items, successCount, failureCount }
   }
 
-  async function refresh() {
+  async function fetchAll() {
     try {
-      const [fail, succ] = await Promise.all([
-        fetchList("failure"),
-        fetchList("success")
+      const [succ, fail] = await Promise.all([
+        fetchLogsOnce("success", searchSuccess, rangeSuccess),
+        fetchLogsOnce("failure", searchFail, rangeFail)
       ]);
-      updateFailureTable(fail.items || []);
-      updateSuccessTable(succ.items || []);
-      // show counts based on what we actually rendered
-      document.getElementById("failure-count").textContent  = `(${(fail.items || []).length})`;
-      document.getElementById("success-count").textContent  = `(${(succ.items || []).length})`;
-    } catch (err) {
-      console.error("Error fetching logs:", err);
+      updateSuccessTable(succ.items);
+      updateFailureTable(fail.items);
+
+      // keep your counters (last 7d from backend)
+      document.getElementById("success-count").textContent = `(${succ.successCount ?? 0})`;
+      document.getElementById("failure-count").textContent = `(${fail.failureCount ?? 0})`;
+    } catch (e) {
+      console.error("Error fetching logs:", e);
     }
   }
 
-  function updateFailureTable(logs) {
-    const tbody = document.querySelector("#failure-table tbody");
-    tbody.innerHTML = "";
-    logs.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-    logs.forEach(log => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${log.job_number}</td>
-        <td>${new Date(log.created_at).toLocaleString()}</td>
-        <td>${log.error_reason ?? "Unknown Error"}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
+  function rowHtmlSuccess(log) {
+  const dt = new Date(log.created_at).toLocaleString();
+  return `
+    <tr data-id="${log.id}">
+      <td>${log.job_number}</td>
+      <td>${dt}</td>
+      <td class="actions">
+        <button class="icon-btn del-btn" data-id="${log.id}" title="Delete" aria-label="Delete">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 3h6M5 7h14M7 7v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V7M10 11v6M14 11v6"
+                  fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </td>
+    </tr>
+  `;
+}
 
-  function updateSuccessTable(logs) {
+
+  function rowHtmlFailure(log) {
+  const dt = new Date(log.created_at).toLocaleString();
+  return `
+    <tr data-id="${log.id}">
+      <td>${log.job_number}</td>
+      <td>${dt}</td>
+      <td>${log.error_reason ?? "Unknown Error"}</td>
+      <td class="actions">
+        <button class="icon-btn del-btn" data-id="${log.id}" title="Delete" aria-label="Delete">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 3h6M5 7h14M7 7v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V7M10 11v6M14 11v6"
+                  fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </td>
+    </tr>
+  `;
+}
+
+
+  function updateSuccessTable(items) {
     const tbody = document.querySelector("#success-table tbody");
-    tbody.innerHTML = "";
-    logs.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-    logs.forEach(log => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${log.job_number}</td>
-        <td>${new Date(log.created_at).toLocaleString()}</td>
-      `;
-      tbody.appendChild(tr);
-    });
+    tbody.innerHTML = (items || []).map(rowHtmlSuccess).join("");
   }
 
-  const refetchDebounced = debounce(refresh, 300);
-  if (searchInput)  searchInput.addEventListener("input", refetchDebounced);
-  if (rangeSelect)  rangeSelect.addEventListener("change", refresh);
+  function updateFailureTable(items) {
+    const tbody = document.querySelector("#failure-table tbody");
+    tbody.innerHTML = (items || []).map(rowHtmlFailure).join("");
+  }
 
-  setInterval(refresh, 5000);
-  refresh();
+  // === DELETE ===
+  async function deleteLog(id) {
+    if (!id) return;
+    try {
+      const res = await fetch(`${LOGS_URL}/${id}`, {
+        method: "DELETE",
+        headers: {
+          "x-api-key": BOT_API_KEY,
+          Authorization: `Bearer ${ANON_KEY}`
+        }
+      });
+      if (!res.ok) {
+        const t = await res.text();
+        throw new Error(`Delete failed: ${res.status} ${t}`);
+      }
+      // Remove the row immediately
+      const tr = document.querySelector(`tr[data-id="${id}"]`);
+      if (tr) tr.remove();
+    } catch (e) {
+      console.error(e);
+      alert("Delete failed. Check BOT_API_KEY / function deploy.");
+    }
+  }
+
+  // Delegate clicks for any delete buttons (works for both tables)
+  document.addEventListener("click", (ev) => {
+    const btn = ev.target.closest(".del-btn");
+    if (!btn) return;
+    const id = btn.getAttribute("data-id");
+    deleteLog(id);
+  });
+
+  // === LISTENERS ===
+  const refetch = debounce(fetchAll, 300);
+  searchSuccess?.addEventListener("input", refetch);
+  rangeSuccess?.addEventListener("change", fetchAll);
+  searchFail?.addEventListener("input", refetch);
+  rangeFail?.addEventListener("change", fetchAll);
+
+  // === POLL ===
+  setInterval(fetchAll, 5000);
+  fetchAll();
 </script>
+
 
 
 

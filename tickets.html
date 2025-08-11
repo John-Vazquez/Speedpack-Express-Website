@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Tickets - Speedpack Express</title>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+  body { background:url('website images/airportphoto.png') no-repeat center center fixed; background-size:cover; }
+  .dashboard { padding:100px 20px; min-height:100vh; display:flex; flex-direction:column; align-items:center; }
+  .dashboard h1 { text-align:center; margin-bottom:20px; background:rgba(255,255,255,.85); padding:10px 20px; border-radius:10px; }
+  .card { width:90%; max-width:1200px; background:#fff; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,.12); padding:18px; }
+  .form-row { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+  .form-row input, .form-row textarea { flex:1 1 220px; padding:10px 12px; border:1px solid #ccc; border-radius:8px; }
+  .form-row textarea { min-height:80px; }
+  .btn { border:0; padding:10px 14px; border-radius:8px; background:#2563eb; color:#fff; font-weight:600; cursor:pointer; }
+  .btn:hover { filter:brightness(.95); }
+  .table-wrap { margin-top:14px; border:1px solid #eee; border-radius:10px; overflow:hidden; }
+  table { width:100%; border-collapse:collapse; }
+  thead th { background:#f4f40c; text-align:left; padding:10px 12px; font-weight:700; }
+  tbody td { border-top:1px solid #eee; padding:10px 12px; vertical-align:middle; }
+  tbody tr { background:#fff; }
+  tbody tr:hover { background:#fafafa; }
+  /* action icons only on hover */
+  td.actions { width:1%; white-space:nowrap; }
+  .icon-btn { border:0; background:transparent; cursor:pointer; padding:4px; margin-left:6px; opacity:0; transform:translateY(2px); transition:opacity .15s ease; }
+  tbody tr:hover .icon-btn { opacity:1; }
+  .icon { width:18px; height:18px; display:inline-block; vertical-align:middle; }
+  .pill { display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700; background:#eef2ff; }
+  .pill.submitted { color:#3730a3; }
+  .pill.under_review { color:#92400e; background:#fff7ed; }
+  /* modal */
+  .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:40; }
+  .modal { background:#fff; width:min(600px,90%); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.25); padding:18px; }
+  .modal h3 { margin:0 0 8px 0; }
+  .modal .close { float:right; border:0; background:transparent; font-size:22px; cursor:pointer; }
+  @media (hover:none){ .icon-btn{opacity:1;} }
+</style>
+</head>
+<body>
+  <nav>
+    <div class="navbar-container">
+      <div class="navbar-logo-container">
+        <img src="website images/speedpacklogo2.png" class="navbar-logo" alt="Speedpack Express Logo"/>
+        <div class="navbar-title"><span class="speed">Speed</span><span class="pack">pack</span></div>
+        <div class="express-container"><span class="line"></span><div class="express">Express</div><span class="line"></span></div>
+      </div>
+      <ul>
+        <li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li class="dropdown">
+          <a href="contact.html">Contact</a>
+          <ul class="dropdown-content">
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="support.html">Support</a></li>
+          </ul>
+        </li>
+        <li><a href="login.html">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="dashboard">
+    <h1>Tickets</h1>
+
+    <div class="card">
+      <!-- Submit form -->
+      <form id="ticketForm">
+        <div class="form-row">
+          <input id="submitter" type="text" placeholder="Your name (required)" required />
+          <input id="jobNumber" type="text" placeholder="Job number (required)" required />
+        </div>
+        <div class="form-row">
+          <textarea id="notes" placeholder="Additional notes (optional)"></textarea>
+        </div>
+        <div class="form-row">
+          <button class="btn" type="submit">Submit Ticket</button>
+        </div>
+      </form>
+
+      <!-- List -->
+      <div class="table-wrap">
+        <table id="ticketsTable">
+          <thead>
+            <tr>
+              <th style="width:110px;">Ticket #</th>
+              <th>Job Number</th>
+              <th>Submitted By</th>
+              <th>Status</th>
+              <th style="width:90px;"></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Notes Modal -->
+  <div id="notesModal" class="modal-backdrop">
+    <div class="modal">
+      <button class="close" aria-label="Close">&times;</button>
+      <h3>Ticket Notes</h3>
+      <div id="notesBody" style="white-space:pre-wrap;"></div>
+    </div>
+  </div>
+
+<script>
+/* ===== CONFIG ===== */
+const TICKETS_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/tickets";
+const BOT_API_KEY = "gR2u3p9z-7Qk1-48dD-9xYY-2mJpP4";
+const ANON_KEY    = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRicGN1aW1ieGRxbGtucXZwbWJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NjAxNjIsImV4cCI6MjA3MDQzNjE2Mn0.5O_hoeXuR4tLPMBWwveUTHUCQ9WbJTsiAZr4iwPcdMg";
+
+/* also put them on window so the Console always sees them */
+window.TICKETS_URL = TICKETS_URL;
+window.BOT_API_KEY = BOT_API_KEY;
+window.ANON_KEY    = ANON_KEY;
+
+console.log("tickets script loaded");
+
+
+
+
+  const form = document.getElementById('ticketForm');
+  const tb   = document.querySelector('#ticketsTable tbody');
+
+  async function listTickets() {
+    const res = await fetch(TICKETS_URL, { headers: { Authorization: `Bearer ${ANON_KEY}` } });
+    if (!res.ok) { console.error('GET failed', res.status); return; }
+    const { items } = await res.json();
+    renderRows(items || []);
+  }
+
+  function pill(status){
+    const cls = status.replace(/\s+/g, '_');
+    return `<span class="pill ${cls}">${status}</span>`;
+  }
+
+  function rowHTML(t) {
+    const dt = new Date(t.created_at).toLocaleString();
+    return `
+      <tr data-id="${t.id}" data-notes="${(t.notes||'').replace(/"/g,'&quot;')}">
+        <td>#${t.id}</td>
+        <td>${t.job_number}</td>
+        <td>${t.submitter}</td>
+        <td>${pill(t.status)}</td>
+        <td class="actions" style="text-align:right;">
+          <!-- Review -->
+          <button class="icon-btn act-review" title="Mark Under Review">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-width="2" d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20z"/>
+              <path stroke-width="2" d="M8 12l2.8 2.8L16 9"/>
+            </svg>
+          </button>
+          <!-- Notes -->
+          <button class="icon-btn act-notes" title="View Notes">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-width="2" d="M4 4h12l4 4v12H4z"/>
+              <path stroke-width="2" d="M16 4v4h4"/>
+              <path stroke-width="2" d="M7 12h10M7 16h10M7 8h5"/>
+            </svg>
+          </button>
+          <!-- Delete -->
+          <button class="icon-btn act-del" title="Delete">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-width="2" d="M3 6h18"/>
+              <path stroke-width="2" d="M8 6v14a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6"/>
+              <path stroke-width="2" d="M10 6V4h4v2"/>
+            </svg>
+          </button>
+        </td>
+      </tr>
+    `;
+  }
+
+  function renderRows(items) {
+    tb.innerHTML = items.map(rowHTML).join("");
+  }
+
+  // Create ticket
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitter = document.getElementById('submitter').value.trim();
+    const job_number = document.getElementById('jobNumber').value.trim();
+    const notes = document.getElementById('notes').value.trim();
+    if (!submitter || !job_number) return alert("Name and Job Number are required.");
+
+    const res = await fetch(TICKETS_URL, {
+      method: "POST",
+      headers: {
+        "content-type":"application/json",
+        "x-api-key": BOT_API_KEY,
+        Authorization: `Bearer ${ANON_KEY}`
+      },
+      body: JSON.stringify({ submitter, job_number, notes })
+    });
+    if (!res.ok) {
+      const t = await res.text();
+      return alert("Create failed: " + t);
+    }
+    form.reset();
+    listTickets();
+  });
+
+  // Row actions (review / notes / delete)
+  document.addEventListener('click', async (e) => {
+    const reviewBtn = e.target.closest('.act-review');
+    const notesBtn  = e.target.closest('.act-notes');
+    const delBtn    = e.target.closest('.act-del');
+    if (!reviewBtn && !notesBtn && !delBtn) return;
+
+    const tr = e.target.closest('tr');
+    const id = tr?.getAttribute('data-id');
+
+    // Review -> set status to under_review
+    if (reviewBtn) {
+      const res = await fetch(`${TICKETS_URL}/${id}`, {
+        method: "PATCH",
+        headers: { "content-type":"application/json", "x-api-key": BOT_API_KEY, Authorization: `Bearer ${ANON_KEY}` },
+        body: JSON.stringify({ status: "under_review" })
+      });
+      if (!res.ok) return alert("Update failed");
+      listTickets();
+      return;
+    }
+
+    // Notes -> modal
+    if (notesBtn) {
+      showNotes(tr?.getAttribute('data-notes') || "");
+      return;
+    }
+
+    // Delete
+    if (delBtn) {
+      if (!confirm("Delete this ticket?")) return;
+      const res = await fetch(`${TICKETS_URL}/${id}`, {
+        method: "DELETE",
+        headers: { "x-api-key": BOT_API_KEY, Authorization: `Bearer ${ANON_KEY}` }
+      });
+      if (!res.ok) return alert("Delete failed");
+      tr.remove();
+      return;
+    }
+  });
+
+  // Notes modal
+  const modal = document.getElementById('notesModal');
+  const notesBody = document.getElementById('notesBody');
+  function showNotes(text){ notesBody.textContent = text || "(no notes)"; modal.style.display="flex"; }
+  modal.addEventListener('click', (e)=>{ if (e.target === modal || e.target.classList.contains('close')) modal.style.display="none"; });
+
+  // initial load + poll
+  listTickets();
+  setInterval(listTickets, 10000);
+</script>
+</body>
+</html>
