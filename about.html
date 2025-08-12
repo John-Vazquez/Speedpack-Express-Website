@@ -1,99 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us - Speedpack Express</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us - Speedpack Express</title>
+
+  <link rel="stylesheet" href="styles.css">
+  <style>
+  /* Match Services logo styling, but with WHITE bars */
+  nav .navbar-title{
+    font-size: 1.7rem;      /* same visual scale as Services */
+    line-height: 1;
+  }
+  nav .express-container{
+    display: flex;
+    align-items: center;
+    gap: 8px;               /* spacing between bars and "Express" */
+    margin-top: 6px;
+  }
+  nav .express{
+    font-size: 1rem;
+    font-style: normal;     /* Services look (remove italic) */
+    letter-spacing: .18em;
+    text-transform: uppercase;
+  }
+  nav .line{
+    width: 64px;
+    height: 2px;
+    background: #fff !important;               /* <- white bars */
+    box-shadow: 0 0 6px rgba(255,255,255,.45); /* subtle glow */
+  }
+</style>
+
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  
+
+  <style>
+    /* ===== Page base + sticky footer ===== */
+    html, body { height: 100%; margin: 0; }
+    body {
+      display: flex; flex-direction: column;
+      font-family: 'Roboto', sans-serif;
+      background: url('website images/airportphoto.png') no-repeat center center fixed;
+      background-size: cover; color: #fff;
+    }
+    body::before { content:""; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:-1; }
+    main { flex: 1 0 auto; } /* no padding here – spacer handles clearance */
+
+    footer { background:#333; color:#fff; text-align:center; padding:18px 0; }
+    footer a { color:#9dc4ff; text-decoration:none; }
+    footer a:hover { text-decoration:underline; }
+
+    /* ===== NAVBAR (centered logo, right menu, stable dropdown) ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: transparent; box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    }
+    .navbar-container {
+      display:flex; align-items:center; justify-content:center;
+      position:relative; height:70px; padding:6px 20px;
+    }
+    .navbar-logo-container { display:flex; flex-direction:column; align-items:center; margin:0 auto; }
+    .navbar-logo { height:40px; margin-bottom:5px; }
+    .navbar-title { font-size:1.8em; text-shadow:2px 2px 4px rgba(0,0,0,.5); }
+    .navbar-title .speed, .navbar-title .pack { color:#fff; font-family:'Faster One', sans-serif; }
+    .express-container { display:flex; align-items:center; margin-top:5px; font-family:'Faster One', sans-serif; }
+    .express { color:#fff; font-size:1.2em; font-style:italic; margin:0 10px; text-shadow:2px 2px 4px rgba(0,0,0,.5); }
+    .line { width:50px; height:2px; background:#fffb00; }
+
+    /* right-side menu */
+    nav ul {
+      position:absolute; right:20px; top:0; bottom:0;
+      display:flex; align-items:center; gap:10px;
+      list-style:none; margin:0; padding:0;
+    }
+    nav ul li { position:relative; }
+    nav ul li a{
+      display:block; padding:8px 10px; font-size:18px; font-weight:700;
+      color:#f8f8f9; text-decoration:none; transition:background-color .3s,color .3s;
+    }
+    nav ul li a.active{ border-bottom:2px solid #f8f8f9; }
+    nav ul li a:hover{ background:rgba(0,0,0,.3); color:#fff; }
+
+    /* dropdown under Contact */
+    nav ul li.dropdown .dropdown-content{
+      display:none; position:absolute; top:100%; left:0; margin-top:6px;
+      min-width:220px; background:rgba(0,0,0,.8);
+      box-shadow:0 8px 16px rgba(0,0,0,.2); z-index:2000;
+    }
+    .dropdown-content a{ color:#fff; padding:12px 16px; display:block; }
+    .dropdown-content a:hover{ background:rgba(255,255,255,.08); }
+    nav ul li:hover > .dropdown-content,
+    nav ul li:focus-within > .dropdown-content { display:block; }
+
+    /* ===== ABOUT GRID (tight, balanced) ===== */
+    .about-wrap{ max-width: 1200px; margin: 0 auto; padding: 0 24px 32px; }
+    .about-grid{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+
+    .about-card{
+      background: rgba(0,0,0,.55);
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.25);
+      padding: 22px;
+      display: grid; grid-template-columns: 90px 1fr; gap: 16px;
+      transition: transform .2s ease, box-shadow .2s ease;
+      backdrop-filter: blur(2px);
+    }
+    .about-card:hover{ transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,.35); }
+    .about-card.span-2 { grid-column: 1 / -1; } /* full-width bottom card */
+
+    .about-logo { width: 90px; height: auto; align-self: start; }
+    .about-card h3{ margin: 0 0 8px; font-size: 1.8rem; }
+    .about-card p { margin: 0; font-size: .95rem; line-height: 1.6; color:#f1f1f1; }
+
+    /* Responsive stack */
+    @media (max-width: 900px){
+      .about-grid{ grid-template-columns: 1fr; gap: 14px; }
+      .about-card{ grid-template-columns: 70px 1fr; }
+      .about-logo{ width: 70px; }
+    }
+
+    /* ===== About page: NEVER overlap navbar ===== */
+    .about-main{ padding-top: 0 !important; }
+    .nav-spacer{ height: calc(var(--nav-height, 96px) + 16px); } /* fallback if var not set */
+    .about-main > .about-wrap{ margin-top: 0 !important; padding-top: 0 !important; }
+  </style>
 </head>
 <body>
-    <nav>
-        <div class="navbar-container">
-            <div class="navbar-logo-container">
-                <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="navbar-logo">
-                <div class="navbar-title">
-                    <span class="speed">Speed</span><span class="pack">pack</span>
-                </div>
-                <div class="express-container">
-                    <span class="line"></span>
-                    <div class="express">Express</div>
-                    <span class="line"></span>
-                </div>
-            </div>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html" class="active">About</a></li>
-                <li><a href="services.html">Services</a></li>
-                <li class="dropdown">
-                    <a href="contact.html">Contact</a>
-                    <ul class="dropdown-content">
-                        <li><a href="contact.html">Contact Us</a></li>
-                        <li><a href="careers.html">Careers</a></li>
-                        <li><a href="support.html">Support</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </nav>
 
-    <section class="about-section left">
-        <div class="about-logo-container">
-            <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="about-logo">
-        </div>
-        <div class="about-content">
-            <div class="about-text">
-                <h2>About Us</h2>
-                <p>Speedpack Express, Inc. was founded in 2000 by logistics professionals with over 25 years 
-                    in the industry. We started out by providing ground transportation in Miami and 
-                    Ft. Lauderdale for courier companies and freight forwarders across the nation, growing 
-                    steadily through trial and error—arguably the best teachers. Over a decade later, almost
-                     exclusively through word of mouth, Speedpack Express grew into the pickup and delivery 
-                     agent of choice in South Florida. Throughout this time, our underlying principles were,
-                      and still remain: keep service levels high and costs fair.</p>
-            </div>
-        </div>
-    </section>
+  <nav>
+    <div class="navbar-container">
+      <div class="navbar-logo-container">
+        <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="navbar-logo">
+        <div class="navbar-title"><span class="speed">Speed</span><span class="pack">pack</span></div>
+        <div class="express-container"><span class="line"></span><div class="express">Express</div><span class="line"></span></div>
+      </div>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a class="active" href="about.html">About</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li class="dropdown">
+          <a href="contact.html">Contact</a>
+          <ul class="dropdown-content">
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="support.html">Support</a></li>
+          </ul>
+        </li>
+        <li><a href="login.html">Login</a></li>
+      </ul>
+    </div>
+  </nav>
 
-    <section class="about-section right middle">
-        <div class="about-logo-container">
-            <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="about-logo">
-        </div>
-        <div class="about-content">
-            <div class="about-text">
-                <h2>Our Company</h2>
-                <p>Available 24 hours a day, 365 days a year, Speedpack Express has been providing 
-                    time-sensitive pickup and delivery around the clock. We transport organs for transplants, 
-                    critical parts to keep companies up and running, crucial documents, and much more. 
-                    Our exclusive service offers hands-on monitoring, GPS-based tracking, and on-time delivery 
-                    for your impossible deadlines. We are 'the courier's courier,' serving everyone,
-                     including couriers and freight forwarders alike, for over a decade. When it comes to 
-                     time-critical logistics, no one does it better.</p>
-            </div>
-        </div>
-    </section>
+  <!-- This spacer guarantees the cards never overlap the fixed navbar -->
+  <div class="nav-spacer" aria-hidden="true"></div>
 
-    <section class="about-section left bottom">
-        <div class="about-logo-container">
-            <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="about-logo">
-        </div>
-        <div class="about-content">
-            <div class="about-text">
-                <h2>Our Vision</h2>
-                <p>Speedpack's vision is to provide the highest quality transportation and logistics services 
-                    for time-critical shipments in the South Florida market. We continue to develop our staff 
-                    and infrastructure to ensure that customer requests are never refused. In the most
-                     complex situations, we will combine and adapt all available resources to meet our 
-                     customers' needs and ensure the results they expect. We practice the art of communication 
-                     with our customers and within our company. We will work together as a team—informed and 
-                     knowledgeable, secure in our experience and ability, with full confidence that our 
-                     individual efforts are supported by the entire Speedpack team.</p>
-            </div>
-        </div>
-    </section>
+  <main class="about-main">
+    <div class="about-wrap">
+      <div class="about-grid">
+        <section class="about-card">
+          <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="about-logo">
+          <div>
+            <h3>About Us</h3>
+            <p>Speedpack Express, Inc. was founded in 2000 by logistics professionals with over 25 years in the
+              industry. We started by providing ground transportation in Miami and Ft. Lauderdale for courier
+              companies and freight forwarders, growing steadily through trial and error—arguably the best
+              teachers. Over a decade later, largely through word of mouth, we became the pickup and delivery
+              agent of choice in South Florida. Our principles remain the same: keep service levels high and
+              costs fair.</p>
+          </div>
+        </section>
 
-    <footer>
-        <p>Copyright © 2024 Speedpack Express Inc. All Rights Reserved. | Designed & Developed by <a href="https://www.linkedin.com/in/john-r-vazquez">John R Vazquez</a></p>
-    </footer>
-    <script src="scripts.js"></script>
+        <section class="about-card">
+          <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="about-logo">
+          <div>
+            <h3>Our Company</h3>
+            <p>Available 24 hours a day, 365 days a year. We handle time-sensitive pickups and deliveries,
+              from organs for transplants to critical parts, documents, and more. We offer hands-on monitoring,
+              GPS tracking, and on-time delivery for impossible deadlines—the courier’s courier, serving
+              companies and forwarders for over a decade.</p>
+          </div>
+        </section>
+
+        <section class="about-card span-2">
+          <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="about-logo">
+          <div>
+            <h3>Our Vision</h3>
+            <p>To deliver the highest-quality transportation and logistics services for time-critical shipments
+              in South Florida. We develop our staff and infrastructure so customer requests are never refused.
+              In complex situations we combine and adapt resources to meet expectations. Communication—internal
+              and with customers—is our backbone. We work as one team, confident in our abilities and supported
+              by the entire Speedpack organization.</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>
+      Copyright © 2024 Speedpack Express Inc. All Rights Reserved. |
+      Designed & Developed by <a href="https://www.linkedin.com/in/john-r-vazquez">John R Vazquez</a>
+    </p>
+  </footer>
+
+  <script src="scripts.js"></script>
 </body>
 </html>

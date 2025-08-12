@@ -1,629 +1,546 @@
-/* HOMEPAGE CONTENT BEINGS HERE
-
-
-/////////////////////////////
-/////////////////////////////
-/////////////////////////////
-
-
-*/
-
-body, ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
+/* ==== GLOBAL / LAYOUT (sticky footer) ==== */
+html, body {
+  height: 100%;
+  margin: 0;
 }
-
-body, h1, h2, h3, h4, h5, h6, p {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
 body {
-    
-    font-family: 'Roboto', sans-serif;
-    background: url('website images/airportphoto.png') no-repeat center center fixed; /* Add the background image */
-    background-size: cover;
-    color: #333;
-    margin: 0; 
-    padding: 0; 
+  display: flex;
+  flex-direction: column;
+  font-family: 'Roboto', sans-serif;
+  background: url('website images/airportphoto.png') no-repeat center center fixed;
+  background-size: cover;
+  color: #333;
+}
+main {
+  flex: 1;               /* pushes footer to the bottom when content is short */
+  padding-top: 110px;    /* keep content below the fixed navbar */
 }
 
+/* Optional dark overlay over background */
 body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); 
-    z-index: -1; 
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: -1;
 }
 
+/* Reset */
+ul { margin: 0; padding: 0; list-style: none; }
+h1, h2, h3, h4, h5, h6, p {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
+/* ==== NAVBAR ==== */
 nav {
-    background-color: transparent;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    position: fixed; 
-    top: 0; 
-    width: 100%; 
-    z-index: 10; 
-    transform: translateY(0); 
-    transition: transform 0.3s ease-in-out; 
-    
-}
-
-/* Hide navbar when scrolled down */
-.navbar-hidden {
-    transform: translateY(-100%); /* Hide navbar */
+  background-color: transparent;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  transform: translateY(0);
+  transition: transform 0.3s ease-in-out;
+  overflow: visible; /* let dropdowns show */
 }
 
 .navbar-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* Adjust to space out content */
-    padding: 0 20px; /* Add padding for better positioning */
+  display: flex;
+  align-items: center;
+  justify-content: center;      /* center the logo stack */
+  position: relative;           /* menu positions inside here */
+  height: 70px;
+  padding: 6px 20px;
 }
 
 .navbar-logo-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Center the logo and text inside */
-    margin: 0 auto; /* Center the entire stack within its parent */
-    flex-grow: 0;
-    flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
 }
 
-.navbar-logo {
-    height: 40px; 
-    margin-bottom: 5px; 
-}
+.navbar-logo { height: 40px; margin-bottom: 5px; }
 
 .navbar-title {
-    font-size: 1.8em; /* Adjusted font size */
-    text-align: center;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); 
+  font-size: 1.8em;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0,0,0,.5);
 }
+.navbar-title .speed,
+.navbar-title .pack { color: #fff; font-family: 'Faster One', sans-serif; }
 
-.navbar-title .speed {
-    color: white; 
-    font-family: 'Faster One', sans-serif;
-}
+.express-container { display: flex; align-items: center; margin-top: 5px; font-family: 'Faster One', sans-serif; }
+.express { color: #fff; font-size: 1.2em; font-style: italic; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,.5); margin: 0 10px; }
+.line { width: 50px; height: 2px; background-color: #fffb00; }
 
-.navbar-title .pack {
-    color: white; 
-    font-family: 'Faster One', sans-serif;
-}
-
-.navbar-title, .express {
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5); /* Add a subtle shadow */
-}
-
-.express-container {
-    display: flex;
-    align-items: left;
-    margin-top: 5px; /* Space between "Speedpack" and "Express" */
-    font-family: 'Faster One', sans-serif;
-}
-
-.express {
-    font-family: 'Faster One', sans-serif;
-    color: white; 
-    font-size: 1.2em;  
-    font-style: italic;
-    text-align: center;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Shadow */
-    margin: 0 10px; /* Space between the lines and text */
-}
-
-.line {
-    width: 50px; 
-    height: 2px; 
-    background-color: #fffb00; 
-}
-
+/* Right-side menu */
 nav ul {
-    display: flex;
-    align-items: center; /* Center align items vertically */
-    position: absolute; /* Position absolutely */
-    right: 20px; /* Align to the right side */
+  position: absolute;
+  right: 20px;
+  top: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  align-items: center;          /* vertical centering in the bar */
 }
 
-nav ul li {
-    margin: 0 10px;
-    position: relative; /* Add relative positioning for dropdown */
-}
+nav ul li { position: relative; margin: 0 10px; }
 
 nav ul li a {
-    display: block;
-    padding: 8px 10px; /* Adjusted padding */
-    font-size: 18px;
-    color: rgb(248, 248, 249);
-    text-decoration: none;
-    font-weight: bold;
-    transition: background-color 0.3s, color 0.3s;
+  display: block;
+  padding: 8px 10px;
+  font-size: 18px;
+  color: #f8f8f9;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color .3s, color .3s;
+}
+nav ul li a.active { border-bottom: 2px solid #f8f8f9; }
+nav ul li a:hover  { background-color: rgba(0,0,0,.3); color: #fff; }
+
+/* Dropdown: perfectly aligned under the Contact tab */
+nav ul li.dropdown { position: relative; }
+
+nav ul li.dropdown .dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;               /* directly beneath the tab — no gap */
+  left: 50%;               /* center to the tab */
+  transform: translateX(-50%);
+  margin-top: 6px;         /* small breathing room */
+  min-width: 220px;
+  background-color: rgba(0,0,0,.8);
+  box-shadow: 0 8px 16px rgba(0,0,0,.2);
+  z-index: 2000;
 }
 
-nav ul li a.active {
-    border-bottom: 2px solid rgb(248, 248, 249); /* Underline the active link */
-}
-
-nav ul li a:hover {
-    background-color: rgba(0, 0, 0, 0.3); /* Changed hover background color to semi-transparent */
-    color: #fff; /* Text color change on hover */
-}
-
-/* Dropdown styles */
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
-    min-width: 160px;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Add a shadow */
-    z-index: 1;
-}
-
-.dropdown-content li {
-    margin: 0;
-}
-
+.dropdown-content li { margin: 0; }
 .dropdown-content a {
-    color: white; /* White text */
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    text-align: left;
+  color: #fff;
+  padding: 12px 16px;
+  display: block;
+  text-align: left;
 }
+.dropdown-content a:hover { background-color: rgba(255,255,255,.08); }
 
-.dropdown-content a:hover {
-    background-color: rgba(0, 0, 0, 0.5); /* Darker background on hover */
+nav ul li:hover > .dropdown-content,
+nav ul li:focus-within > .dropdown-content {
+  display: block;          /* stays open while moving the mouse */
 }
-
-nav ul li:hover .dropdown-content {
-    display: block;
-}
+/* ==== END NAVBAR ==== */
 
 
-/* Hero Section */
+
+
+/* ==== HERO ==== */
 .hero {
-    margin-top: 10px; 
-    color: #fff;
-    text-align: center;
-    padding: 100px 20px;
-    position: relative;
-    padding: 100px 20px; 
-    height: auto; 
-    z-index: 1; 
+  color: #fff;
+  text-align: center;
+  padding: 100px 20px 20px;
 }
-
 .hero-content {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 50px 30px; 
-    border-radius: 10px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 50px 30px;
+  border-radius: 10px;
 }
+.hero h1 { font-size: 3em; margin-bottom: 20px; }
+.hero h2 { font-size: 2em; margin-bottom: 20px; }
+.hero p  { font-size: 1.2em; margin-bottom: 20px; }
 
-
-.hero h1 {
-    font-size: 3em;
-    margin-bottom: 20px;
-}
-
-.hero h2 {
-    font-size: 2em;
-    margin-bottom: 20px;
-}
-
-.hero p {
-    font-size: 1.2em;
-    margin-bottom: 20px;
-}
-
-/* Three Boxes Styling */
+/* ==== THREE BOXES ==== */
 .three-boxes {
-    display: flex;
-    justify-content: space-around;
-    padding: 50px 20px;
-    background-color: transparent; 
-    position: relative; 
-    top: 70%; 
-    left: 0;
-    right: 0;
-    z-index: 2;
-    width: 100%;
-    max-width: 1200px;
-    margin: 8px auto;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-around;
+  gap: 20px;
+  padding: 30px 20px;
+  background-color: transparent;
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto 40px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  /* IMPORTANT: remove the old relative/top hack that caused overlap */
+  /* position: relative; top: 70%;  <-- deleted */
 }
-
 .box {
-    background-color: #f4f4f9;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    flex: 1;
-    margin: 0 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+  background-color: #f4f4f9;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 10px;
+  flex: 1;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
-
 .box img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 10px;
-    margin-bottom: 15px;
-    max-height: 150px; /* Set a maximum height to ensure the image fits inside the box */
-    object-fit: cover; /* Ensure the image covers the set height without stretching */
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  max-height: 150px;
+  object-fit: cover;
 }
-
-.box h2 {
-    font-size: 1.5em;
-    margin-bottom: 20px;
-}
-
+.box h2 { font-size: 1.5em; margin-bottom: 20px; }
 .box button {
-    background-color: #f4f40c;
-    border: none;
-    padding: 10px 20px;
-    color: #333;
-    font-size: 1em;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s;
+  background-color: #f4f40c;
+  border: none;
+  padding: 10px 20px;
+  color: #333;
+  font-size: 1em;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color .3s;
 }
+.box button:hover { background-color: #e5e500; }
 
-.box button:hover {
-    background-color: #e5e500;
-}
-
-
-/* SERVICES PAGE BEGINS HERE
-
-///////////////////////////
-//////////////////////////
-////////////////////////////
-
-
-
-
-*/
-
-.content { /* Terrible name so for reference this is the area outside of the white box */
-    border: 2px solid #ccc; 
-    padding: 0 30px; 
-    box-sizing: border-box; 
-}
-
-
-
-.services-boxes {
-    display: flex;
-    flex-wrap: wrap;
-    border-radius: 10px;
-    margin-top: 150px;
-    justify-content: space-around;
-    padding: 50px 20px;
-    background-color: #fff;
-}
-
-.service-box { /*boxes for each service */
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    flex: 0 0 30%;
-    margin: 30px;
-    position: relative;
-    background-size: cover; /* Ensure the background image covers the entire box */
-    background-position: center; /* Center the background image */
-    color: white; /* Adjust text color for better visibility */
-}
-
-.services-title{
-    font-size:60px;
-    text-align:center;
-    margin-left:300px;
-    margin-right:300px;
-}
-
-.service-box:nth-child(2) {
-    background-image: url('website images/airplaneimageforservicespage.jpg');
-}
-
-.service-box:nth-child(3) {
-    background-image: url('website images/medicaldelivery.jpeg');
-}
-
-.service-box:nth-child(4) {
-    background-image: url('website images/dryiceboxpic.jpeg');
-}
-
-.service-box:nth-child(5) {
-    background-image: url('website images/yellowboxtruckimage.jpeg');
-}
-
-.service-box:nth-child(6) {
-    background-image: url('website images/warehouseimage.jpg');
-}
-
-.service-box:nth-child(7) {
-    background-image: url('website images/shakinghandsimage.jpg');
-}
-
-
-
-.service-box h2 {
-    font-size: 1.5em;
-    margin-bottom: 20px;
-}
-
-.service-box ul {
-    padding: 0;
-}
-
-.service-box li {
-    list-style-type: none;
-    padding: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    position: relative;
-}
-
-.service-box li:hover {
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background on hover */
-}
-
-.service-box .description {
-    display: none;
-    background-color: #333;
-    color: #fff;
-    padding: 10px;
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 50px; /* Pops up above the item */
-    z-index: 10;
-    border-radius: 5px;
-}
-
-.service-box li:hover .description {
-    display: block;
-}
-
-/* Footer Section */
+/* ==== FOOTER ==== */
 footer {
-    background-color: #333; /* Grey background color */
-    color: #fff;
-    text-align: center;
-    padding: 20px 0;
-    margin-top: 50px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 20px 0;
+}
+footer p { margin: 0; }
+footer a { color: #9dc4ff; text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+/* ==== (rest of your existing page-specific styles stay as-is) ==== */
+
+/* SERVICES / ABOUT / CONTACT / FORMS (copied from your original file) */
+.content { border: 2px solid #ccc; padding: 0 30px; box-sizing: border-box; }
+.services-boxes { display: flex; flex-wrap: wrap; border-radius: 10px; margin-top: 150px; justify-content: space-around; padding: 50px 20px; background-color: #fff; }
+.service-box { padding: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-radius: 10px; flex: 0 0 30%; margin: 30px; position: relative; background-size: cover; background-position: center; color: white; }
+.services-title { font-size: 60px; text-align: center; margin-left: 300px; margin-right: 300px; }
+.service-box:nth-child(2){ background-image: url('website images/airplaneimageforservicespage.jpg'); }
+.service-box:nth-child(3){ background-image: url('website images/medicaldelivery.jpeg'); }
+.service-box:nth-child(4){ background-image: url('website images/dryiceboxpic.jpeg'); }
+.service-box:nth-child(5){ background-image: url('website images/yellowboxtruckimage.jpeg'); }
+.service-box:nth-child(6){ background-image: url('website images/warehouseimage.jpg'); }
+.service-box:nth-child(7){ background-image: url('website images/shakinghandsimage.jpg'); }
+.service-box h2 { font-size: 1.5em; margin-bottom: 20px; }
+.service-box ul { padding: 0; }
+.service-box li { list-style-type: none; padding: 10px; cursor: pointer; transition: background-color .3s; position: relative; }
+.service-box li:hover { background-color: rgba(0,0,0,.5); }
+.service-box .description { display: none; background-color: #333; color: #fff; padding: 10px; position: absolute; left: 0; right: 0; bottom: 50px; z-index: 10; border-radius: 5px; }
+.service-box li:hover .description { display: block; }
+
+/* About */
+.about-section { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; background-color: rgba(0,0,0,.5); color: #fff; padding: 20px; position: relative; z-index: 1; margin-left: 50px; margin-right: 5px; box-shadow: 0 2px 4px rgba(0,0,0,.1); max-width: 700px; border-radius: 10px; }
+.about-section.right { margin-left: auto; margin-right: 50px; margin-top: 20px; }
+.about-section.left { margin-top: 150px; }
+.about-section.middle { margin-top: 20px; }
+.about-section.bottom { margin-top: 20px; margin-left: 50px; margin-right: 5px; }
+.about-logo-container { position: absolute; bottom: 100px; left: 20px; z-index: 2; }
+.about-logo { width: 150px; height: auto; }
+.about-content { display: flex; flex-direction: column; align-items: flex-start; max-width: 1200px; margin: 0 auto; padding-top: 20px; }
+.about-text { margin-left: 180px; text-align: left; max-width: 800px; }
+.about-text h2 { font-size: 2.5em; margin-bottom: 10px; }
+.about-text p { font-size: 0.9em; margin-bottom: 10px; }
+
+/* Contact / Forms */
+.contact-content { margin: 150px auto 20px; background-color: #fff; padding: 20px; max-width: 800px; box-shadow: 0 2px 4px rgba(0,0,0,.1); border-radius: 10px; }
+.contact-content h2 { font-size: 1.8em; margin-bottom: 20px; }
+.contact-content p { font-size: 1em; margin-bottom: 10px; }
+.contact-form { display: flex; flex-wrap: wrap; gap: 20px; }
+.form-group { flex: 1 1 100%; margin-bottom: 15px; }
+.form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; font-size: 1em; border: 1px solid #ccc; border-radius: 5px; }
+.form-group textarea { height: 100px; }
+.checkbox-group { display: flex; align-items: center; }
+.checkbox-group input { margin-right: 10px; }
+.form-group button, .submit-btn { background-color: #0044cc; color: #fff; border: none; padding: 10px 20px; font-size: 1.2em; cursor: pointer; border-radius: 5px; transition: background-color .3s; }
+.form-group button:hover, .submit-btn:hover { background-color: #003399; }
+
+/* Active link in dropdown */
+.navbar-container .dropdown-content a.active { font-weight: bold; color: #007bff; }
+
+/* Message box */
+.message-box { background-color: #fff; padding: 20px; border: 1px solid #ccc; max-width: 80%; margin: 300px auto 20px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,.1); }
+
+/* === FINAL OVERRIDE: put Contact dropdown directly under the tab === */
+nav ul li.dropdown { position: relative; }
+
+nav ul li.dropdown > a { position: relative; z-index: 1; }
+
+nav ul li.dropdown .dropdown-content {
+  position: absolute !important;
+  top: calc(100% + 6px) !important;  /* just below the bar */
+  left: 0 !important;                /* align left edge with Contact tab */
+  right: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+  min-width: 220px;                  /* adjust if you want it narrower/wider */
+  white-space: nowrap;
+  z-index: 2000;
 }
 
-footer p {
-    margin: 0;
+/* small hover buffer so it doesn't disappear when moving mouse down */
+nav ul li.dropdown::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 100%;
+  height: 6px;
+}
+  /* === GLOBAL NAV OFFSET + CONTENT CLEARANCE (applies to all pages) === */
+:root{
+  --nav-offset: 10px;   /* drop the whole bar down from the top */
+  --nav-height: 86px;   /* navbar height (logo fits comfortably) */
+}
+
+/* move the fixed bar down a bit so the logo isn't jammed into the top edge */
+nav{
+  top: var(--nav-offset) !important;
+}
+
+/* make the bar a touch taller and add vertical padding */
+.navbar-container{
+  height: var(--nav-height) !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+
+/* keep menu vertically centered in the taller bar */
+nav ul{
+  top: 0 !important;
+  bottom: 0 !important;
+  align-items: center !important;
+}
+
+/* pages that use <main>: clear the fixed navbar height + offset */
+main{
+  padding-top: calc(var(--nav-height) + var(--nav-offset) + 16px) !important;
+}
+
+/* fallback: if a page doesn't use <main>, clear the first section after <nav> */
+nav + *:not(main){
+  margin-top: calc(var(--nav-height) + var(--nav-offset) + 16px) !important;
+}
+
+/* tweak on very small screens if needed */
+@media (max-width: 480px){
+  :root{ --nav-height: 92px; } /* a hair taller for tighter devices */
+}
+
+/* === GLOBAL: fix navbar so logo isn't jammed into the top === */
+nav { 
+  padding-top: 12px !important;   /* space above the logo inside the bar */
+}
+
+.navbar-container{
+  height: 86px !important;        /* make the bar a bit taller */
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.navbar-logo{
+  margin-top: 0 !important;       /* keep the logo centered in the new height */
+  height: 40px !important;
+}
+
+/* keep the right-side menu vertically centered in the taller bar */
+nav ul{
+  top: 0 !important;
+  bottom: 0 !important;
+  align-items: center !important;
+}
+
+/* push page content down to clear the taller fixed bar */
+main{
+  padding-top: 122px !important;  /* 86 (bar) + 12 (top pad) + ~24 breathing */
+}
+
+/* pages without <main>: clear the first block after nav */
+nav + *:not(main){
+  margin-top: 122px !important;
+}
+
+/* === FORCE NAV DOWN ON EVERY PAGE === */
+body > nav {
+  position: fixed !important;
+  top: 16px !important;       /* <— adjust this number if you want more/less space */
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+}
+
+/* keep the menu vertically centered in the bar */
+body > nav ul {
+  top: 0 !important;
+  bottom: 0 !important;
+  align-items: center !important;
+}
+
+/* Clear the taller, offset nav so content doesn't sit under it */
+body > main {
+  padding-top: calc(16px + 86px) !important;  /* 16 (nav offset) + ~86 (nav height) */
+}
+
+/* Pages without <main>: push the first block down */
+body > nav + *:not(main) {
+  margin-top: calc(16px + 86px) !important;
+}
+
+/* === FORCE THE LOGO LOWER INSIDE THE NAVBAR (ALL PAGES) === */
+
+/* drop the logo stack down inside the bar */
+body > nav .navbar-logo-container {
+  transform: translateY(14px) !important;   /* tweak this number if you want */
+}
+
+/* make the bar a bit taller so nothing looks cramped */
+body > nav .navbar-container {
+  height: 92px !important;                  /* was ~70–86 */
+}
+
+/* keep the right-side menu vertically centered */
+body > nav ul {
+  top: 0 !important;
+  bottom: 0 !important;
+  align-items: center !important;
+}
+
+/* push page content down to clear the taller bar */
+body > main {
+  padding-top: calc(92px + 16px) !important;  /* bar height + breathing room */
+}
+
+/* pages without <main>: push first block down */
+body > nav + *:not(main) {
+  margin-top: calc(92px + 16px) !important;
+}
+/* ==== FINAL: FORCE NAV/LOGO POSITION ON ALL PAGES ==== */
+
+/* Drop the entire navbar down from the very top */
+body > nav {
+  position: fixed !important;
+  top: 20px !important;           /* change this to 24/28 if you want more gap */
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+}
+
+/* Make the bar tall enough so the logo isn't cramped */
+body > nav .navbar-container {
+  height: 100px !important;       /* was ~70–86; now comfortable */
+  padding: 0 !important;
+}
+
+/* Move the logo stack DOWN inside the bar */
+body > nav .navbar-logo-container {
+  transform: translateY(12px) !important;  /* bump this up/down to taste */
+}
+
+/* Keep the right-side menu vertically centered */
+body > nav ul {
+  top: 0 !important;
+  bottom: 0 !important;
+  align-items: center !important;
+}
+
+/* CLEARANCE: push page content down so it doesn't sit under the fixed bar */
+body > main {
+  padding-top: calc(100px + 20px + 12px) !important;
+  /* 100 (bar height) + 20 (nav top offset) + 12 (logo translate) */
+}
+
+/* Pages without <main>: push the first block down the same amount */
+body > nav + *:not(main) {
+  margin-top: calc(100px + 20px + 12px) !important;
+}
+
+/* === UNIFY NAV LOGO LOOK (match Services) — white bars === */
+body > nav .navbar-logo { height: 40px; margin-bottom: 4px; }
+
+body > nav .navbar-title {
+  font-size: 1.7rem;      /* same visual scale as Services */
+  line-height: 1;
+}
+
+body > nav .express-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;               /* space between bars and “Express” */
+  margin-top: 6px;
+}
+
+body > nav .express {
+  font-size: 1rem;
+  font-style: normal;     /* Services look is not italic; remove this line if you want italic */
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+/* The bars left/right of “Express” — make them white */
+body > nav .line {
+  width: 64px;
+  height: 2px;
+  background: #fff !important;       /* override previous yellow */
+  box-shadow: 0 0 6px rgba(255,255,255,.45); /* subtle glow like Services */
+}
+/* ==== SERVICES PAGE FIXES (2-column grid + no top border) ==== */
+
+/* Remove the thin line (it’s the .content border) */
+.content {
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 24px !important;
+}
+
+/* Two equal columns, 3 boxes per side */
+.services-boxes {
+  max-width: 1200px;
+  margin: 120px auto 60px;            /* space below the fixed nav */
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;                           /* space between cards */
+  padding: 0 !important;
+  background: transparent !important;  /* no white band behind the nav */
+}
+
+/* Title spans both columns */
+.services-title {
+  grid-column: 1 / -1;
+  margin: 0 0 8px !important;
+  text-align: center;
+}
+
+/* Card cleanups for the grid layout */
+.service-box {
+  margin: 0 !important;
+  padding: 20px !important;
+  min-height: 200px;
+  border-radius: 12px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  color: #fff;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,.18);
+}
+
+/* Optional: better text legibility over photos */
+.service-box::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.45));
+  pointer-events: none;
+}
+.service-box h2,
+.service-box ul { position: relative; z-index: 1; }
+/* Services page: make "Our Services" title pure white */
+.services-title {
+  color: #fff !important;
+  text-shadow: 0 2px 6px rgba(0,0,0,.35); /* helps on busy photos */
 }
 
 
-/* About Us Page */
-.about-section {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    background-color: rgba(0, 0, 0, 0.5); /* Transparent dark grey background */
-    color: white; /* White text */
-    padding: 20px;
-    position: relative;
-    z-index: 1;
-    margin-left: 50px; /* Margin for the first and third boxes */
-    margin-right: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 700px;
-    border-radius: 10px;
-}
-
-.about-section.right {
-    margin-left: auto; /* Move the second box to the right */
-    margin-right: 50px; /* Ensure the second box has the same margin on the right as the first on the left */
-    margin-top: 20px; /* Adjust this value to move it closer to the first box */
-}
-
-.about-section.left {
-    margin-top: 150px;
-}
-
-.about-section.middle {
-    margin-top: 20px; /* Increased space between the first and second boxes */
-}
-
-.about-section.bottom {
-    margin-top: 20px; /* Reduced space between the second and third boxes */
-    margin-left: 50px; /* Align the third box like the first box */
-    margin-right: 5px; /* Remove the right margin */
-}
-
-.about-logo-container {
-    position: absolute;
-    bottom: 100px; /* Move logo higher up */
-    left: 20px; /* Position logo at the left */
-    z-index: 2;
-}
-
-.about-logo {
-    width: 150px; /* Decrease size of the logo */
-    height: auto;
-}
-
-.about-content {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; /* Align items to the left */
-    max-width: 1200px;
-    margin: 0 auto;
-    padding-top: 20px; /* Space to ensure the content starts after the nav bar */
-}
-
-.about-text {
-    margin-left: 180px; /* Adjust text position to accommodate smaller logo */
-    text-align: left; /* Align text to the left */
-    max-width: 800px;
-}
-
-.about-text h2 {
-    font-size: 2.5em; /* Adjust size as needed */
-    margin-bottom: 10px; /* Move title up */
-}
-
-.about-text p {
-    font-size: 0.9em; /* Smaller font size */
-    margin-bottom: 10px; /* Move text up */
-}
-
-.contact-content {
-    margin: 20px auto;
-    margin-top: 150px;
-    background-color: #fff;
-    padding: 20px;
-    max-width: 800px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-    border-radius: 10px; /* Rounded corners */
-}
-
-.contact-content h2 {
-    font-size: 1.8em;
-    margin-bottom: 20px;
-}
-
-.contact-content p {
-    font-size: 1em;
-    margin-bottom: 10px;
-}
-
-.contact-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.form-group {
-    flex: 1 1 100%; /* Full width by default, can be adjusted for responsiveness */
-}
-
-.form-group label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 10px;
-    font-size: 1em;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-.form-group textarea {
-    height: 100px;
-}
-
-.checkbox-group {
-    display: flex;
-    align-items: center;
-}
-
-.checkbox-group input {
-    margin-right: 10px;
-}
-
-.form-group button {
-    background-color: #0044cc; /* Button background color */
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 1.2em;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-}
-
-.form-group button:hover {
-    background-color: #003399; /* Darker background on hover */
-}
-
-/* Highlight the active page in the navbar */
-.navbar-container .dropdown-content a.active {
-    font-weight: bold;
-    color: #007bff; /* Adjust color to highlight the active page */
-}
-
-/* Adjustments for the message box */
-.message-box {
-    background-color: white;
-    padding: 20px;
-    border: 1px solid #ccc;
-    max-width: 80%;
-    margin: 20px auto;
-    text-align: center;
-    font-family: 'Roboto', sans-serif;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 300px; /* Ensure the white box appears below the navbar */
-}
-
-/* Resume Submission Form Section */
-.form-section {
-    margin: 20px auto;
-    margin-top: 150px;
-    background-color: #fff;
-    padding: 20px;
-    max-width: 800px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-}
-
-.form-container h2 {
-    font-size: 1.8em;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1em;
-}
-
-.submit-btn {
-    width: 100%;
-    padding: 12px;
-    background-color: #0044cc;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1.2em;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.submit-btn:hover {
-    background-color: #003399;
-}

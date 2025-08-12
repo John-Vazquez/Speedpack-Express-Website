@@ -1,75 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speedpack Express</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Faster+One&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Speedpack Express</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+  /* Match Services logo styling, but with WHITE bars */
+  nav .navbar-title{
+    font-size: 1.7rem;      /* same visual scale as Services */
+    line-height: 1;
+  }
+  nav .express-container{
+    display: flex;
+    align-items: center;
+    gap: 8px;               /* spacing between bars and "Express" */
+    margin-top: 6px;
+  }
+  nav .express{
+    font-size: 1rem;
+    font-style: normal;     /* Services look (remove italic) */
+    letter-spacing: .18em;
+    text-transform: uppercase;
+  }
+  nav .line{
+    width: 64px;
+    height: 2px;
+    background: #fff !important;               /* <- white bars */
+    box-shadow: 0 0 6px rgba(255,255,255,.45); /* subtle glow */
+  }
+</style>
 
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  
 </head>
 <body>
-    <nav>
-        <div class="navbar-container">
-          <div class="navbar-logo-container">
-            <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="navbar-logo">
-            <div class="navbar-title">
-              <span class="speed">Speed</span><span class="pack">pack</span>
-            </div>
-            <div class="express-container">
-              <span class="line"></span>
-              <div class="express">Express</div>
-              <span class="line"></span>
-            </div>
-          </div>
-          <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="services.html">Services</a></li>
-            <li class="dropdown">
-              <a href="contact.html">Contact</a>
-              <ul class="dropdown-content">
-                <li><a href="contact.html">Contact Us</a></li>
-                <li><a href="careers.html">Careers</a></li>
-                <li><a href="support.html">Support</a></li>
-              </ul>
-            </li>
-            <li><a href="login.html">Login</a></li>
-          </ul>
+  <nav>
+    <div class="nav-spacer" aria-hidden="true"></div>
+
+    <div class="navbar-container">
+      <div class="navbar-logo-container">
+        <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="navbar-logo" />
+        <div class="navbar-title">
+          <span class="speed">Speed</span><span class="pack">pack</span>
         </div>
-      </nav>
-      
+        <div class="express-container">
+          <span class="line"></span>
+          <div class="express">Express</div>
+          <span class="line"></span>
+        </div>
+      </div>
+      <ul>
+        <li><a class="active" href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li class="dropdown">
+          <a href="contact.html">Contact</a>
+          <ul class="dropdown-content">
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="support.html">Support</a></li>
+          </ul>
+        </li>
+        <li><a href="login.html">Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- everything except the footer lives in main -->
+  <main>
     <!-- Hero Section -->
     <section class="hero">
-        <div class="hero-content">
-            
-            <h2 class="typing-text"></h2>
-            <p>24 hours a day, 365 days a year.</p>
-        </div>
+      <div class="hero-content">
+        <h2 class="typing-text"></h2>
+        <p>24 hours a day, 365 days a year.</p>
+      </div>
     </section>
+
     <!-- Three Boxes Section -->
     <section class="three-boxes">
-        <div class="box">
-            <img src="website images/vanphoto.jpg" alt="Request Services">
-            <h2>Request Services</h2>
-            <button onclick="window.location.href='contact.html'">Connect With Us</button>
-        </div>
-        <div class="box">
-            <img src="website images/packageimage.jpg" alt="Our Services">
-            <h2>Our Services</h2>
-            <button onclick="window.location.href='services.html'">Learn More</button>
-        </div>
-        <div class="box">
-            <img src="website images/shakinghandsimage.jpg" alt="Contact Us">
-            <h2>Careers</h2>
-            <button onclick="window.location.href='careers.html'">Get in Touch</button>
-        </div>
+      <div class="box">
+        <img src="website images/vanphoto.jpg" alt="Request Services" />
+        <h2>Request Services</h2>
+        <button onclick="window.location.href='contact.html'">Connect With Us</button>
+      </div>
+      <div class="box">
+        <img src="website images/packageimage.jpg" alt="Our Services" />
+        <h2>Our Services</h2>
+        <button onclick="window.location.href='services.html'">Learn More</button>
+      </div>
+      <div class="box">
+        <img src="website images/shakinghandsimage.jpg" alt="Careers" />
+        <h2>Careers</h2>
+        <button onclick="window.location.href='careers.html'">Get in Touch</button>
+      </div>
     </section>
-    <!-- Footer Section -->
-    <footer>
-        <p>Copyright © 2024 Speedpack Express Inc. All Rights Reserved. | Designed & Developed by <a href="https://www.linkedin.com/in/john-r-vazquez">John R Vazquez</a></p>
-    </footer>
-    <script src="scripts.js"></script>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>
+      Copyright © 2024 Speedpack Express Inc. All Rights Reserved. |
+      Designed & Developed by
+      <a href="https://www.linkedin.com/in/john-r-vazquez">John R Vazquez</a>
+    </p>
+  </footer>
+
+  <script src="scripts.js"></script>
 </body>
 </html>
