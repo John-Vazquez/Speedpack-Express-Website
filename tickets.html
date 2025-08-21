@@ -36,6 +36,23 @@
   .modal h3 { margin:0 0 8px 0; }
   .modal .close { float:right; border:0; background:transparent; font-size:22px; cursor:pointer; }
   @media (hover:none){ .icon-btn{opacity:1;} }
+  /* Back button above content */
+.page-head{
+  margin-top: 130px;        /* tweak this up/down if you want more/less gap */
+  text-align: center;
+}
+.back-btn{
+  display: inline-block;
+  padding: 10px 14px;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 6px;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,.15);
+}
+.back-btn:hover{ background:#1d4ed8; }
+
 </style>
 </head>
 <body>
@@ -62,6 +79,10 @@
     </div>
   </nav>
 
+  <div class="page-head">
+  <a href="speedpack_online.html" class="back-btn">Back to Speedpack Online</a>
+</div>
+
   <section class="dashboard">
     <h1>Tickets</h1>
 
@@ -73,8 +94,9 @@
           <input id="jobNumber" type="text" placeholder="Job number (required)" required />
         </div>
         <div class="form-row">
-          <textarea id="notes" placeholder="Additional notes (optional)"></textarea>
-        </div>
+  <textarea id="notes" placeholder="Additional notes (required)" required></textarea>
+</div>
+
         <div class="form-row">
           <button class="btn" type="submit">Submit Ticket</button>
         </div>
@@ -181,28 +203,37 @@ console.log("tickets script loaded");
 
   // Create ticket
   form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const submitter = document.getElementById('submitter').value.trim();
-    const job_number = document.getElementById('jobNumber').value.trim();
-    const notes = document.getElementById('notes').value.trim();
-    if (!submitter || !job_number) return alert("Name and Job Number are required.");
+  e.preventDefault();
 
-    const res = await fetch(TICKETS_URL, {
-      method: "POST",
-      headers: {
-        "content-type":"application/json",
-        "x-api-key": BOT_API_KEY,
-        Authorization: `Bearer ${ANON_KEY}`
-      },
-      body: JSON.stringify({ submitter, job_number, notes })
-    });
-    if (!res.ok) {
-      const t = await res.text();
-      return alert("Create failed: " + t);
-    }
-    form.reset();
-    listTickets();
+  // Trigger native required validation (uses the `required` attribute we added)
+  if (!form.reportValidity()) return;
+
+  const submitter  = document.getElementById('submitter').value.trim();
+  const job_number = document.getElementById('jobNumber').value.trim();
+  const notesRaw   = document.getElementById('notes').value;
+  const notes      = notesRaw.trim(); // block all-whitespace notes
+
+  if (!submitter || !job_number || !notes) {
+    return alert("Name, Job Number, and Notes are required.");
+  }
+
+  const res = await fetch(TICKETS_URL, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": BOT_API_KEY,
+      Authorization: `Bearer ${ANON_KEY}`
+    },
+    body: JSON.stringify({ submitter, job_number, notes })
   });
+  if (!res.ok) {
+    const t = await res.text();
+    return alert("Create failed: " + t);
+  }
+  form.reset();
+  listTickets();
+});
+
 
   // Row actions (review / notes / delete)
   document.addEventListener('click', async (e) => {
