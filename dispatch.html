@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dispatch Job Organizer - Speedpack Express</title>
+  <link rel="stylesheet" href="styles.css"/>
+
+  <style>
+    html, body {
+  height: auto;          /* don’t lock to viewport */
+  min-height: 100%;
+  overflow-y: auto;      /* allow page scroll */
+}
+
+    :root{
+      --hero-offset: 300px; /* gap from navbar/logo to back button; tweak if needed */
+    }
+
+    /* Gap above the white card (button lives here, not on the card) */
+    .page-head{
+      margin-top: var(--hero-offset);
+      text-align: center;
+      padding: 8px 0;
+    }
+    .back-btn{
+      display: inline-block;
+      padding: 10px 14px;
+      background: #3b82f6;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 6px;
+      text-decoration: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .back-btn:hover{ background:#2563eb; }
+
+    /* White card (centered; clips any overflow) */
+    .page-wrap{
+      width: min(92vw, 1400px);
+      margin: 24px auto 70px;
+      padding: 24px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: visible; /* hard clip anything from leaking out */
+    }
+
+    .page-title{
+      text-align: center;
+      margin: 6px 0 18px;
+      color: #111827;
+      font-weight: 800;
+      font-size: 1.8rem;
+    }
+
+    /* ---------- Add a Job (TOP) ---------- */
+    .panel{
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 16px; /* space before the board */
+    }
+    .panel h2{
+      margin: 0 0 12px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .form-row{ display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .form-group{ margin-bottom: 0; }
+    .form-group label{
+      display: block;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #111827;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea{
+      width: 98%;               /* keeps inside the panel border */
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      font-size: 14px;
+      background: #fff;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .form-group textarea{ min-height: 110px; resize: vertical; }
+
+    .btn{
+      background: #22c55e;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn:hover{ background:#16a34a; }
+
+    /* ---------- Board (contained fully in white card) ---------- */
+    .board{
+      background: #e5e7eb;
+      border-radius: 6px;
+      padding: 12px;
+      overflow: visible; /* no spilling outside the grey */
+    }
+
+    .board-header,
+    .board-body{
+      display: grid;
+      grid-template-columns: repeat(6, 1fr); /* 6 columns, always inside */
+      gap: 10px;
+    }
+    .board-header{ margin-bottom: 10px; }
+
+    .col-head{
+      background: #1e3a8a;
+      color: #fff;
+      text-align: center;
+      font-weight: 700;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 0.92rem;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .col{
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      min-height: 420px;
+      padding: 10px;
+      transition: border-color .15s ease, background .15s ease;
+    }
+    .col.drop-target{
+      border-color: #3b82f6;
+      background: #eef5ff;
+    }
+
+   /* ---------- Cards (compact) ---------- */
+.job-card{
+  position: relative;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 8px 10px;
+  background: #fff;
+  margin-bottom: 6px;
+  cursor: grab;
+  transition: box-shadow .12s ease, transform .04s ease;
+}
+.job-card:active{ cursor: grabbing; }
+.job-card.dragging{
+  opacity: .95;
+  transform: scale(.995);
+  box-shadow: 0 6px 16px rgba(0,0,0,.10);
+}
+
+/* card body: 4 rows (Due, Job#, Driver, Note) */
+.card-content{ display: grid; gap: 4px; }
+.card-field{
+  display: grid;
+  grid-template-columns: 64px 1fr; /* tighter label column */
+  align-items: start;
+  gap: 8px;
+  padding: 4px 0;
+  border-top: 1px solid #f3f4f6;
+}
+.card-field:first-child{ border-top: 0; }
+
+.field-label{
+  color: #6b7280;
+  font-weight: 700;
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+}
+.field-value{
+  color: #111827;
+  font-size: .9rem;
+  line-height: 1.2;
+  word-break: break-word;
+}
+.field-value.note{ white-space: pre-wrap; color:#374151; }
+
+/* keep the existing 3-dot menu styles, but make trigger smaller */
+.menu-trigger{
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 1px 5px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s ease, background .15s ease;
+}
+.job-card:hover .menu-trigger{ opacity: 1; }
+@media (max-width: 900px){ .menu-trigger{ opacity: 1; } }
+
+/* tighten column + board spacing a bit */
+.board-header, .board-body { gap: 8px; }
+.col { padding: 8px; }
+
+
+  </style>
+</head>
+<body>
+  <!-- Navbar (existing site styles) -->
+  <nav>
+    <div class="navbar-container">
+      <div class="navbar-logo-container">
+        <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="navbar-logo" />
+        <div class="navbar-title">
+          <span class="speed">Speed</span><span class="pack">pack</span>
+        </div>
+        <div class="express-container">
+          <span class="line"></span><div class="express">Express</div><span class="line"></span>
+        </div>
+      </div>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li class="dropdown">
+          <a href="contact.html">Contact</a>
+          <ul class="dropdown-content">
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="support.html">Support</a></li>
+          </ul>
+        </li>
+        <li><a href="login.html">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Gap with centered back button (not on the white card) -->
+  <div class="page-head">
+    <a href="speedpack_online.html" class="back-btn">Back to Speedpack Online</a>
+  </div>
+
+  <!-- White card -->
+  <div class="page-wrap">
+    <h1 class="page-title">Dispatch Job Organizer</h1>
+
+    <!-- Add a Job ON TOP -->
+    <aside class="panel" aria-label="Add Job">
+      <h2>Add a Job</h2>
+      <form id="job-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="jobTitle">Job</label>
+            <input id="jobTitle" name="jobTitle" type="text" placeholder="e.g., AWB 123-4567 from MIA" required />
+          </div>
+
+          <!-- Driver -->
+          <div class="form-group">
+            <label for="driver">Driver</label>
+            <input id="driver" name="driver" list="driverList" placeholder="e.g., Mike T." required />
+            <datalist id="driverList">
+              <option value="Angel R."></option>
+              <option value="Bianca S."></option>
+              <option value="Carlos P."></option>
+              <option value="Diana M."></option>
+            </datalist>
+          </div>
+
+          <!-- Deadline -->
+          <div class="form-group">
+            <label for="deadline">Deadline</label>
+            <input id="deadline" name="deadline" type="datetime-local" required />
+          </div>
+
+          <div class="form-group">
+            <label for="jobCategory">Place in Column</label>
+            <select id="jobCategory" name="jobCategory" required>
+              <option value="" disabled selected>Select a column…</option>
+              <option value="mia">MIA Recovery</option>
+              <option value="fll">FLL Recovery</option>
+              <option value="tenders">Tenders</option>
+              <option value="deliveries">Deliveries</option>
+              <option value="dispatched">Dispatched</option>
+              <option value="bullshit">Bullshit Pile</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="jobNotes">Notes (optional)</label>
+            <textarea id="jobNotes" name="jobNotes" placeholder="Any extra info for dispatch…"></textarea>
+          </div>
+        </div>
+
+        <button type="submit" class="btn">Add to Board</button>
+      </form>
+    </aside>
+
+    <!-- Board (fully contained) -->
+    <section class="board" aria-label="Dispatch Board">
+      <div class="board-header">
+        <div class="col-head">MIA Recovery</div>
+        <div class="col-head">FLL Recovery</div>
+        <div class="col-head">Tenders</div>
+        <div class="col-head">Deliveries</div>
+        <div class="col-head">Dispatched</div>
+        <div class="col-head">Bullshit Pile</div>
+      </div>
+
+      <div class="board-body">
+        <div id="col-mia" class="col"></div>
+        <div id="col-fll" class="col"></div>
+        <div id="col-tenders" class="col"></div>
+        <div id="col-deliveries" class="col"></div>
+        <div id="col-dispatched" class="col"></div>
+        <div id="col-bullshit" class="col"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // ====== Supabase setup (replace with your project keys) ======
+    const SUPABASE_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRicGN1aW1ieGRxbGtucXZwbWJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NjAxNjIsImV4cCI6MjA3MDQzNjE2Mn0.5O_hoeXuR4tLPMBWwveUTHUCQ9WbJTsiAZr4iwPcdMg";
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ===== Utilities =====
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    const CATEGORIES = ["mia","fll","tenders","deliveries","dispatched","bullshit"];
+
+    function escapeHtml(str = "") {
+      return str
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+    }
+    function pad(n){ return String(n).padStart(2,'0'); }
+function formatDeadline(val){
+  const d = new Date(val);
+  if (isNaN(d)) return val;
+  const mm = pad(d.getMonth()+1);
+  const dd = pad(d.getDate());
+  const yy = pad(d.getFullYear() % 100); // 2-digit year
+  const HH = pad(d.getHours());          // 24-hour
+  const mi = pad(d.getMinutes());
+  return `${mm}/${dd}/${yy} ${HH}:${mi}`;
+}
+
+    // ===== Columns map =====
+    const cols = {
+      mia: document.getElementById('col-mia'),
+      fll: document.getElementById('col-fll'),
+      tenders: document.getElementById('col-tenders'),
+      deliveries: document.getElementById('col-deliveries'),
+      dispatched: document.getElementById('col-dispatched'),
+      bullshit: document.getElementById('col-bullshit'),
+    };
+
+    function createCardElement(job) {
+  const card = document.createElement('div');
+  card.className = 'job-card';
+  card.draggable = true;
+  card.dataset.id = job.id;
+
+  card.innerHTML = `
+    <button class="menu-trigger" title="Actions" aria-label="Card actions">⋮</button>
+
+    <div class="card-content">
+      <div class="card-field">
+        <div class="field-label">Due</div>
+        <div class="field-value">${escapeHtml(formatDeadline(job.deadline))}</div>
+      </div>
+
+      <div class="card-field">
+        <div class="field-label">Job#</div>
+        <div class="field-value">${escapeHtml(job.title)}</div>
+      </div>
+
+      <div class="card-field">
+        <div class="field-label">Driver</div>
+        <div class="field-value">${escapeHtml(job.driver)}</div>
+      </div>
+
+      <div class="card-field">
+        <div class="field-label">Note</div>
+        <div class="field-value note">${job.notes ? escapeHtml(job.notes) : ''}</div>
+      </div>
+    </div>
+  `;
+
+  // Build the hidden menu (unchanged)
+  const menu = document.createElement('div');
+  menu.className = 'card-menu';
+  menu.hidden = true;
+  menu.innerHTML = `
+    <div class="menu-row">
+      <label>Move to</label>
+      <select class="menu-select">
+        <option value="" disabled selected>Select…</option>
+        <option value="mia">MIA Recovery</option>
+        <option value="fll">FLL Recovery</option>
+        <option value="tenders">Tenders</option>
+        <option value="deliveries">Deliveries</option>
+        <option value="dispatched">Dispatched</option>
+        <option value="bullshit">Bullshit Pile</option>
+      </select>
+    </div>
+    <button type="button" class="menu-delete">Delete</button>
+  `;
+  card.appendChild(menu);
+
+  // Menu interactions (unchanged)
+  const trigger = card.querySelector('.menu-trigger');
+  const moveSelect = menu.querySelector('.menu-select');
+  const delBtn = menu.querySelector('.menu-delete');
+
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.querySelectorAll('.card-menu').forEach(m => { if (m !== menu) m.hidden = true; });
+    menu.hidden = !menu.hidden;
+  });
+
+  moveSelect.addEventListener('change', async (e) => {
+    const dest = e.target.value;
+    if (!CATEGORIES.includes(dest)) return;
+    const id = card.dataset.id;
+    cols[dest].prepend(card); // optimistic
+    menu.hidden = true;
+    moveSelect.value = '';
+    const { error } = await sb.from('jobs').update({ category: dest }).eq('id', id);
+    if (error) { alert('Move failed. Reverting.'); loadJobs(); }
+  });
+
+  delBtn.addEventListener('click', async () => {
+    const id = card.dataset.id;
+    const parent = card.parentElement;
+    card.remove(); // optimistic
+    const { error } = await sb.from('jobs').delete().eq('id', id);
+    if (error) { alert('Delete failed. Restoring.'); parent.prepend(card); }
+  });
+
+  // Close menus when clicking outside
+  document.addEventListener('click', (evt) => { if (!card.contains(evt.target)) menu.hidden = true; });
+
+  // Drag & Drop
+  card.addEventListener('dragstart', (e) => {
+    window.__draggingCard = card;
+    card.classList.add('dragging');
+    const img = document.createElement('img');
+    img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciLz4=';
+    e.dataTransfer.setDragImage(img, 0, 0);
+  });
+  card.addEventListener('dragend', () => {
+    window.__draggingCard = null;
+    card.classList.remove('dragging');
+  });
+
+  return card;
+}
+
+    function renderJob(job) {
+      const card = createCardElement(job);
+      const col = cols[job.category];
+      if (col) col.prepend(card);
+    }
+
+    function clearBoard() {
+      Object.values(cols).forEach(c => c.innerHTML = '');
+    }
+
+    async function loadJobs() {
+      clearBoard();
+      const { data, error } = await sb
+        .from('jobs')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) {
+        console.error(error);
+        alert('Failed to load jobs.');
+        return;
+      }
+      (data || []).forEach(renderJob);
+    }
+
+    // Make columns droppable
+    Object.entries(cols).forEach(([key, col]) => {
+      col.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        col.classList.add('drop-target');
+      });
+      col.addEventListener('dragleave', () => {
+        col.classList.remove('drop-target');
+      });
+      col.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        col.classList.remove('drop-target');
+        const dragging = window.__draggingCard;
+        if (dragging) {
+          const id = dragging.dataset.id;
+          // optimistic UI
+          col.prepend(dragging);
+          const { error } = await sb.from('jobs').update({ category: key }).eq('id', id);
+          if (error) {
+            alert('Move failed. Reverting.');
+            loadJobs();
+          }
+        }
+      });
+    });
+
+    // ===== Form handling =====
+const form = document.getElementById('job-form');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const title    = document.getElementById('jobTitle').value.trim();
+  const driver   = document.getElementById('driver').value.trim();
+  const deadline = document.getElementById('deadline').value.trim();
+  const category = document.getElementById('jobCategory').value;
+  const notes    = document.getElementById('jobNotes').value.trim();
+
+  if (!title || !driver || !deadline || !category) return;
+
+  const payload = {
+    title,
+    driver,
+    deadline: new Date(deadline).toISOString(),
+    category,
+    notes: notes || null
+  };
+
+  const { error } = await sb.from('jobs').insert(payload);
+  if (error) {
+    console.error('Insert error:', error);
+    alert(`Failed to add job: ${error.message}`);
+    return;
+  }
+
+  // Immediate refresh so the new job shows even if realtime is delayed
+  await loadJobs();
+
+  form.reset();
+  document.getElementById('jobTitle').focus();
+});
+
+// ===== Single realtime subscription + initial load =====
+window.addEventListener('DOMContentLoaded', () => {
+  loadJobs();
+
+  // One channel only. Name can be anything.
+  sb.channel('jobs-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'jobs' }, () => {
+      loadJobs();
+    })
+    .subscribe();
+});
+
+
+  </script>
+</body>
+</html>
