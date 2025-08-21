@@ -210,6 +210,86 @@
 .board-header, .board-body { gap: 8px; }
 .col { padding: 8px; }
 
+/* --- Make Add-a-Job panel smaller and centered --- */
+.panel{
+  max-width: 560px;      /* tighter input area */
+  margin: 0 auto 36px;   /* centered + extra space below */
+  padding: 14px;         /* slightly reduced padding */
+  border-radius: 6px;
+}
+
+/* compact fields inside the panel */
+.form-row{ gap: 10px; }
+.form-group label{
+  font-size: 0.9rem;
+}
+.form-group input,
+.form-group select,
+.form-group textarea{
+  width: 100%;
+  padding: 7px 9px;
+  font-size: 13px;
+}
+.form-group textarea{ min-height: 80px; }
+
+.btn{
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+/* --- Visual separator between panel and board --- */
+.section-sep{
+  max-width: 1100px;     /* similar width to board area, but not required */
+  height: 1px;
+  margin: 10px auto 22px;
+  background: #e5e7eb;   /* light grey line */
+}
+
+/* Remove the big white wrapper; let the background show */
+.page-wrap{
+  width: min(92vw, 1400px);
+  margin: 24px auto 70px;
+  padding: 0;                 /* no inner white gutters */
+  background: transparent;    /* was #fff */
+  border: 0;                  /* kill the white border */
+  box-shadow: none;           /* in case it exists */
+  overflow: visible;
+}
+
+/* Keep the panel compact + centered (as you liked) */
+.panel{
+  max-width: 560px;
+  margin: 0 auto 28px;        /* space below panel */
+  padding: 14px;
+  border-radius: 6px;
+  background: #fff;           /* small white card just for the form */
+  border: 1px solid #d1d5db;
+}
+
+/* The line separator becomes pure background space (no visible line) */
+.section-sep{
+  height: 24px;               /* just spacing */
+  background: transparent;    /* no grey/white bar */
+  border: 0;
+  max-width: none;
+  margin: 0;                  /* spacing handled by .panel margin-bottom */
+}
+
+/* Board stays same size, centered; no extra white around it */
+.board{
+  background: #e5e7eb;        /* grey board area only */
+  border-radius: 6px;
+  padding: 12px;
+  margin: 0 auto;             /* center within the wrapper */
+  overflow: visible;
+}
+
+/* Make the page heading white (and readable on photo bg) */
+.page-title{
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0,0,0,.35);
+}
+
 
   </style>
 </head>
@@ -302,6 +382,8 @@
         <button type="submit" class="btn">Add to Board</button>
       </form>
     </aside>
+
+    <div class="section-sep"></div>
 
     <!-- Board (fully contained) -->
     <section class="board" aria-label="Dispatch Board">
