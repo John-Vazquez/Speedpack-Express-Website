@@ -7,104 +7,32 @@
 
   <link rel="stylesheet" href="styles.css">
 
-   <!-- Favicons -->
+  <!-- Favicons -->
   <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
   <link rel="manifest" href="/favicons/site.webmanifest">
   <link rel="shortcut icon" href="/favicons/favicon.ico">
-  
-  <!-- Optional for Android -->
-  <link rel="icon" type="image/png" sizes="192x192" href="/favicons/android-chrome-192x192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/favicons/android-chrome-512x512.png">
-  <style>
-  /* Match Services logo styling, but with WHITE bars */
-  nav .navbar-title{
-    font-size: 1.7rem;      /* same visual scale as Services */
-    line-height: 1;
-  }
-  nav .express-container{
-    display: flex;
-    align-items: center;
-    gap: 8px;               /* spacing between bars and "Express" */
-    margin-top: 6px;
-  }
-  nav .express{
-    font-size: 1rem;
-    font-style: normal;     /* Services look (remove italic) */
-    letter-spacing: .18em;
-    text-transform: uppercase;
-  }
-  nav .line{
-    width: 64px;
-    height: 2px;
-    background: #fff !important;               /* <- white bars */
-    box-shadow: 0 0 6px rgba(255,255,255,.45); /* subtle glow */
-  }
-</style>
 
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-  
 
   <style>
-    /* ===== Page base + sticky footer ===== */
-    html, body { height: 100%; margin: 0; }
+
     body {
-      display: flex; flex-direction: column;
-      font-family: 'Roboto', sans-serif;
-      background: url('website images/airportphoto.png') no-repeat center center fixed;
-      background-size: cover; color: #fff;
-    }
-    body::before { content:""; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:-1; }
-    main { flex: 1 0 auto; } /* no padding here – spacer handles clearance */
+  background: url('website images/airportphoto.png') no-repeat center center fixed;
+  background-size: cover;
+}
 
-    footer { background:#333; color:#fff; text-align:center; padding:18px 0; }
-    footer a { color:#9dc4ff; text-decoration:none; }
-    footer a:hover { text-decoration:underline; }
-
-    /* ===== NAVBAR (centered logo, right menu, stable dropdown) ===== */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-      background: transparent; box-shadow: 0 2px 4px rgba(0,0,0,.1);
-    }
-    .navbar-container {
-      display:flex; align-items:center; justify-content:center;
-      position:relative; height:70px; padding:6px 20px;
-    }
-    .navbar-logo-container { display:flex; flex-direction:column; align-items:center; margin:0 auto; }
-    .navbar-logo { height:40px; margin-bottom:5px; }
-    .navbar-title { font-size:1.8em; text-shadow:2px 2px 4px rgba(0,0,0,.5); }
-    .navbar-title .speed, .navbar-title .pack { color:#fff; font-family:'Faster One', sans-serif; }
-    .express-container { display:flex; align-items:center; margin-top:5px; font-family:'Faster One', sans-serif; }
-    .express { color:#fff; font-size:1.2em; font-style:italic; margin:0 10px; text-shadow:2px 2px 4px rgba(0,0,0,.5); }
-    .line { width:50px; height:2px; background:#fffb00; }
-
-    /* right-side menu */
-    nav ul {
-      position:absolute; right:20px; top:0; bottom:0;
-      display:flex; align-items:center; gap:10px;
-      list-style:none; margin:0; padding:0;
-    }
-    nav ul li { position:relative; }
-    nav ul li a{
-      display:block; padding:8px 10px; font-size:18px; font-weight:700;
-      color:#f8f8f9; text-decoration:none; transition:background-color .3s,color .3s;
-    }
-    nav ul li a.active{ border-bottom:2px solid #f8f8f9; }
-    nav ul li a:hover{ background:rgba(0,0,0,.3); color:#fff; }
-
-    /* dropdown under Contact */
-    nav ul li.dropdown .dropdown-content{
-      display:none; position:absolute; top:100%; left:0; margin-top:6px;
-      min-width:220px; background:rgba(0,0,0,.8);
-      box-shadow:0 8px 16px rgba(0,0,0,.2); z-index:2000;
-    }
-    .dropdown-content a{ color:#fff; padding:12px 16px; display:block; }
-    .dropdown-content a:hover{ background:rgba(255,255,255,.08); }
-    nav ul li:hover > .dropdown-content,
-    nav ul li:focus-within > .dropdown-content { display:block; }
-
-    /* ===== ABOUT GRID (tight, balanced) ===== */
+/* keep dark overlay like homepage */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: -1;
+}
+    /* ===== ABOUT GRID ===== */
     .about-wrap{ max-width: 1200px; margin: 0 auto; padding: 0 24px 32px; }
     .about-grid{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 
@@ -114,38 +42,29 @@
       box-shadow: 0 6px 18px rgba(0,0,0,.25);
       padding: 22px;
       display: grid; grid-template-columns: 90px 1fr; gap: 16px;
-      transition: transform .2s ease, box-shadow .2s ease;
-      backdrop-filter: blur(2px);
     }
-    .about-card:hover{ transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,.35); }
-    .about-card.span-2 { grid-column: 1 / -1; } /* full-width bottom card */
 
-    .about-logo { width: 90px; height: auto; align-self: start; }
-    .about-card h3{ margin: 0 0 8px; font-size: 1.8rem; }
+    .about-card.span-2 { grid-column: 1 / -1; }
+
+    .about-logo { width: 90px; height: auto; }
+    .about-card h3{ margin: 0 0 8px; font-size: 1.8rem; color: #fff;}
     .about-card p { margin: 0; font-size: .95rem; line-height: 1.6; color:#f1f1f1; }
 
-    /* Responsive stack */
     @media (max-width: 900px){
-      .about-grid{ grid-template-columns: 1fr; gap: 14px; }
-      .about-card{ grid-template-columns: 70px 1fr; }
-      .about-logo{ width: 70px; }
+      .about-grid{ grid-template-columns: 1fr; }
     }
-
-    /* ===== About page: NEVER overlap navbar ===== */
-    .about-main{ padding-top: 0 !important; }
-    .nav-spacer{ height: calc(var(--nav-height, 96px) + 16px); } /* fallback if var not set */
-    .about-main > .about-wrap{ margin-top: 0 !important; padding-top: 0 !important; }
   </style>
 </head>
+
 <body>
 
+  <!-- NAVBAR (matches homepage exactly) -->
   <nav>
     <div class="navbar-container">
       <div class="navbar-logo-container">
-        <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="navbar-logo">
-        <div class="navbar-title"><span class="speed">Speed</span><span class="pack">pack</span></div>
-        <div class="express-container"><span class="line"></span><div class="express">Express</div><span class="line"></span></div>
+        <img src="website images/SPEEDPACK-EXPRESS-AI-LOGO.png" alt="Speedpack Express Logo" class="navbar-logo">
       </div>
+
       <ul>
         <li><a href="index.html">Home</a></li>
         <li><a class="active" href="about.html">About</a></li>
@@ -163,47 +82,34 @@
     </div>
   </nav>
 
-  <!-- This spacer guarantees the cards never overlap the fixed navbar -->
-  <div class="nav-spacer" aria-hidden="true"></div>
-
-  <main class="about-main">
+  <main>
     <div class="about-wrap">
       <div class="about-grid">
+
         <section class="about-card">
-          <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="about-logo">
+          <img src="website images/SPEEDPACK-EXPRESS-AI-LOGO.png" class="about-logo">
           <div>
             <h3>About Us</h3>
-            <p>Speedpack Express, Inc. was founded in 2000 by logistics professionals with over 25 years in the
-              industry. We started by providing ground transportation in Miami and Ft. Lauderdale for courier
-              companies and freight forwarders, growing steadily through trial and error—arguably the best
-              teachers. Over a decade later, largely through word of mouth, we became the pickup and delivery
-              agent of choice in South Florida. Our principles remain the same: keep service levels high and
-              costs fair.</p>
+            <p>Speedpack Express, Inc. was founded in 2000 by logistics professionals with over 25 years in the industry. We started by providing ground transportation in Miami and Ft. Lauderdale for courier companies and freight forwarders, growing steadily through trial and error—arguably the best teachers. Over a decade later, largely through word of mouth, we became the pickup and delivery agent of choice in South Florida. Our principles remain the same: keep service levels high and costs fair.</p>
           </div>
         </section>
 
         <section class="about-card">
-          <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="about-logo">
+          <img src="website images/SPEEDPACK-EXPRESS-AI-LOGO.png" class="about-logo">
           <div>
             <h3>Our Company</h3>
-            <p>Available 24 hours a day, 365 days a year. We handle time-sensitive pickups and deliveries,
-              from organs for transplants to critical parts, documents, and more. We offer hands-on monitoring,
-              GPS tracking, and on-time delivery for impossible deadlines—the courier’s courier, serving
-              companies and forwarders for over a decade.</p>
+            <p>Available 24 hours a day, 365 days a year. We handle time-sensitive pickups and deliveries, from organs for transplants to critical parts, documents, and more. We offer hands-on monitoring, GPS tracking, and on-time delivery for impossible deadlines—the courier’s courier, serving companies and forwarders for over a decade.</p>
           </div>
         </section>
 
         <section class="about-card span-2">
-          <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="about-logo">
+          <img src="website images/SPEEDPACK-EXPRESS-AI-LOGO.png" class="about-logo">
           <div>
             <h3>Our Vision</h3>
-            <p>To deliver the highest-quality transportation and logistics services for time-critical shipments
-              in South Florida. We develop our staff and infrastructure so customer requests are never refused.
-              In complex situations we combine and adapt resources to meet expectations. Communication—internal
-              and with customers—is our backbone. We work as one team, confident in our abilities and supported
-              by the entire Speedpack organization.</p>
+            <p>To deliver the highest-quality transportation and logistics services for time-critical shipments in South Florida. We develop our staff and infrastructure so customer requests are never refused. In complex situations we combine and adapt resources to meet expectations. Communication—internal and with customers—is our backbone. We work as one team, confident in our abilities and supported by the entire Speedpack organization.</p>
           </div>
         </section>
+
       </div>
     </div>
   </main>
@@ -215,6 +121,5 @@
     </p>
   </footer>
 
-  <script src="scripts.js"></script>
 </body>
 </html>

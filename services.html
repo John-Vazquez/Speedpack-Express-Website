@@ -1,151 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speedpack Express</title>
-    <link rel="stylesheet" href="styles.css">
-     <!-- Favicons -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services - Speedpack Express</title>
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Favicons -->
   <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
   <link rel="manifest" href="/favicons/site.webmanifest">
   <link rel="shortcut icon" href="/favicons/favicon.ico">
-  
+
   <!-- Optional for Android -->
   <link rel="icon" type="image/png" sizes="192x192" href="/favicons/android-chrome-192x192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="/favicons/android-chrome-512x512.png">
-  
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      background: url('website images/airportphoto.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: -1;
+    }
+    body > nav {
+  position: relative !important;
+  top: 0 !important;
+  left: auto !important;
+  right: auto !important;
+}
+
+/* push logo down slightly so it matches contact page */
+body > nav .navbar-logo-container {
+  transform: translateY(12px) !important;
+}
+
+/* remove fixed-navbar spacing */
+body > main,
+body > nav + *:not(main) {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* spacing below navbar */
+.content {
+  margin-top: 40px !important;
+}
+  </style>
 </head>
 <body>
-    <nav>
-        <div class="navbar-container">
-            <div class="navbar-logo-container">
-                <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="navbar-logo">
-                <div class="navbar-title">
-                    <span class="speed">Speed</span><span class="pack">pack</span>
-                </div>
-                <div class="express-container">
-                    <span class="line"></span>
-                    <div class="express">Express</div>
-                    <span class="line"></span>
-                </div>
-            </div>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="services.html">Services</a></li>
-                <li class="dropdown">
-                    <a href="contact.html">Contact</a>
-                    <ul class="dropdown-content">
-                        <li><a href="contact.html">Contact Us</a></li>
-                        <li><a href="careers.html">Careers</a></li>
-                        <li><a href="support.html">Support</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </nav>
-    <section class="content">
+  <nav>
+    <div class="navbar-container">
+      <div class="navbar-logo-container">
+        <img src="website images/SPEEDPACK-EXPRESS-AI-LOGO.png" alt="Speedpack Express Logo" class="navbar-logo">
+      </div>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a class="active" href="services.html">Services</a></li>
+        <li class="dropdown">
+          <a href="contact.html">Contact</a>
+          <ul class="dropdown-content">
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="support.html">Support</a></li>
+          </ul>
+        </li>
+        <li><a href="login.html">Login</a></li>
+      </ul>
+    </div>
+  </nav>
 
-        </div>
-        <div class="services-boxes">
-            <div class="services-title">Our Services</div>
-            <div class="service-box">
-                <h2>Airport Services</h2>
-                <ul>
-                    <li class="interactive-item">AOG - Rushed Delivery
-                        <div class="description">Aircraft on Ground (AOG) services ensure your aircraft parts are delivered as quickly as possible to minimize downtime.</div>
-                    </li>
-                    <li class="interactive-item">Transfers
-                        <div class="description">Efficient transfer services to ensure smooth transitions between flights and destinations.</div>
-                    </li>
-                    <li class="interactive-item">Scheduled Routes
-                        <div class="description">Regularly scheduled routes to meet your ongoing logistics needs.</div>
-                    </li>
-                    </li>
-                    <li class="interactive-item">On-Board Courier
-                        <div class="description">Personalized courier services where an individual accompanies your shipment.</div>
-                    </li>
-                </ul>
-            </div>
-            <div class="service-box">
-                <h2>Medical Services</h2>
-                <ul>
-                    <li class="interactive-item">Cord-Blood
-                        <div class="description">Stat Professional and safe handling, pickup, and delivery of Cord-Blood packages.</div>
-                    </li>
-                    <li class="interactive-item">Clinical Trials
-                        <div class="description">Stat service of medical specimens, organs or equipment.</div>
-                    </li>
-                </ul>
-            </div>
-            <div class="service-box">
-                <h2>Temperature Control</h2>
-                <ul>
-                    <li class="interactive-item">Dry Ice
-                        <div class="description">Packing and Handling of dry ice.</div>
-                    </li>
-                    <li class="interactive-item">Temp Controlled Packages
-                        <div class="description">Professional packing, storing, pickup, and delivery of Temperature controlled packages.</div>
-                    </li>
-                </ul>
-            </div>
-            <div class="service-box">
-                <h2>Special Vehicles</h2>
-                <ul>
-                    <li class="interactive-item">Regular</li>
-                    <li class="interactive-item">Van</li>
-                    <li class="interactive-item">Straight Trucks</li>
-                    <li class="interactive-item">Box Trucks</li>
-                </ul>
-            </div>
-            <div class="service-box">
-                <h2>Warehousing</h2>
-                <ul>
-                    <li class="interactive-item">Long Term
-                        <div class="description">Long term secure warehousing.</div>
-                    </li>
-                    <li class="interactive-item">Short Term
-                        <div class="description">Short term secure warehousing.</div>
-                    </li>
-                    <li class="interactive-item">Warehouse Locations
-                        <div class="description">Multiple warehousing locations in Miami-Dade and Broward.</div>
-                    </li>
-                </ul>
-            </div>
-            <div class="service-box">
-                <h2>Other</h2>
-                <ul>
-                    <li class="interactive-item">Custom Solutions
-                        <div class="description">Tailored logistics solutions to meet your unique requirements.</div>
-                    </li>
-                    <li class="interactive-item">Consulting Services
-                        <div class="description">Professional consulting to optimize your logistics operations.</div>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </section>
-    <footer>
-        <p>Copyright © 2024 Speedpack Express Inc. All Rights Reserved. | Designed & Developed by <a href="https://www.linkedin.com/in/john-r-vazquez">John R Vazquez</a></p>
-    </footer>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const items = document.querySelectorAll('.interactive-item');
-            items.forEach(item => {
-                item.addEventListener('mouseenter', function() {
-                    const description = this.querySelector('.description');
-                    description.classList.add('active');
-                });
-                item.addEventListener('mouseleave', function() {
-                    const description = this.querySelector('.description');
-                    description.classList.remove('active');
-                });
-            });
+  <section class="content">
+    <div class="services-boxes">
+      <div class="services-title">Our Services</div>
+
+      <div class="service-box">
+        <h2>Airport Services</h2>
+        <ul>
+          <li class="interactive-item">AOG - Rushed Delivery
+            <div class="description">Aircraft on Ground (AOG) services ensure your aircraft parts are delivered as quickly as possible to minimize downtime.</div>
+          </li>
+          <li class="interactive-item">Transfers
+            <div class="description">Efficient transfer services to ensure smooth transitions between flights and destinations.</div>
+          </li>
+          <li class="interactive-item">Scheduled Routes
+            <div class="description">Regularly scheduled routes to meet your ongoing logistics needs.</div>
+          </li>
+          <li class="interactive-item">On-Board Courier
+            <div class="description">Personalized courier services where an individual accompanies your shipment.</div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="service-box">
+        <h2>Medical Services</h2>
+        <ul>
+          <li class="interactive-item">Cord-Blood
+            <div class="description">Stat Professional and safe handling, pickup, and delivery of Cord-Blood packages.</div>
+          </li>
+          <li class="interactive-item">Clinical Trials
+            <div class="description">Stat service of medical specimens, organs or equipment.</div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="service-box">
+        <h2>Temperature Control</h2>
+        <ul>
+          <li class="interactive-item">Dry Ice
+            <div class="description">Packing and Handling of dry ice.</div>
+          </li>
+          <li class="interactive-item">Temp Controlled Packages
+            <div class="description">Professional packing, storing, pickup, and delivery of Temperature controlled packages.</div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="service-box">
+        <h2>Special Vehicles</h2>
+        <ul>
+          <li class="interactive-item">Regular</li>
+          <li class="interactive-item">Van</li>
+          <li class="interactive-item">Straight Trucks</li>
+          <li class="interactive-item">Box Trucks</li>
+        </ul>
+      </div>
+
+      <div class="service-box">
+        <h2>Warehousing</h2>
+        <ul>
+          <li class="interactive-item">Long Term
+            <div class="description">Long term secure warehousing.</div>
+          </li>
+          <li class="interactive-item">Short Term
+            <div class="description">Short term secure warehousing.</div>
+          </li>
+          <li class="interactive-item">Warehouse Locations
+            <div class="description">Multiple warehousing locations in Miami-Dade and Broward.</div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="service-box">
+        <h2>Other</h2>
+        <ul>
+          <li class="interactive-item">Custom Solutions
+            <div class="description">Tailored logistics solutions to meet your unique requirements.</div>
+          </li>
+          <li class="interactive-item">Consulting Services
+            <div class="description">Professional consulting to optimize your logistics operations.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Copyright © 2024 Speedpack Express Inc. All Rights Reserved. | Designed & Developed by <a href="https://www.linkedin.com/in/john-r-vazquez">John R Vazquez</a></p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const items = document.querySelectorAll('.interactive-item');
+      items.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+          const description = this.querySelector('.description');
+          if (description) description.classList.add('active');
         });
-    </script>
-    <script src="scripts.js"></script>
+        item.addEventListener('mouseleave', function() {
+          const description = this.querySelector('.description');
+          if (description) description.classList.remove('active');
+        });
+      });
+    });
+  </script>
+
+  <script src="scripts.js"></script>
 </body>
 </html>

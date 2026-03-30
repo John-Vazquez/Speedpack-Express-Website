@@ -3,12 +3,21 @@ html, body {
   height: 100%;
   margin: 0;
 }
+.homepage-bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+  pointer-events: none;
+}
 body {
   display: flex;
   flex-direction: column;
   font-family: 'Roboto', sans-serif;
-  background: url('website images/airportphoto.png') no-repeat center center fixed;
-  background-size: cover;
+  background: transparent;
   color: #333;
 }
 main {
@@ -57,11 +66,17 @@ nav {
 .navbar-logo-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin: 0 auto;
+  align-items: flex-start;
+  margin: 0;
+  position: absolute;
+  left: 20px;
 }
 
-.navbar-logo { height: 40px; margin-bottom: 5px; }
+.navbar-logo {
+  height: 200px;   /* ~5x bigger */
+  width: auto;
+  margin-bottom: 0;
+}
 
 .navbar-title {
   font-size: 1.8em;
@@ -427,12 +442,10 @@ body > nav {
   z-index: 1000 !important;
 }
 
-/* Make the bar tall enough so the logo isn't cramped */
 body > nav .navbar-container {
-  height: 100px !important;       /* was ~70–86; now comfortable */
-  padding: 0 !important;
+  height: 140px !important;
+  padding: 10px 20px !important;
 }
-
 /* Move the logo stack DOWN inside the bar */
 body > nav .navbar-logo-container {
   transform: translateY(12px) !important;  /* bump this up/down to taste */
@@ -447,17 +460,19 @@ body > nav ul {
 
 /* CLEARANCE: push page content down so it doesn't sit under the fixed bar */
 body > main {
-  padding-top: calc(100px + 20px + 12px) !important;
+  padding-top: calc(300px + 20px + 12px) !important;
   /* 100 (bar height) + 20 (nav top offset) + 12 (logo translate) */
 }
 
 /* Pages without <main>: push the first block down the same amount */
 body > nav + *:not(main) {
-  margin-top: calc(100px + 20px + 12px) !important;
+  margin-top: calc(300px + 20px + 12px) !important;
 }
 
-/* === UNIFY NAV LOGO LOOK (match Services) — white bars === */
-body > nav .navbar-logo { height: 40px; margin-bottom: 4px; }
+body > nav .navbar-logo {
+  height: 500px !important;
+  width: auto;
+}
 
 body > nav .navbar-title {
   font-size: 1.7rem;      /* same visual scale as Services */

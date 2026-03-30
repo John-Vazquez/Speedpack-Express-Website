@@ -6,22 +6,72 @@
   <title>Dashboard - Speedpack Express</title>
   <link rel="stylesheet" href="styles.css" />
 
-   <!-- Favicons -->
+  <!-- Favicons -->
   <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
   <link rel="manifest" href="/favicons/site.webmanifest">
   <link rel="shortcut icon" href="/favicons/favicon.ico">
-  
+
   <!-- Optional for Android -->
   <link rel="icon" type="image/png" sizes="192x192" href="/favicons/android-chrome-192x192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="/favicons/android-chrome-512x512.png">
+
   <style>
+    body {
+      background: url('website images/airportphoto.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: -1;
+    }
+
+    /* make navbar scroll normally on this page too */
+    body > nav {
+      position: relative !important;
+      top: 0 !important;
+      left: auto !important;
+      right: auto !important;
+    }
+
+    /* keep logo aligned like contact/services/login */
+    body > nav .navbar-logo-container {
+      transform: translateY(12px) !important;
+    }
+
+    /* remove homepage fixed-nav spacing */
+    body > main,
+    body > nav + *:not(main) {
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+    }
+
+    .dashboard-main {
+      padding: 40px 20px 60px;
+      box-sizing: border-box;
+    }
+
+    .dashboard-title {
+      text-align: center;
+      font-size: 2.5em;
+      font-weight: bold;
+      color: white;
+      margin: 20px 0 30px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    }
+
     .dashboard-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      padding: 50px;
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
     }
 
     .dashboard-box {
@@ -33,7 +83,6 @@
       justify-content: center;
       border-radius: 10px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      margin: 20px;
       text-decoration: none;
       color: white;
       font-size: 18px;
@@ -41,22 +90,13 @@
       transition: transform 0.3s ease;
     }
 
-    .dashboard-box:nth-child(1) { background: #FF5733; } /* Red */
-    .dashboard-box:nth-child(2) { background: #33A1FF; } /* Blue */
-    .dashboard-box:nth-child(3) { background: #33FF57; } /* Green */
-    .dashboard-box:nth-child(4) { background: #FFC733; } /* Yellow */
+    .dashboard-box:nth-child(1) { background: #FF5733; }
+    .dashboard-box:nth-child(2) { background: #33A1FF; }
+    .dashboard-box:nth-child(3) { background: #33FF57; }
+    .dashboard-box:nth-child(4) { background: #FFC733; color: #333; }
 
     .dashboard-box:hover {
       transform: scale(1.05);
-    }
-
-    .dashboard-title {
-      text-align: center;
-      font-size: 2.5em;
-      font-weight: bold;
-      color: white;
-      margin-top: 100px;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
     }
   </style>
 </head>
@@ -64,15 +104,7 @@
   <nav>
     <div class="navbar-container">
       <div class="navbar-logo-container">
-        <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="navbar-logo" />
-        <div class="navbar-title">
-          <span class="speed">Speed</span><span class="pack">pack</span>
-        </div>
-        <div class="express-container">
-          <span class="line"></span>
-          <div class="express">Express</div>
-          <span class="line"></span>
-        </div>
+        <img src="website images/SPEEDPACK-EXPRESS-AI-LOGO.png" alt="Speedpack Express Logo" class="navbar-logo" />
       </div>
       <ul>
         <li><a href="index.html">Home</a></li>
@@ -91,12 +123,15 @@
     </div>
   </nav>
 
-  <h1 class="dashboard-title">Welcome to Speedpack Express Online</h1>
-  <div class="dashboard-container">
-    <a href="live_upload_activity.html" class="dashboard-box">Live Upload Activity</a>
-    <a href="stats.html" class="dashboard-box">Performance Stats</a>
-    <a href="tickets.html" class="dashboard-box">Submit A Ticket</a>
-    <a href="dispatch.html" class="dashboard-box">Dispatch Virtual Table</a>
-  </div>
+  <main class="dashboard-main">
+    <h1 class="dashboard-title">Welcome to Speedpack Express Online</h1>
+
+    <div class="dashboard-container">
+      <a href="live_upload_activity.html" class="dashboard-box">Live Upload Activity</a>
+      <a href="stats.html" class="dashboard-box">Performance Stats</a>
+      <a href="tickets.html" class="dashboard-box">Submit A Ticket</a>
+      <a href="dispatch.html" class="dashboard-box">Dispatch Virtual Table</a>
+    </div>
+  </main>
 </body>
 </html>
