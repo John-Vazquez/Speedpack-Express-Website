@@ -6,100 +6,139 @@
     <title>Careers - Speedpack Express</title>
     <link rel="stylesheet" href="styles.css">
 
-     <!-- Favicons -->
-  <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
-  <link rel="manifest" href="/favicons/site.webmanifest">
-  <link rel="shortcut icon" href="/favicons/favicon.ico">
-  
-  <!-- Optional for Android -->
-  <link rel="icon" type="image/png" sizes="192x192" href="/favicons/android-chrome-192x192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/favicons/android-chrome-512x512.png">
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
+    <link rel="manifest" href="/favicons/site.webmanifest">
+    <link rel="shortcut icon" href="/favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicons/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicons/android-chrome-512x512.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Add reCAPTCHA script -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+    <style>
+        body {
+            background: url('website images/airportphoto.png') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: -1;
+        }
+
+        /* NAVBAR FIX */
+        body > nav {
+            position: relative !important;
+            top: 0 !important;
+            left: auto !important;
+            right: auto !important;
+        }
+
+        body > nav .navbar-logo-container {
+            transform: translateY(12px) !important;
+        }
+
+        body > main,
+        body > nav + *:not(main) {
+            padding-top: 0 !important;
+            margin-top: 0 !important;
+        }
+
+        /* FORM BOX SPACING */
+        .form-section {
+            margin-top: 40px !important;
+        }
+    </style>
 </head>
+
 <body>
-    <nav>
-        <div class="navbar-container">
-            <div class="navbar-logo-container">
-                <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="navbar-logo">
-                <div class="navbar-title">
-                    <span class="speed">Speed</span><span class="pack">pack</span>
-                </div>
-                <div class="express-container">
-                    <span class="line"></span>
-                    <div class="express">Express</div>
-                    <span class="line"></span>
-                </div>
+
+<nav>
+    <div class="navbar-container">
+        <div class="navbar-logo-container">
+            <img src="website images/SPEEDPACK-EXPRESS-AI-LOGO.png" alt="Speedpack Express Logo" class="navbar-logo">
+        </div>
+
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li class="dropdown">
+                <a href="contact.html">Contact</a>
+                <ul class="dropdown-content">
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="careers.html" class="active">Careers</a></li>
+                    <li><a href="support.html">Support</a></li>
+                </ul>
+            </li>
+            <li><a href="login.html">Login</a></li>
+        </ul>
+    </div>
+</nav>
+
+<section class="form-section">
+    <div class="form-container">
+        <h2 style="color:white;">Resume Submission Form</h2>
+
+        <form action="https://formspree.io/f/xzzpglan" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" required>
             </div>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="services.html">Services</a></li>
-                <li class="dropdown">
-                    <a href="contact.html">Contact</a>
-                    <ul class="dropdown-content">
-                        <li><a href="contact.html">Contact Us</a></li>
-                        <li><a href="careers.html" class="active">Careers</a></li>
-                        <li><a href="support.html">Support</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </nav>
 
-    <section class="form-section">
-        <div class="form-container">
-            <h2>Resume Submission Form</h2>
-            <form action="https://formspree.io/f/xzzpglan" method="post" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="name">Full Name:</label>
-                    <input type="text" id="name" name="name" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="phone">Phone Number:</label>
-                    <input type="tel" id="phone" name="phone" required>
-                </div>
-                <div class="form-group">
-                    <label for="resume">Upload Resume:</label>
-                    <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
-                </div>
-                <div class="form-group">
-                    <label for="start-date">When can you start?</label>
-                    <input type="date" id="start-date" name="start-date" required>
-                </div>
-                <div class="form-group">
-                    <label for="availability">Availability:</label>
-                    <select id="availability" name="availability" required>
-                        <option value="full-time">Full-Time</option>
-                        <option value="part-time">Part-Time</option>
-                        <option value="internship">Internship</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="message">Additional Comments:</label>
-                    <textarea id="message" name="message" rows="4" placeholder="Write any additional comments here..."></textarea>
-                </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
 
-                <!-- Add the reCAPTCHA widget -->
-                <div class="g-recaptcha" data-sitekey="6LckKTIqAAAAAAgifqjIvk3dz1llg2--MXjTPaq6"></div>
+            <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
 
-                <div class="form-group">
-                    <button type="submit" class="submit-btn">Submit</button>
-                </div>
-            </form>
-        </div>
-    </section>
+            <div class="form-group">
+                <label for="resume">Upload Resume:</label>
+                <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
+            </div>
 
-    <footer>
-        <p>Copyright © 2024 Speedpack Express Inc. All Rights Reserved. | Designed & Developed by <a href="https://www.linkedin.com/in/john-r-vazquez">John R Vazquez</a></p>
-    </footer>
-    <script src="scripts.js"></script>
+            <div class="form-group">
+                <label for="start-date">When can you start?</label>
+                <input type="date" id="start-date" name="start-date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="availability">Availability:</label>
+                <select id="availability" name="availability" required>
+                    <option value="full-time">Full-Time</option>
+                    <option value="part-time">Part-Time</option>
+                    <option value="internship">Internship</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="message">Additional Comments:</label>
+                <textarea id="message" name="message" rows="4"></textarea>
+            </div>
+
+            <div class="g-recaptcha" data-sitekey="6LckKTIqAAAAAAgifqjIvk3dz1llg2--MXjTPaq6"></div>
+
+            <div class="form-group">
+                <button type="submit" class="submit-btn">Submit</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<footer>
+    <p>Copyright © 2024 Speedpack Express Inc. All Rights Reserved. | Designed & Developed by <a href="https://www.linkedin.com/in/john-r-vazquez">John R Vazquez</a></p>
+</footer>
+
+<script src="scripts.js"></script>
 </body>
 </html>
