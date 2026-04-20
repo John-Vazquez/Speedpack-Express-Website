@@ -120,6 +120,45 @@
       padding: 12px;
       overflow: visible; /* no spilling outside the grey */
     }
+    .due-soon-board{
+  background: #e5e7eb;
+  border-radius: 6px;
+  padding: 12px;
+  margin: 0 auto 18px;
+  overflow: hidden;
+}
+
+.due-soon-title{
+  background: #b91c1c;
+  color: #fff;
+  text-align: center;
+  font-weight: 800;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 0.92rem;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
+}
+
+.due-soon-row{
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.due-slot{
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  min-height: 150px;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.due-slot.empty{
+  background: #f9fafb;
+}
 
     .board-header,
     .board-body{
@@ -334,67 +373,82 @@
     </div>
   </nav>
 
-  <!-- Gap with centered back button (not on the white card) -->
-  <div class="page-head">
-    <a href="speedpack_online.html" class="back-btn">Back to Speedpack Online</a>
-  </div>
+  <main>
+    <div class="page-head">
+      <a href="speedpack_online.html" class="back-btn">Back to Speedpack Online</a>
+    </div>
 
-  <!-- White card -->
-  <div class="page-wrap">
+    <div class="page-wrap">
     <h1 class="page-title">Dispatch Job Organizer</h1>
 
-    <!-- Add a Job ON TOP -->
-    <aside class="panel" aria-label="Add Job">
-      <h2>Add a Job</h2>
-      <form id="job-form">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="jobTitle">Job</label>
-            <input id="jobTitle" name="jobTitle" type="text" placeholder="e.g., AWB 123-4567 from MIA" required />
-          </div>
+    <details class="panel add-job-toggle" aria-label="Add Job">
+  <summary>Add a Job</summary>
 
-          <!-- Driver -->
-          <div class="form-group">
-            <label for="driver">Driver</label>
-            <input id="driver" name="driver" list="driverList" placeholder="e.g., Mike T." required />
-            <datalist id="driverList">
-              <option value="Angel R."></option>
-              <option value="Bianca S."></option>
-              <option value="Carlos P."></option>
-              <option value="Diana M."></option>
-            </datalist>
-          </div>
+  <form id="job-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="jobTitle">Job</label>
+        <input id="jobTitle" name="jobTitle" type="text" placeholder="e.g., AWB 123-4567 from MIA" required />
+      </div>
 
-          <!-- Deadline -->
-          <div class="form-group">
-            <label for="deadline">Deadline</label>
-            <input id="deadline" name="deadline" type="datetime-local" required />
-          </div>
+      <!-- Driver -->
+      <div class="form-group">
+        <label for="driver">Driver</label>
+        <input id="driver" name="driver" list="driverList" placeholder="e.g., Mike T." required />
+        <datalist id="driverList">
+          <option value="Angel R."></option>
+          <option value="Bianca S."></option>
+          <option value="Carlos P."></option>
+          <option value="Diana M."></option>
+        </datalist>
+      </div>
 
-          <div class="form-group">
-            <label for="jobCategory">Place in Column</label>
-            <select id="jobCategory" name="jobCategory" required>
-              <option value="" disabled selected>Select a column…</option>
-              <option value="mia">MIA Recovery</option>
-              <option value="fll">FLL Recovery</option>
-              <option value="tenders">Tenders</option>
-              <option value="deliveries">Deliveries</option>
-              <option value="dispatched">Dispatched</option>
-              <option value="bullshit">Bullshit Pile</option>
-            </select>
-          </div>
+      <!-- Deadline -->
+      <div class="form-group">
+        <label for="deadline">Deadline</label>
+        <input id="deadline" name="deadline" type="datetime-local" required />
+      </div>
 
-          <div class="form-group">
-            <label for="jobNotes">Notes (optional)</label>
-            <textarea id="jobNotes" name="jobNotes" placeholder="Any extra info for dispatch…"></textarea>
-          </div>
-        </div>
+      <div class="form-group">
+        <label for="jobCategory">Place in Column</label>
+        <select id="jobCategory" name="jobCategory" required>
+          <option value="" disabled selected>Select a column…</option>
+          <option value="mia">MIA Recovery</option>
+          <option value="fll">FLL Recovery</option>
+          <option value="tenders">Tenders</option>
+          <option value="deliveries">Deliveries</option>
+          <option value="dispatched">Dispatched</option>
+          <option value="bullshit">Bullshit Pile</option>
+        </select>
+      </div>
 
-        <button type="submit" class="btn">Add to Board</button>
-      </form>
-    </aside>
+      <div class="form-group">
+        <label for="jobNotes">Notes (optional)</label>
+        <textarea id="jobNotes" name="jobNotes" placeholder="Any extra info for dispatch…"></textarea>
+      </div>
+    </div>
+
+    <button type="submit" class="btn">Add to Board</button>
+  </form>
+</details>
 
     <div class="section-sep"></div>
+
+<section class="due-soon-board" aria-label="Due Soon Jobs">
+  <div class="due-soon-title">DUE SOON</div>
+  <div id="due-soon-row" class="due-soon-row">
+    <div class="due-slot"></div>
+    <div class="due-slot"></div>
+    <div class="due-slot"></div>
+    <div class="due-slot"></div>
+    <div class="due-slot"></div>
+    <div class="due-slot"></div>
+  </div>
+</section>
+
+<div class="section-sep"></div>
+
+<!-- Board (fully contained) -->
 
     <!-- Board (fully contained) -->
     <section class="board" aria-label="Dispatch Board">
@@ -570,23 +624,63 @@ function formatDeadline(val){
       if (col) col.prepend(card);
     }
 
-    function clearBoard() {
-      Object.values(cols).forEach(c => c.innerHTML = '');
-    }
+  function clearBoard() {
+  Object.values(cols).forEach(c => c.innerHTML = '');
+}
+
+function getUrgentJobs(jobs) {
+  const activeJobs = (jobs || []).filter(job => job.category !== 'dispatched');
+
+  return activeJobs
+    .filter(job => {
+      const d = new Date(job.deadline);
+      return !isNaN(d);
+    })
+    .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
+    .slice(0, 6);
+}
+
+function renderDueSoon(jobs) {
+  const row = document.getElementById('due-soon-row');
+  if (!row) return;
+
+  row.innerHTML = '';
+
+  const urgentJobs = getUrgentJobs(jobs);
+
+  urgentJobs.forEach(job => {
+    const slot = document.createElement('div');
+    slot.className = 'due-slot';
+    slot.appendChild(createCardElement(job));
+    row.appendChild(slot);
+  });
+
+  const emptySlots = 6 - urgentJobs.length;
+  for (let i = 0; i < emptySlots; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'due-slot empty';
+    row.appendChild(slot);
+  }
+}
 
     async function loadJobs() {
-      clearBoard();
-      const { data, error } = await sb
-        .from('jobs')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) {
-        console.error(error);
-        alert('Failed to load jobs.');
-        return;
-      }
-      (data || []).forEach(renderJob);
-    }
+  clearBoard();
+
+  const { data, error } = await sb
+    .from('jobs')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error(error);
+    alert('Failed to load jobs.');
+    return;
+  }
+
+  const jobs = data || [];
+  jobs.forEach(renderJob);
+  renderDueSoon(jobs);
+}
 
     // Make columns droppable
     Object.entries(cols).forEach(([key, col]) => {
