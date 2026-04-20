@@ -18,10 +18,26 @@
   <link rel="icon" type="image/png" sizes="512x512" href="/favicons/android-chrome-512x512.png">
 
   <style>
-    html, body {
-  height: auto;          /* don’t lock to viewport */
-  min-height: 100%;
-  overflow-y: auto;      /* allow page scroll */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Roboto', sans-serif;
+  background: url('website images/airportphoto.png') no-repeat center center fixed;
+  background-size: cover;
+  color: #fff;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: -1;
 }
 
     :root{
@@ -201,7 +217,22 @@
   background: #fff;
   margin-bottom: 6px;
   cursor: grab;
-  transition: box-shadow .12s ease, transform .04s ease;
+  transition: box-shadow .12s ease, transform .04s ease, background-color .2s ease, border-color .2s ease;
+}
+
+.job-card.status-overdue{
+  background: #fee2e2;
+  border-color: #dc2626;
+}
+
+.job-card.status-due-soon{
+  background: #fef3c7;
+  border-color: #f59e0b;
+}
+
+.job-card.status-due-today{
+  background: #dcfce7;
+  border-color: #16a34a;
 }
 .job-card:active{ cursor: grabbing; }
 .job-card.dragging{
@@ -299,21 +330,56 @@
 .page-wrap{
   width: min(92vw, 1400px);
   margin: 24px auto 70px;
-  padding: 0;                 /* no inner white gutters */
-  background: transparent;    /* was #fff */
-  border: 0;                  /* kill the white border */
-  box-shadow: none;           /* in case it exists */
-  overflow: visible;
+  padding: 24px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
 }
 
-/* Keep the panel compact + centered (as you liked) */
 .panel{
   max-width: 560px;
-  margin: 0 auto 28px;        /* space below panel */
-  padding: 14px;
+  margin: 0 auto 28px;
   border-radius: 6px;
-  background: #fff;           /* small white card just for the form */
+  background: #fff;
   border: 1px solid #d1d5db;
+  overflow: hidden;
+}
+
+.add-job-toggle{
+  padding: 0;
+}
+
+.add-job-toggle summary{
+  list-style: none;
+  cursor: pointer;
+  padding: 12px 14px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #111827;
+  user-select: none;
+}
+
+.add-job-toggle summary::-webkit-details-marker{
+  display: none;
+}
+
+.add-job-toggle summary::after{
+  content: "▾";
+  float: right;
+  font-size: 0.95rem;
+  transition: transform .2s ease;
+}
+
+.add-job-toggle[open] summary::after{
+  transform: rotate(180deg);
+}
+
+.add-job-toggle form{
+  padding: 0 14px 14px;
+}
+
+.add-job-toggle:not([open]) form{
+  display: none;
 }
 
 /* The line separator becomes pure background space (no visible line) */
@@ -344,34 +410,29 @@
   </style>
 </head>
 <body>
-  <!-- Navbar (existing site styles) -->
-  <nav>
-    <div class="navbar-container">
-      <div class="navbar-logo-container">
-        <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="navbar-logo" />
-        <div class="navbar-title">
-          <span class="speed">Speed</span><span class="pack">pack</span>
-        </div>
-        <div class="express-container">
-          <span class="line"></span><div class="express">Express</div><span class="line"></span>
-        </div>
-      </div>
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="services.html">Services</a></li>
-        <li class="dropdown">
-          <a href="contact.html">Contact</a>
-          <ul class="dropdown-content">
-            <li><a href="contact.html">Contact Us</a></li>
-            <li><a href="careers.html">Careers</a></li>
-            <li><a href="support.html">Support</a></li>
-          </ul>
-        </li>
-        <li><a href="login.html">Logout</a></li>
-      </ul>
+  
+<nav>
+  <div class="navbar-container">
+    <div class="navbar-logo-container">
+      <img src="website images/SPEEDPACK-EXPRESS-AI-LOGO.png" alt="Speedpack Express Logo" class="navbar-logo">
     </div>
-  </nav>
+
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li class="dropdown">
+        <a href="contact.html">Contact</a>
+        <ul class="dropdown-content">
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="careers.html">Careers</a></li>
+          <li><a href="support.html">Support</a></li>
+        </ul>
+      </li>
+      <li><a href="login.html">Logout</a></li>
+    </ul>
+  </div>
+</nav>
 
   <main>
     <div class="page-head">
@@ -505,6 +566,28 @@ function formatDeadline(val){
   const mi = pad(d.getMinutes());
   return `${mm}/${dd}/${yy} ${HH}:${mi}`;
 }
+function getJobStatusClass(deadline) {
+  const d = new Date(deadline);
+  if (isNaN(d)) return '';
+
+  const now = new Date();
+
+  if (d < now) return 'status-overdue';
+
+  const diffMs = d - now;
+  const diffMinutes = diffMs / (1000 * 60);
+
+  if (diffMinutes <= 60) return 'status-due-soon';
+
+  const sameDay =
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate();
+
+  if (sameDay) return 'status-due-today';
+
+  return '';
+}
 
     // ===== Columns map =====
     const cols = {
@@ -517,10 +600,10 @@ function formatDeadline(val){
     };
 
     function createCardElement(job) {
-  const card = document.createElement('div');
-  card.className = 'job-card';
-  card.draggable = true;
-  card.dataset.id = job.id;
+    const card = document.createElement('div');
+    card.className = `job-card ${getJobStatusClass(job.deadline)}`;
+    card.draggable = true;
+    card.dataset.id = job.id;
 
   card.innerHTML = `
     <button class="menu-trigger" title="Actions" aria-label="Card actions">⋮</button>
