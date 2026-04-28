@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dispatch Job Organizer - Speedpack Express</title>
+  <link rel="stylesheet" href="styles.css"/>
+
+   <!-- Favicons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
+  <link rel="manifest" href="/favicons/site.webmanifest">
+  <link rel="shortcut icon" href="/favicons/favicon.ico">
+  
+  <!-- Optional for Android -->
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicons/android-chrome-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicons/android-chrome-512x512.png">
+
+  <style>
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Roboto', sans-serif;
+  background: url('website images/airportphoto.png') no-repeat center center fixed;
+  background-size: cover;
+  color: #fff;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: -1;
+}
+
+    :root{
+      --hero-offset: 0px; /* gap from navbar/logo to back button; tweak if needed */
+    }
+
+    /* Gap above the white card (button lives here, not on the card) */
+    .page-head{
+      margin-top: 20px;
+      text-align: center;
+      padding: 8px 0;
+    }
+    .back-btn{
+      display: inline-block;
+      padding: 10px 14px;
+      background: #3b82f6;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 6px;
+      text-decoration: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .back-btn:hover{ background:#2563eb; }
+
+    /* White card (centered; clips any overflow) */
+    .page-wrap{
+      width: min(92vw, 1400px);
+      margin: 24px auto 70px;
+      padding: 24px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: visible; /* hard clip anything from leaking out */
+    }
+
+    .page-title{
+      text-align: center;
+      margin: 4px 0 10px;
+      color: #111827;
+      font-weight: 800;
+      font-size: 1.8rem;
+    }
+
+    /* ---------- Add a Job (TOP) ---------- */
+    .panel{
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 16px; /* space before the board */
+    }
+    .panel h2{
+      margin: 0 0 12px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .form-row{ display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .form-group{ margin-bottom: 0; }
+    .form-group label{
+      display: block;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #111827;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea{
+      width: 98%;               /* keeps inside the panel border */
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      font-size: 14px;
+      background: #fff;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .form-group textarea{ min-height: 110px; resize: vertical; }
+
+    .btn{
+      background: #22c55e;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn:hover{ background:#16a34a; }
+
+  .completed-board{
+  background: #e5e7eb;
+  border-radius: 6px;
+  padding: 12px;
+  margin: 18px auto 0;
+  overflow: hidden;
+}
+
+.completed-title{
+  background: #374151;
+  color: #fff;
+  text-align: center;
+  font-weight: 800;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 0.92rem;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  position: relative;
+}
+
+.archive-search{
+  position: absolute;
+  right: 42px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 180px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.completed-arrow{
+  position: absolute;
+  right: 10px;
+  transition: transform .2s ease;
+}
+
+.completed-board.expanded .completed-arrow{
+  transform: rotate(180deg);
+}
+
+.completed-jobs-row{
+  display: none;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-start;
+  min-height: 110px;
+  background: #fff;
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.completed-board.expanded .completed-jobs-row{
+  display: flex;
+}
+
+.completed-jobs-row .job-card{
+  width: 190px;
+  flex: 0 0 190px;
+}
+
+    /* ---------- Board (contained fully in white card) ---------- */
+    .board{
+      background: #e5e7eb;
+      border-radius: 6px;
+      padding: 12px;
+      overflow: visible; /* no spilling outside the grey */
+    }
+    .due-soon-board{
+  background: #e5e7eb;
+  border-radius: 6px;
+  padding: 12px;
+  margin: 0 auto 18px;
+  overflow: hidden;
+}
+
+.due-soon-title{
+  background: #b91c1c;
+  color: #fff;
+  text-align: center;
+  font-weight: 800;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 0.92rem;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
+}
+
+.due-soon-row{
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 6px;
+}
+
+.due-slot{
+  flex: 0 0 190px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 6px;
+  overflow: hidden;
+}
+.due-soon-board.expanded{
+  width: min(98vw, 1700px);
+}
+
+.due-soon-board.expanded .due-slot{
+  flex-basis: 210px;
+}
+
+.due-expand-btn{
+  float: right;
+  border: 0;
+  background: #ffffff;
+  color: #b91c1c;
+  font-weight: 800;
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.due-slot.empty{
+  background: #f9fafb;
+}
+
+    .board-header,
+    .board-body{
+      display: grid;
+      grid-template-columns: repeat(6, 1fr); /* 6 columns, always inside */
+      gap: 10px;
+    }
+    .board-header{ margin-bottom: 10px; }
+
+    .col-head{
+      background: #1e3a8a;
+      color: #fff;
+      text-align: center;
+      font-weight: 700;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 0.92rem;
+      text-transform: uppercase;
+      white-space: nowrap;
+      position: relative;
+    }
+    .expand-btn{
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.expand-btn:hover{
+  opacity: 1;
+}
+    .col{
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  height: 270px;          /* shows about 4 cards */
+  max-height: 270px;
+  padding: 10px;
+  overflow-y: auto;       /* column scrolls by itself */
+  overflow-x: hidden;
+  transition: border-color .15s ease, background .15s ease;
+  scroll-behavior: smooth;
+  cursor: pointer;
+}
+.col.expanded{
+  height: 700px;
+  max-height: 700px;
+}
+.col::-webkit-scrollbar{
+  width: 10px;
+}
+
+.col::-webkit-scrollbar-thumb{
+  background: #9ca3af;
+  border-radius: 999px;
+}
+
+.col::-webkit-scrollbar-track{
+  background: #f3f4f6;
+}
+    .col.drop-target{
+      border-color: #3b82f6;
+      background: #eef5ff;
+    }
+
+   /* ---------- Cards (compact) ---------- */
+.job-card{
+  position: relative;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 8px 10px;
+  background: #fff;
+  margin-bottom: 6px;
+  cursor: grab;
+  transition: box-shadow .12s ease, transform .04s ease, background-color .2s ease, border-color .2s ease;
+}
+
+.job-card.status-overdue{
+  background: #fee2e2;
+  border-color: #dc2626;
+}
+
+.job-card.status-due-soon{
+  background: #fef3c7;
+  border-color: #f59e0b;
+}
+
+.job-card.status-due-today{
+  background: #dcfce7;
+  border-color: #16a34a;
+}
+.job-card:active{ cursor: grabbing; }
+.job-card.dragging{
+  opacity: .95;
+  transform: scale(.995);
+  box-shadow: 0 6px 16px rgba(0,0,0,.10);
+}
+
+/* card body: 4 rows (Due, Job#, Driver, Note) */
+.card-content{
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.card-field{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 2px 0;
+  border-top: 1px solid #f3f4f6;
+}
+
+.card-field:first-child{ border-top: 0; }
+
+.field-label{
+  color: #6b7280;
+  font-weight: 700;
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+}
+.field-value{
+  color: #111827;
+  font-size: .9rem;
+  line-height: 1.2;
+  word-break: break-word;
+}
+.field-value.note{
+  white-space: normal;
+  color:#374151;
+}
+.note-toggle{
+  display: inline;
+}
+
+.note-toggle[open]{
+  display: block;
+}
+
+.note-toggle:not([open]){
+  display: inline;
+}
+
+.note-text{
+  margin-top: 4px;
+}
+
+.note-toggle summary{
+  cursor: pointer;
+  font-weight: 700;
+  color: #1e3a8a;
+  white-space: nowrap;
+  font-size: .8rem;
+}
+.note-toggle summary::marker{
+  font-size: .7rem;
+}
+
+.note-text{
+  margin-top: 6px;
+  white-space: pre-wrap;
+  color: #374151;
+  line-height: 1.25;
+}
+
+/* keep the existing 3-dot menu styles, but make trigger smaller */
+.menu-trigger{
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 1px 5px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s ease, background .15s ease;
+}
+.job-card:hover .menu-trigger{ opacity: 1; }
+@media (max-width: 900px){ .menu-trigger{ opacity: 1; } }
+
+/* tighten column + board spacing a bit */
+.board-header, .board-body { gap: 8px; }
+.col { padding: 8px; }
+
+/* --- Make Add-a-Job panel smaller and centered --- */
+.panel{
+  max-width: 560px;      /* tighter input area */
+  margin: 0 auto 36px;   /* centered + extra space below */
+  padding: 14px;         /* slightly reduced padding */
+  border-radius: 6px;
+}
+
+/* compact fields inside the panel */
+.form-row{ gap: 10px; }
+.form-group label{
+  font-size: 0.9rem;
+}
+.form-group input,
+.form-group select,
+.form-group textarea{
+  width: 100%;
+  padding: 7px 9px;
+  font-size: 13px;
+}
+.form-group textarea{ min-height: 80px; }
+
+.btn{
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+/* --- Visual separator between panel and board --- */
+.section-sep{
+  max-width: 1100px;     /* similar width to board area, but not required */
+  height: 1px;
+  margin: 10px auto 22px;
+  background: #e5e7eb;   /* light grey line */
+}
+
+/* Remove the big white wrapper; let the background show */
+.page-wrap{
+  width: min(92vw, 1400px);
+  margin: 12px auto 70px;
+  padding: 24px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.panel{
+  max-width: 560px;
+  margin: 0 auto 18px;
+  border-radius: 6px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  overflow: hidden;
+}
+
+.add-job-toggle{
+  padding: 0;
+}
+
+.add-job-toggle summary{
+  list-style: none;
+  cursor: pointer;
+  padding: 12px 14px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #111827;
+  user-select: none;
+}
+
+.add-job-toggle summary::-webkit-details-marker{
+  display: none;
+}
+
+.add-job-toggle summary::after{
+  content: "▾";
+  float: right;
+  font-size: 0.95rem;
+  transition: transform .2s ease;
+}
+
+.add-job-toggle[open] summary::after{
+  transform: rotate(180deg);
+}
+
+.add-job-toggle form{
+  padding: 0 14px 14px;
+}
+
+.add-job-toggle:not([open]) form{
+  display: none;
+}
+
+/* The line separator becomes pure background space (no visible line) */
+.section-sep{
+  height: 24px;               /* just spacing */
+  background: transparent;    /* no grey/white bar */
+  border: 0;
+  max-width: none;
+  margin: 0;                  /* spacing handled by .panel margin-bottom */
+}
+
+/* Board stays same size, centered; no extra white around it */
+.board{
+  background: #e5e7eb;        /* grey board area only */
+  border-radius: 6px;
+  padding: 12px;
+  margin: 0 auto;             /* center within the wrapper */
+  overflow: visible;
+}
+
+/* Make the page heading white (and readable on photo bg) */
+.page-title{
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0,0,0,.35);
+}
+
+
+  </style>
+</head>
+<body>
+  
+<nav>
+  <div class="navbar-container">
+    <div class="navbar-logo-container">
+      <img src="website images/SPEEDPACK-EXPRESS-AI-LOGO.png" alt="Speedpack Express Logo" class="navbar-logo">
+    </div>
+
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li class="dropdown">
+        <a href="contact.html">Contact</a>
+        <ul class="dropdown-content">
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="careers.html">Careers</a></li>
+          <li><a href="support.html">Support</a></li>
+        </ul>
+      </li>
+      <li><a href="login.html">Logout</a></li>
+    </ul>
+  </div>
+</nav>
+
+  <main>
+    <div class="page-head">
+      <a href="speedpack_online.html" class="back-btn">Back to Speedpack Online</a>
+    </div>
+
+    <div class="page-wrap">
+    <h1 class="page-title">Dispatch Job Organizer</h1>
+
+    <details class="panel add-job-toggle" aria-label="Add Job">
+  <summary>Add a Job</summary>
+
+  <form id="job-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="jobTitle">Job</label>
+        <input id="jobTitle" name="jobTitle" type="text" placeholder="e.g., AWB 123-4567 from MIA" required />
+      </div>
+
+      <!-- Driver -->
+      <div class="form-group">
+        <label for="driver">Driver</label>
+        <input id="driver" name="driver" list="driverList" placeholder="e.g., Mike T." required />
+        <datalist id="driverList">
+          <option value="Angel R."></option>
+          <option value="Bianca S."></option>
+          <option value="Carlos P."></option>
+          <option value="Diana M."></option>
+        </datalist>
+      </div>
+
+      <!-- Deadline -->
+      <div class="form-group">
+        <label for="deadline">Deadline</label>
+        <input id="deadline" name="deadline" type="datetime-local" required />
+      </div>
+
+      <div class="form-group">
+        <label for="jobCategory">Place in Column</label>
+        <select id="jobCategory" name="jobCategory" required>
+          <option value="" disabled selected>Select a column…</option>
+          <option value="mia">MIA Recovery</option>
+          <option value="fll">FLL Recovery</option>
+          <option value="tenders">Tenders</option>
+          <option value="deliveries">Deliveries</option>
+          <option value="dispatched">Dispatched</option>
+          <option value="bullshit">Bullshit Pile</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="jobNotes">Notes (optional)</label>
+        <textarea id="jobNotes" name="jobNotes" placeholder="Any extra info for dispatch…"></textarea>
+      </div>
+    </div>
+
+    <button type="submit" class="btn">Add to Board</button>
+  </form>
+</details>
+
+    <div class="section-sep"></div>
+
+<section class="due-soon-board" aria-label="Due Soon Jobs">
+  <div class="due-soon-title">
+  DUE SOON
+  <button type="button" id="due-expand-btn" class="due-expand-btn">Expand</button>
+</div>
+  <div id="due-soon-row" class="due-soon-row">
+    <div class="due-slot"></div>
+    <div class="due-slot"></div>
+    <div class="due-slot"></div>
+    <div class="due-slot"></div>
+    <div class="due-slot"></div>
+    <div class="due-slot"></div>
+  </div>
+</section>
+
+<div class="section-sep"></div>
+
+<!-- Board (fully contained) -->
+
+    <!-- Board (fully contained) -->
+    <section class="board" aria-label="Dispatch Board">
+      <div class="board-header">
+        <div class="col-head">
+  MIA Recovery
+  <span class="expand-btn">⤢</span>
+</div>
+        <div class="col-head">
+  FLL Recovery
+  <span class="expand-btn">⤢</span>
+</div>
+        <div class="col-head">
+  Tenders
+  <span class="expand-btn">⤢</span>
+</div>
+        <div class="col-head">
+  Deliveries
+  <span class="expand-btn">⤢</span>
+</div>
+        <div class="col-head">
+  Dispatched
+  <span class="expand-btn">⤢</span>
+</div>
+        <div class="col-head">
+  Bullshit Pile
+  <span class="expand-btn">⤢</span>
+</div>
+      </div>
+
+      <div class="board-body">
+        <div id="col-mia" class="col"></div>
+        <div id="col-fll" class="col"></div>
+        <div id="col-tenders" class="col"></div>
+        <div id="col-deliveries" class="col"></div>
+        <div id="col-dispatched" class="col"></div>
+        <div id="col-bullshit" class="col"></div>
+      </div>
+    </section>
+
+<section class="completed-board" aria-label="Completed Archived Jobs">
+ <div class="completed-title">
+  <span>Completed / Archived Jobs</span>
+  <input id="archive-search" class="archive-search" type="text" placeholder="Search job..." />
+  <span class="completed-arrow">▼</span>
+</div>
+  <div id="completed-jobs-row" class="completed-jobs-row">
+    <!-- completed jobs will go here later -->
+  </div>
+</section>
+
+  </div>
+
+  <!-- Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // ====== Supabase setup (replace with your project keys) ======
+    const SUPABASE_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRicGN1aW1ieGRxbGtucXZwbWJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NjAxNjIsImV4cCI6MjA3MDQzNjE2Mn0.5O_hoeXuR4tLPMBWwveUTHUCQ9WbJTsiAZr4iwPcdMg";
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ===== Utilities =====
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    const CATEGORIES = ["mia","fll","tenders","deliveries","dispatched","bullshit"];
+
+    function escapeHtml(str = "") {
+      return str
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+    }
+    function pad(n){ return String(n).padStart(2,'0'); }
+function formatDeadline(val){
+  const d = new Date(val);
+  if (isNaN(d)) return val;
+  const mm = pad(d.getMonth()+1);
+  const dd = pad(d.getDate());
+  const yy = pad(d.getFullYear() % 100); // 2-digit year
+  const HH = pad(d.getHours());          // 24-hour
+  const mi = pad(d.getMinutes());
+  return `${mm}/${dd}/${yy} ${HH}:${mi}`;
+}
+function getJobStatusClass(deadline) {
+  const d = new Date(deadline);
+  if (isNaN(d)) return '';
+
+  const now = new Date();
+
+  if (d < now) return 'status-overdue';
+
+  const diffMs = d - now;
+  const diffMinutes = diffMs / (1000 * 60);
+
+  if (diffMinutes <= 60) return 'status-due-soon';
+
+  const sameDay =
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate();
+
+  if (sameDay) return 'status-due-today';
+
+  return '';
+}
+
+    // ===== Columns map =====
+    const cols = {
+      mia: document.getElementById('col-mia'),
+      fll: document.getElementById('col-fll'),
+      tenders: document.getElementById('col-tenders'),
+      deliveries: document.getElementById('col-deliveries'),
+      dispatched: document.getElementById('col-dispatched'),
+      bullshit: document.getElementById('col-bullshit'),
+    };
+
+    function createCardElement(job) {
+    const card = document.createElement('div');
+    card.className = `job-card ${getJobStatusClass(job.deadline)}`;
+    card.draggable = true;
+    card.dataset.id = job.id;
+
+  card.innerHTML = `
+    <button class="menu-trigger" title="Actions" aria-label="Card actions">⋮</button>
+
+    <div class="card-content">
+      <div class="card-field">
+        <div class="field-label">Due</div>
+        <div class="field-value">${escapeHtml(formatDeadline(job.deadline))}</div>
+      </div>
+
+      <div class="card-field">
+        <div class="field-label">Job#</div>
+        <div class="field-value">${escapeHtml(job.title)}</div>
+      </div>
+
+      <div class="card-field">
+        <div class="field-label">Driver</div>
+        <div class="field-value">${escapeHtml(job.driver)}</div>
+      </div>
+
+      <div class="card-field">
+  <div class="field-label">Note</div>
+  <div class="field-value note">
+    ${
+      job.notes
+        ? `<details class="note-toggle">
+             <summary>View Notes</summary>
+             <div class="note-text">${escapeHtml(job.notes)}</div>
+           </details>`
+        : `No notes`
+    }
+  </div>
+</div>
+    </div>
+  `;
+
+  // Build the hidden menu (unchanged)
+  const menu = document.createElement('div');
+  menu.className = 'card-menu';
+  menu.hidden = true;
+  menu.innerHTML = `
+    <div class="menu-row">
+      <label>Move to</label>
+      <select class="menu-select">
+        <option value="" disabled selected>Select…</option>
+        <option value="mia">MIA Recovery</option>
+        <option value="fll">FLL Recovery</option>
+        <option value="tenders">Tenders</option>
+        <option value="deliveries">Deliveries</option>
+        <option value="dispatched">Dispatched</option>
+        <option value="bullshit">Bullshit Pile</option>
+      </select>
+    </div>
+    <button type="button" class="menu-delete">Archive</button>
+  `;
+  card.appendChild(menu);
+
+  // Menu interactions (unchanged)
+  const trigger = card.querySelector('.menu-trigger');
+  const moveSelect = menu.querySelector('.menu-select');
+  const delBtn = menu.querySelector('.menu-delete');
+
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.querySelectorAll('.card-menu').forEach(m => { if (m !== menu) m.hidden = true; });
+    menu.hidden = !menu.hidden;
+  });
+
+  moveSelect.addEventListener('change', async (e) => {
+    const dest = e.target.value;
+    if (!CATEGORIES.includes(dest)) return;
+    const id = card.dataset.id;
+    cols[dest].prepend(card); // optimistic
+    menu.hidden = true;
+    moveSelect.value = '';
+    const { error } = await sb.from('jobs').update({ category: dest }).eq('id', id);
+    if (error) { alert('Move failed. Reverting.'); loadJobs(); }
+  });
+
+    delBtn.addEventListener('click', async () => {
+      const id = card.dataset.id;
+
+      // move visually to archived section
+      const archivedRow = document.getElementById('completed-jobs-row');
+      if (archivedRow) archivedRow.prepend(card);
+
+      // update deadline to force it into archived logic (5+ days old)
+      const oldDate = new Date();
+      oldDate.setDate(oldDate.getDate() - 6);
+
+      const { error } = await sb
+        .from('jobs')
+        .update({ deadline: oldDate.toISOString() })
+        .eq('id', id);
+
+      if (error) {
+        alert('Archive failed. Reverting.');
+        loadJobs();
+      }
+    });
+
+  // Close menus when clicking outside
+  document.addEventListener('click', (evt) => { if (!card.contains(evt.target)) menu.hidden = true; });
+
+  // Drag & Drop
+  card.addEventListener('dragstart', (e) => {
+    window.__draggingCard = card;
+    card.classList.add('dragging');
+    const img = document.createElement('img');
+    img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciLz4=';
+    e.dataTransfer.setDragImage(img, 0, 0);
+  });
+  card.addEventListener('dragend', () => {
+    window.__draggingCard = null;
+    card.classList.remove('dragging');
+  });
+
+  return card;
+}
+
+    function renderJob(job) {
+      const card = createCardElement(job);
+      const col = cols[job.category];
+      if (col) col.prepend(card);
+    }
+
+  function clearBoard() {
+  Object.values(cols).forEach(c => c.innerHTML = '');
+}
+
+function isArchivedJob(job) {
+  const d = new Date(job.deadline);
+  if (isNaN(d)) return false;
+
+  const now = new Date();
+  const sevenDaysAgo = new Date(now);
+  sevenDaysAgo.setDate(now.getDate() - 5);
+
+  return d < sevenDaysAgo;
+}
+
+function renderArchivedJobs(jobs) {
+  const row = document.getElementById('completed-jobs-row');
+  if (!row) return;
+
+  row.innerHTML = '';
+
+  const searchBox = document.getElementById('archive-search');
+const query = searchBox ? searchBox.value.trim().toLowerCase() : '';
+
+const archivedJobs = (jobs || [])
+  .filter(isArchivedJob)
+  .filter(job => {
+    if (!query) return true;
+
+    return [
+      job.title,
+      job.driver,
+      job.notes,
+      formatDeadline(job.deadline)
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+      .includes(query);
+  })
+  .sort((a, b) => new Date(b.deadline) - new Date(a.deadline));
+
+  archivedJobs.forEach(job => {
+    row.appendChild(createCardElement(job));
+  });
+}
+
+function getUrgentJobs(jobs) {
+  const activeJobs = (jobs || []).filter(job => job.category !== 'dispatched' && !isArchivedJob(job));
+
+  return activeJobs
+    .filter(job => {
+      const d = new Date(job.deadline);
+      return !isNaN(d);
+    })
+    .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
+}
+
+function renderDueSoon(jobs) {
+  const row = document.getElementById('due-soon-row');
+  if (!row) return;
+
+  row.innerHTML = '';
+
+  const urgentJobs = getUrgentJobs(jobs);
+
+  urgentJobs.forEach(job => {
+    const slot = document.createElement('div');
+    slot.className = 'due-slot';
+    slot.appendChild(createCardElement(job));
+    row.appendChild(slot);
+  });
+
+  const emptySlots = 6 - urgentJobs.length;
+  for (let i = 0; i < emptySlots; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'due-slot empty';
+    row.appendChild(slot);
+  }
+}
+
+    async function loadJobs() {
+  clearBoard();
+
+  const { data, error } = await sb
+    .from('jobs')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error(error);
+    alert('Failed to load jobs.');
+    return;
+  }
+
+  const jobs = data || [];
+  jobs.filter(job => !isArchivedJob(job)).forEach(renderJob);
+  renderDueSoon(jobs);
+  renderArchivedJobs(jobs);
+}
+
+    // Make columns droppable
+    Object.entries(cols).forEach(([key, col]) => {
+      col.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        col.classList.add('drop-target');
+      });
+      col.addEventListener('dragleave', () => {
+        col.classList.remove('drop-target');
+      });
+      col.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        col.classList.remove('drop-target');
+        const dragging = window.__draggingCard;
+        if (dragging) {
+          const id = dragging.dataset.id;
+          // optimistic UI
+          col.prepend(dragging);
+          const { error } = await sb.from('jobs').update({ category: key }).eq('id', id);
+          if (error) {
+            alert('Move failed. Reverting.');
+            loadJobs();
+          }
+        }
+      });
+    });
+
+    // Expand button logic
+document.querySelectorAll('.expand-btn').forEach((btn, index) => {
+  const colKeys = Object.keys(cols);
+  const col = cols[colKeys[index]];
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    col.classList.toggle('expanded');
+  });
+});
+
+    // Expand / Collapse column on click
+Object.values(cols).forEach(col => {
+  col.addEventListener('dblclick', () => {
+    col.classList.toggle('expanded');
+  });
+});
+
+const dueExpandBtn = document.getElementById('due-expand-btn');
+const dueSoonBoard = document.querySelector('.due-soon-board');
+
+if (dueExpandBtn && dueSoonBoard) {
+  dueExpandBtn.addEventListener('click', () => {
+    dueSoonBoard.classList.toggle('expanded');
+    dueExpandBtn.textContent = dueSoonBoard.classList.contains('expanded') ? 'Collapse' : 'Expand';
+  });
+}
+
+const completedBoard = document.querySelector('.completed-board');
+const completedTitle = document.querySelector('.completed-title');
+
+if (completedBoard && completedTitle) {
+  completedTitle.addEventListener('click', () => {
+    completedBoard.classList.toggle('expanded');
+  });
+}
+
+    // ===== Form handling =====
+const form = document.getElementById('job-form');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const title    = document.getElementById('jobTitle').value.trim();
+  const driver   = document.getElementById('driver').value.trim();
+  const deadline = document.getElementById('deadline').value.trim();
+  const category = document.getElementById('jobCategory').value;
+  const notes    = document.getElementById('jobNotes').value.trim();
+
+  if (!title || !driver || !deadline || !category) return;
+
+  const payload = {
+    title,
+    driver,
+    deadline: new Date(deadline).toISOString(),
+    category,
+    notes: notes || null
+  };
+
+  const { error } = await sb.from('jobs').insert(payload);
+  if (error) {
+    console.error('Insert error:', error);
+    alert(`Failed to add job: ${error.message}`);
+    return;
+  }
+
+  // Immediate refresh so the new job shows even if realtime is delayed
+  await loadJobs();
+
+  form.reset();
+  document.getElementById('jobTitle').focus();
+});
+
+// ===== Single realtime subscription + initial load =====
+window.addEventListener('DOMContentLoaded', () => {
+loadJobs();
+
+  const archiveSearch = document.getElementById('archive-search');
+  if (archiveSearch) {
+    archiveSearch.addEventListener('input', () => {
+      loadJobs();
+    });
+
+    archiveSearch.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+  }
+
+  // One channel only. Name can be anything.
+  sb.channel('jobs-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'jobs' }, () => {
+      loadJobs();
+    })
+    .subscribe();
+});
+
+
+  </script>
+</body>
+</html>
