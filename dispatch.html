@@ -41,12 +41,12 @@ body::before {
 }
 
     :root{
-      --hero-offset: 300px; /* gap from navbar/logo to back button; tweak if needed */
+      --hero-offset: 0px; /* gap from navbar/logo to back button; tweak if needed */
     }
 
     /* Gap above the white card (button lives here, not on the card) */
     .page-head{
-      margin-top: var(--hero-offset);
+      margin-top: 20px;
       text-align: center;
       padding: 8px 0;
     }
@@ -75,7 +75,7 @@ body::before {
 
     .page-title{
       text-align: center;
-      margin: 6px 0 18px;
+      margin: 4px 0 10px;
       color: #111827;
       font-weight: 800;
       font-size: 1.8rem;
@@ -129,6 +129,71 @@ body::before {
     }
     .btn:hover{ background:#16a34a; }
 
+  .completed-board{
+  background: #e5e7eb;
+  border-radius: 6px;
+  padding: 12px;
+  margin: 18px auto 0;
+  overflow: hidden;
+}
+
+.completed-title{
+  background: #374151;
+  color: #fff;
+  text-align: center;
+  font-weight: 800;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 0.92rem;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  position: relative;
+}
+
+.archive-search{
+  position: absolute;
+  right: 42px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 180px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.completed-arrow{
+  position: absolute;
+  right: 10px;
+  transition: transform .2s ease;
+}
+
+.completed-board.expanded .completed-arrow{
+  transform: rotate(180deg);
+}
+
+.completed-jobs-row{
+  display: none;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-start;
+  min-height: 110px;
+  background: #fff;
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.completed-board.expanded .completed-jobs-row{
+  display: flex;
+}
+
+.completed-jobs-row .job-card{
+  width: 190px;
+  flex: 0 0 190px;
+}
+
     /* ---------- Board (contained fully in white card) ---------- */
     .board{
       background: #e5e7eb;
@@ -158,18 +223,39 @@ body::before {
 }
 
 .due-soon-row{
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  display: flex;
   gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 6px;
 }
 
 .due-slot{
+  flex: 0 0 190px;
   background: #ffffff;
   border: 1px solid #d1d5db;
   border-radius: 4px;
-  min-height: 150px;
-  padding: 8px;
+  padding: 6px;
   overflow: hidden;
+}
+.due-soon-board.expanded{
+  width: min(98vw, 1700px);
+}
+
+.due-soon-board.expanded .due-slot{
+  flex-basis: 210px;
+}
+
+.due-expand-btn{
+  float: right;
+  border: 0;
+  background: #ffffff;
+  color: #b91c1c;
+  font-weight: 800;
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-size: 12px;
 }
 
 .due-slot.empty{
@@ -194,18 +280,37 @@ body::before {
       font-size: 0.92rem;
       text-transform: uppercase;
       white-space: nowrap;
+      position: relative;
     }
+    .expand-btn{
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.expand-btn:hover{
+  opacity: 1;
+}
     .col{
   background: #ffffff;
   border: 1px solid #d1d5db;
   border-radius: 4px;
-  height: 820px;          /* shows about 4 cards */
-  max-height: 820px;
+  height: 270px;          /* shows about 4 cards */
+  max-height: 270px;
   padding: 10px;
   overflow-y: auto;       /* column scrolls by itself */
   overflow-x: hidden;
   transition: border-color .15s ease, background .15s ease;
   scroll-behavior: smooth;
+  cursor: pointer;
+}
+.col.expanded{
+  height: 700px;
+  max-height: 700px;
 }
 .col::-webkit-scrollbar{
   width: 10px;
@@ -258,15 +363,20 @@ body::before {
 }
 
 /* card body: 4 rows (Due, Job#, Driver, Note) */
-.card-content{ display: grid; gap: 4px; }
+.card-content{
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 .card-field{
-  display: grid;
-  grid-template-columns: 64px 1fr; /* tighter label column */
-  align-items: start;
-  gap: 8px;
-  padding: 4px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 2px 0;
   border-top: 1px solid #f3f4f6;
 }
+
 .card-field:first-child{ border-top: 0; }
 
 .field-label{
@@ -282,7 +392,43 @@ body::before {
   line-height: 1.2;
   word-break: break-word;
 }
-.field-value.note{ white-space: pre-wrap; color:#374151; }
+.field-value.note{
+  white-space: normal;
+  color:#374151;
+}
+.note-toggle{
+  display: inline;
+}
+
+.note-toggle[open]{
+  display: block;
+}
+
+.note-toggle:not([open]){
+  display: inline;
+}
+
+.note-text{
+  margin-top: 4px;
+}
+
+.note-toggle summary{
+  cursor: pointer;
+  font-weight: 700;
+  color: #1e3a8a;
+  white-space: nowrap;
+  font-size: .8rem;
+}
+.note-toggle summary::marker{
+  font-size: .7rem;
+}
+
+.note-text{
+  margin-top: 6px;
+  white-space: pre-wrap;
+  color: #374151;
+  line-height: 1.25;
+}
 
 /* keep the existing 3-dot menu styles, but make trigger smaller */
 .menu-trigger{
@@ -345,7 +491,7 @@ body::before {
 /* Remove the big white wrapper; let the background show */
 .page-wrap{
   width: min(92vw, 1400px);
-  margin: 24px auto 70px;
+  margin: 12px auto 70px;
   padding: 24px;
   background: transparent;
   border: none;
@@ -354,7 +500,7 @@ body::before {
 
 .panel{
   max-width: 560px;
-  margin: 0 auto 28px;
+  margin: 0 auto 18px;
   border-radius: 6px;
   background: #fff;
   border: 1px solid #d1d5db;
@@ -512,7 +658,10 @@ body::before {
     <div class="section-sep"></div>
 
 <section class="due-soon-board" aria-label="Due Soon Jobs">
-  <div class="due-soon-title">DUE SOON</div>
+  <div class="due-soon-title">
+  DUE SOON
+  <button type="button" id="due-expand-btn" class="due-expand-btn">Expand</button>
+</div>
   <div id="due-soon-row" class="due-soon-row">
     <div class="due-slot"></div>
     <div class="due-slot"></div>
@@ -530,12 +679,30 @@ body::before {
     <!-- Board (fully contained) -->
     <section class="board" aria-label="Dispatch Board">
       <div class="board-header">
-        <div class="col-head">MIA Recovery</div>
-        <div class="col-head">FLL Recovery</div>
-        <div class="col-head">Tenders</div>
-        <div class="col-head">Deliveries</div>
-        <div class="col-head">Dispatched</div>
-        <div class="col-head">Bullshit Pile</div>
+        <div class="col-head">
+  MIA Recovery
+  <span class="expand-btn">⤢</span>
+</div>
+        <div class="col-head">
+  FLL Recovery
+  <span class="expand-btn">⤢</span>
+</div>
+        <div class="col-head">
+  Tenders
+  <span class="expand-btn">⤢</span>
+</div>
+        <div class="col-head">
+  Deliveries
+  <span class="expand-btn">⤢</span>
+</div>
+        <div class="col-head">
+  Dispatched
+  <span class="expand-btn">⤢</span>
+</div>
+        <div class="col-head">
+  Bullshit Pile
+  <span class="expand-btn">⤢</span>
+</div>
       </div>
 
       <div class="board-body">
@@ -547,6 +714,18 @@ body::before {
         <div id="col-bullshit" class="col"></div>
       </div>
     </section>
+
+<section class="completed-board" aria-label="Completed Archived Jobs">
+ <div class="completed-title">
+  <span>Completed / Archived Jobs</span>
+  <input id="archive-search" class="archive-search" type="text" placeholder="Search job..." />
+  <span class="completed-arrow">▼</span>
+</div>
+  <div id="completed-jobs-row" class="completed-jobs-row">
+    <!-- completed jobs will go here later -->
+  </div>
+</section>
+
   </div>
 
   <!-- Supabase Client -->
@@ -641,9 +820,18 @@ function getJobStatusClass(deadline) {
       </div>
 
       <div class="card-field">
-        <div class="field-label">Note</div>
-        <div class="field-value note">${job.notes ? escapeHtml(job.notes) : ''}</div>
-      </div>
+  <div class="field-label">Note</div>
+  <div class="field-value note">
+    ${
+      job.notes
+        ? `<details class="note-toggle">
+             <summary>View Notes</summary>
+             <div class="note-text">${escapeHtml(job.notes)}</div>
+           </details>`
+        : `No notes`
+    }
+  </div>
+</div>
     </div>
   `;
 
@@ -664,7 +852,7 @@ function getJobStatusClass(deadline) {
         <option value="bullshit">Bullshit Pile</option>
       </select>
     </div>
-    <button type="button" class="menu-delete">Delete</button>
+    <button type="button" class="menu-delete">Archive</button>
   `;
   card.appendChild(menu);
 
@@ -690,13 +878,27 @@ function getJobStatusClass(deadline) {
     if (error) { alert('Move failed. Reverting.'); loadJobs(); }
   });
 
-  delBtn.addEventListener('click', async () => {
-    const id = card.dataset.id;
-    const parent = card.parentElement;
-    card.remove(); // optimistic
-    const { error } = await sb.from('jobs').delete().eq('id', id);
-    if (error) { alert('Delete failed. Restoring.'); parent.prepend(card); }
-  });
+    delBtn.addEventListener('click', async () => {
+      const id = card.dataset.id;
+
+      // move visually to archived section
+      const archivedRow = document.getElementById('completed-jobs-row');
+      if (archivedRow) archivedRow.prepend(card);
+
+      // update deadline to force it into archived logic (5+ days old)
+      const oldDate = new Date();
+      oldDate.setDate(oldDate.getDate() - 6);
+
+      const { error } = await sb
+        .from('jobs')
+        .update({ deadline: oldDate.toISOString() })
+        .eq('id', id);
+
+      if (error) {
+        alert('Archive failed. Reverting.');
+        loadJobs();
+      }
+    });
 
   // Close menus when clicking outside
   document.addEventListener('click', (evt) => { if (!card.contains(evt.target)) menu.hidden = true; });
@@ -727,8 +929,51 @@ function getJobStatusClass(deadline) {
   Object.values(cols).forEach(c => c.innerHTML = '');
 }
 
+function isArchivedJob(job) {
+  const d = new Date(job.deadline);
+  if (isNaN(d)) return false;
+
+  const now = new Date();
+  const sevenDaysAgo = new Date(now);
+  sevenDaysAgo.setDate(now.getDate() - 5);
+
+  return d < sevenDaysAgo;
+}
+
+function renderArchivedJobs(jobs) {
+  const row = document.getElementById('completed-jobs-row');
+  if (!row) return;
+
+  row.innerHTML = '';
+
+  const searchBox = document.getElementById('archive-search');
+const query = searchBox ? searchBox.value.trim().toLowerCase() : '';
+
+const archivedJobs = (jobs || [])
+  .filter(isArchivedJob)
+  .filter(job => {
+    if (!query) return true;
+
+    return [
+      job.title,
+      job.driver,
+      job.notes,
+      formatDeadline(job.deadline)
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+      .includes(query);
+  })
+  .sort((a, b) => new Date(b.deadline) - new Date(a.deadline));
+
+  archivedJobs.forEach(job => {
+    row.appendChild(createCardElement(job));
+  });
+}
+
 function getUrgentJobs(jobs) {
-  const activeJobs = (jobs || []).filter(job => job.category !== 'dispatched');
+  const activeJobs = (jobs || []).filter(job => job.category !== 'dispatched' && !isArchivedJob(job));
 
   return activeJobs
     .filter(job => {
@@ -736,7 +981,6 @@ function getUrgentJobs(jobs) {
       return !isNaN(d);
     })
     .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
-    .slice(0, 6);
 }
 
 function renderDueSoon(jobs) {
@@ -777,8 +1021,9 @@ function renderDueSoon(jobs) {
   }
 
   const jobs = data || [];
-  jobs.forEach(renderJob);
+  jobs.filter(job => !isArchivedJob(job)).forEach(renderJob);
   renderDueSoon(jobs);
+  renderArchivedJobs(jobs);
 }
 
     // Make columns droppable
@@ -806,6 +1051,43 @@ function renderDueSoon(jobs) {
         }
       });
     });
+
+    // Expand button logic
+document.querySelectorAll('.expand-btn').forEach((btn, index) => {
+  const colKeys = Object.keys(cols);
+  const col = cols[colKeys[index]];
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    col.classList.toggle('expanded');
+  });
+});
+
+    // Expand / Collapse column on click
+Object.values(cols).forEach(col => {
+  col.addEventListener('dblclick', () => {
+    col.classList.toggle('expanded');
+  });
+});
+
+const dueExpandBtn = document.getElementById('due-expand-btn');
+const dueSoonBoard = document.querySelector('.due-soon-board');
+
+if (dueExpandBtn && dueSoonBoard) {
+  dueExpandBtn.addEventListener('click', () => {
+    dueSoonBoard.classList.toggle('expanded');
+    dueExpandBtn.textContent = dueSoonBoard.classList.contains('expanded') ? 'Collapse' : 'Expand';
+  });
+}
+
+const completedBoard = document.querySelector('.completed-board');
+const completedTitle = document.querySelector('.completed-title');
+
+if (completedBoard && completedTitle) {
+  completedTitle.addEventListener('click', () => {
+    completedBoard.classList.toggle('expanded');
+  });
+}
 
     // ===== Form handling =====
 const form = document.getElementById('job-form');
@@ -843,7 +1125,18 @@ form.addEventListener('submit', async (e) => {
 
 // ===== Single realtime subscription + initial load =====
 window.addEventListener('DOMContentLoaded', () => {
-  loadJobs();
+loadJobs();
+
+  const archiveSearch = document.getElementById('archive-search');
+  if (archiveSearch) {
+    archiveSearch.addEventListener('input', () => {
+      loadJobs();
+    });
+
+    archiveSearch.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+  }
 
   // One channel only. Name can be anything.
   sb.channel('jobs-changes')
