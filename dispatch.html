@@ -196,13 +196,29 @@ body::before {
       white-space: nowrap;
     }
     .col{
-      background: #ffffff;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
-      min-height: 420px;
-      padding: 10px;
-      transition: border-color .15s ease, background .15s ease;
-    }
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  height: 820px;          /* shows about 4 cards */
+  max-height: 820px;
+  padding: 10px;
+  overflow-y: auto;       /* column scrolls by itself */
+  overflow-x: hidden;
+  transition: border-color .15s ease, background .15s ease;
+  scroll-behavior: smooth;
+}
+.col::-webkit-scrollbar{
+  width: 10px;
+}
+
+.col::-webkit-scrollbar-thumb{
+  background: #9ca3af;
+  border-radius: 999px;
+}
+
+.col::-webkit-scrollbar-track{
+  background: #f3f4f6;
+}
     .col.drop-target{
       border-color: #3b82f6;
       background: #eef5ff;
