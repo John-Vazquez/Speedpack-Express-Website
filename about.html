@@ -19,40 +19,114 @@
 
   <style>
 
-    body {
-  background: url('website images/airportphoto.png') no-repeat center center fixed;
-  background-size: cover;
+ /* ==== ABOUT PAGE REDESIGN ==== */
+
+body {
+  background: #07130f;
 }
 
-/* keep dark overlay like homepage */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: -1;
+.about-page {
+  color: #fff;
+  padding: 180px 8vw 100px;
 }
-    /* ===== ABOUT GRID ===== */
-    .about-wrap{ max-width: 1200px; margin: 0 auto; padding: 0 24px 32px; }
-    .about-grid{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 
-    .about-card{
-      background: rgba(0,0,0,.55);
-      border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(0,0,0,.25);
-      padding: 22px;
-      display: grid; grid-template-columns: 90px 1fr; gap: 16px;
-    }
+.about-hero {
+  max-width: 850px;
+  margin-bottom: 80px;
+}
 
-    .about-card.span-2 { grid-column: 1 / -1; }
+.eyebrow {
+  color: #f4f40c;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
 
-    .about-logo { width: 90px; height: auto; }
-    .about-card h3{ margin: 0 0 8px; font-size: 1.8rem; color: #fff;}
-    .about-card p { margin: 0; font-size: .95rem; line-height: 1.6; color:#f1f1f1; }
+.about-hero h1 {
+  font-size: clamp(44px, 6vw, 78px);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  margin: 0 0 24px;
+}
 
-    @media (max-width: 900px){
-      .about-grid{ grid-template-columns: 1fr; }
-    }
+.about-hero p {
+  max-width: 680px;
+  color: rgba(255,255,255,0.72);
+  font-size: 20px;
+  line-height: 1.6;
+}
+
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 1100px;
+  margin-bottom: 90px;
+  border-top: 1px solid rgba(255,255,255,0.14);
+  border-bottom: 1px solid rgba(255,255,255,0.14);
+}
+
+.about-stats div {
+  padding: 30px 24px;
+  border-right: 1px solid rgba(255,255,255,0.14);
+}
+
+.about-stats div:last-child {
+  border-right: none;
+}
+
+.about-stats h2 {
+  margin: 0 0 8px;
+  font-size: 34px;
+}
+
+.about-stats p {
+  margin: 0;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 12px;
+}
+
+.about-section-new {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 60px;
+  max-width: 1100px;
+  padding: 70px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.about-section-new h2 {
+  font-size: clamp(32px, 4vw, 54px);
+  line-height: 1.05;
+  margin: 0;
+  letter-spacing: -0.035em;
+}
+
+.about-section-new > p {
+  color: rgba(255,255,255,0.72);
+  font-size: 18px;
+  line-height: 1.75;
+  margin: 0;
+}
+
+@media (max-width: 800px) {
+  .about-page {
+    padding: 140px 24px 80px;
+  }
+
+  .about-stats,
+  .about-section-new {
+    grid-template-columns: 1fr;
+  }
+
+  .about-stats div {
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.14);
+  }
+}
   </style>
 </head>
 
@@ -82,37 +156,58 @@ body::before {
     </div>
   </nav>
 
-  <main>
-    <div class="about-wrap">
-      <div class="about-grid">
+  <main class="about-page">
 
-        <section class="about-card">
-          <img src="website images/SPEEDPACK-EXPRESS-AI-LOGO.png" class="about-logo">
-          <div>
-            <h3>About Us</h3>
-            <p>Speedpack Express, Inc. was founded in 2000 by logistics professionals with over 25 years in the industry. We started by providing ground transportation in Miami and Ft. Lauderdale for courier companies and freight forwarders, growing steadily through trial and error—arguably the best teachers. Over a decade later, largely through word of mouth, we became the pickup and delivery agent of choice in South Florida. Our principles remain the same: keep service levels high and costs fair.</p>
-          </div>
-        </section>
+  <section class="about-hero">
+    <p class="eyebrow">ABOUT SPEEDPACK EXPRESS</p>
+    <h1>Built for urgent logistics in South Florida.</h1>
+    <p>
+      Speedpack Express provides 24/7 courier operations for time-critical shipments,
+      airport recoveries, transfers, and urgent local deliveries.
+    </p>
+  </section>
 
-        <section class="about-card">
-          <img src="website images/SPEEDPACK-EXPRESS-AI-LOGO.png" class="about-logo">
-          <div>
-            <h3>Our Company</h3>
-            <p>Available 24 hours a day, 365 days a year. We handle time-sensitive pickups and deliveries, from organs for transplants to critical parts, documents, and more. We offer hands-on monitoring, GPS tracking, and on-time delivery for impossible deadlines—the courier’s courier, serving companies and forwarders for over a decade.</p>
-          </div>
-        </section>
-
-        <section class="about-card span-2">
-          <img src="website images/SPEEDPACK-EXPRESS-AI-LOGO.png" class="about-logo">
-          <div>
-            <h3>Our Vision</h3>
-            <p>To deliver the highest-quality transportation and logistics services for time-critical shipments in South Florida. We develop our staff and infrastructure so customer requests are never refused. In complex situations we combine and adapt resources to meet expectations. Communication—internal and with customers—is our backbone. We work as one team, confident in our abilities and supported by the entire Speedpack organization.</p>
-          </div>
-        </section>
-
-      </div>
+  <section class="about-stats">
+    <div>
+      <h2>2000</h2>
+      <p>Founded</p>
     </div>
-  </main>
+    <div>
+      <h2>24/7</h2>
+      <p>Courier Operations</p>
+    </div>
+    <div>
+      <h2>South Florida</h2>
+      <p>Service Focus</p>
+    </div>
+  </section>
+
+  <section class="about-section-new">
+    <div>
+      <p class="eyebrow">WHO WE ARE</p>
+      <h2>The courier’s courier.</h2>
+    </div>
+    <p>
+      Founded in 2000, Speedpack Express has grown through hands-on logistics work,
+      reliable communication, and consistent service for courier companies, freight
+      forwarders, and time-sensitive customers across Miami, Fort Lauderdale, and the
+      surrounding South Florida market.
+    </p>
+  </section>
+
+  <section class="about-section-new">
+    <div>
+      <p class="eyebrow">OUR MISSION</p>
+      <h2>Move fast. Communicate clearly. Deliver reliably.</h2>
+    </div>
+    <p>
+      We focus on shipments where timing matters. From airport cargo recoveries to
+      urgent deliveries and transfers, our team is built to respond quickly, adapt when
+      plans change, and keep customers informed from pickup to delivery.
+    </p>
+  </section>
+
+</main>
 
   <footer>
     <p>
@@ -120,6 +215,8 @@ body::before {
       Designed & Developed by <a href="https://www.linkedin.com/in/john-r-vazquez">John R Vazquez</a>
     </p>
   </footer>
+
+  <script src="scripts.js"></script>
 
 </body>
 </html>

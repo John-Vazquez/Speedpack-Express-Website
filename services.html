@@ -20,42 +20,166 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
-    body {
-      background: url('website images/airportphoto.png') no-repeat center center fixed;
-      background-size: cover;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: -1;
-    }
-    body > nav {
-  position: relative !important;
-  top: 0 !important;
-  left: auto !important;
-  right: auto !important;
+body {
+  background: #07130f;
 }
 
-/* push logo down slightly so it matches contact page */
-body > nav .navbar-logo-container {
-  transform: translateY(12px) !important;
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(4,12,9,0.92), rgba(4,12,9,0.60)),
+    rgba(0,0,0,0.35);
+  z-index: -1;
 }
 
-/* remove fixed-navbar spacing */
-body > main,
-body > nav + *:not(main) {
-  padding-top: 0 !important;
-  margin-top: 0 !important;
+.services-page {
+  color: #fff;
+  padding: 180px 8vw 110px;
 }
 
-/* spacing below navbar */
-.content {
-  margin-top: 40px !important;
+.services-hero {
+  max-width: 900px;
+  margin-bottom: 80px;
 }
-  </style>
+
+.eyebrow,
+.service-tag {
+  color: #f4f40c;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.services-hero h1 {
+  font-size: clamp(44px, 6vw, 78px);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  margin: 18px 0 24px;
+}
+
+.services-hero p {
+  max-width: 680px;
+  color: rgba(255,255,255,0.72);
+  font-size: 20px;
+  line-height: 1.6;
+}
+
+.services-featured {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 22px;
+  max-width: 1150px;
+  margin-bottom: 80px;
+}
+
+.featured-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255,255,255,0.055);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 34px;
+  min-height: 230px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.featured-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.35;
+  z-index: 0;
+}
+
+.featured-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(4,12,9,0.15), rgba(4,12,9,0.94));
+  z-index: 1;
+}
+
+.featured-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+.featured-card.large {
+  grid-row: span 2;
+  min-height: 480px;
+}
+
+.featured-card.large::before {
+  background-image: url('website images/airplaneimageforservicespage.jpg');
+}
+
+.featured-card:nth-child(2)::before {
+  background-image: url('website images/medicaldelivery.jpeg');
+}
+
+.featured-card:nth-child(3)::before {
+  background-image: url('website images/vanphoto.jpg');
+}
+
+.featured-card h2 {
+  font-size: clamp(28px, 3.5vw, 48px);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  margin: 16px 0;
+}
+
+.featured-card p:not(.service-tag) {
+  color: rgba(255,255,255,0.78);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.service-list {
+  max-width: 1150px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid rgba(255,255,255,0.14);
+  border-left: 1px solid rgba(255,255,255,0.14);
+}
+
+.service-list div {
+  padding: 30px 24px;
+  border-right: 1px solid rgba(255,255,255,0.14);
+  border-bottom: 1px solid rgba(255,255,255,0.14);
+}
+
+.service-list h3 {
+  font-size: 20px;
+  margin: 0 0 12px;
+}
+
+.service-list p {
+  color: rgba(255,255,255,0.62);
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .services-page {
+    padding: 140px 24px 80px;
+  }
+
+  .services-featured,
+  .service-list {
+    grid-template-columns: 1fr;
+  }
+
+  .featured-card.large {
+    min-height: 300px;
+  }
+}
+</style>
 </head>
 <body>
   <nav>
@@ -80,90 +204,95 @@ body > nav + *:not(main) {
     </div>
   </nav>
 
-  <section class="content">
-    <div class="services-boxes">
-      <div class="services-title">Our Services</div>
+<main class="services-page">
 
-      <div class="service-box">
-        <h2>Airport Services</h2>
-        <ul>
-          <li class="interactive-item">AOG - Rushed Delivery
-            <div class="description">Aircraft on Ground (AOG) services ensure your aircraft parts are delivered as quickly as possible to minimize downtime.</div>
-          </li>
-          <li class="interactive-item">Transfers
-            <div class="description">Efficient transfer services to ensure smooth transitions between flights and destinations.</div>
-          </li>
-          <li class="interactive-item">Scheduled Routes
-            <div class="description">Regularly scheduled routes to meet your ongoing logistics needs.</div>
-          </li>
-          <li class="interactive-item">On-Board Courier
-            <div class="description">Personalized courier services where an individual accompanies your shipment.</div>
-          </li>
-        </ul>
-      </div>
+  <section class="services-hero">
+    <p class="eyebrow">SPEEDPACK SERVICES</p>
+    <h1>Time-critical courier solutions built for urgent shipments.</h1>
+    <p>
+      From airport recoveries to medical shipments and local deliveries, Speedpack Express
+      moves freight that cannot wait.
+    </p>
+  </section>
 
-      <div class="service-box">
-        <h2>Medical Services</h2>
-        <ul>
-          <li class="interactive-item">Cord-Blood
-            <div class="description">Stat Professional and safe handling, pickup, and delivery of Cord-Blood packages.</div>
-          </li>
-          <li class="interactive-item">Clinical Trials
-            <div class="description">Stat service of medical specimens, organs or equipment.</div>
-          </li>
-        </ul>
-      </div>
+  <section class="services-featured">
+    <div class="featured-card large">
+      <p class="service-tag">AIRPORT LOGISTICS</p>
+      <h2>Airport recoveries and transfers</h2>
+      <p>Fast pickup and delivery from airline cargo facilities across South Florida.</p>
+    </div>
 
-      <div class="service-box">
-        <h2>Temperature Control</h2>
-        <ul>
-          <li class="interactive-item">Dry Ice
-            <div class="description">Packing and Handling of dry ice.</div>
-          </li>
-          <li class="interactive-item">Temp Controlled Packages
-            <div class="description">Professional packing, storing, pickup, and delivery of Temperature controlled packages.</div>
-          </li>
-        </ul>
-      </div>
+    <div class="featured-card">
+      <p class="service-tag">MEDICAL</p>
+      <h2>Medical and clinical shipments</h2>
+      <p>Cord blood, clinical trials, specimens, and urgent medical logistics.</p>
+    </div>
 
-      <div class="service-box">
-        <h2>Special Vehicles</h2>
-        <ul>
-          <li class="interactive-item">Regular</li>
-          <li class="interactive-item">Van</li>
-          <li class="interactive-item">Straight Trucks</li>
-          <li class="interactive-item">Box Trucks</li>
-        </ul>
-      </div>
-
-      <div class="service-box">
-        <h2>Warehousing</h2>
-        <ul>
-          <li class="interactive-item">Long Term
-            <div class="description">Long term secure warehousing.</div>
-          </li>
-          <li class="interactive-item">Short Term
-            <div class="description">Short term secure warehousing.</div>
-          </li>
-          <li class="interactive-item">Warehouse Locations
-            <div class="description">Multiple warehousing locations in Miami-Dade and Broward.</div>
-          </li>
-        </ul>
-      </div>
-
-      <div class="service-box">
-        <h2>Other</h2>
-        <ul>
-          <li class="interactive-item">Custom Solutions
-            <div class="description">Tailored logistics solutions to meet your unique requirements.</div>
-          </li>
-          <li class="interactive-item">Consulting Services
-            <div class="description">Professional consulting to optimize your logistics operations.</div>
-          </li>
-        </ul>
-      </div>
+    <div class="featured-card">
+      <p class="service-tag">GROUND</p>
+      <h2>Local deliveries</h2>
+      <p>Same-day courier service for time-sensitive local freight.</p>
     </div>
   </section>
+
+  <section class="service-list">
+  <div>
+    <h3>AOG / rushed delivery</h3>
+    <p>Emergency delivery support for aircraft parts and urgent freight.</p>
+  </div>
+
+  <div>
+    <h3>Transfers</h3>
+    <p>Airport, freight, and shipment transfers across South Florida.</p>
+  </div>
+
+  <div>
+    <h3>Scheduled routes</h3>
+    <p>Recurring route support for ongoing logistics needs.</p>
+  </div>
+
+  <div>
+    <h3>On-board courier</h3>
+    <p>Personal courier handling for shipments that require direct attention.</p>
+  </div>
+
+  <div>
+    <h3>Cord blood</h3>
+    <p>Urgent pickup and delivery for cord blood shipments.</p>
+  </div>
+
+  <div>
+    <h3>Clinical trials</h3>
+    <p>Time-sensitive medical shipment support for trials, specimens, and equipment.</p>
+  </div>
+
+  <div>
+    <h3>Temperature control</h3>
+    <p>Dry ice and temperature-sensitive package handling.</p>
+  </div>
+
+  <div>
+    <h3>Dedicated vehicles</h3>
+    <p>Cars, vans, straight trucks, and box trucks based on shipment needs.</p>
+  </div>
+
+  <div>
+    <h3>Warehousing</h3>
+    <p>Short-term and long-term storage support in Miami-Dade and Broward.</p>
+  </div>
+
+  <div>
+    <h3>Custom solutions</h3>
+    <p>Flexible logistics support for non-standard shipment requirements.</p>
+  </div>
+
+  <div>
+    <h3>Consulting services</h3>
+    <p>Logistics support and planning for operational needs.</p>
+  </div>
+</section>
+
+</main>
 
   <footer>
     <p>Copyright © 2024 Speedpack Express Inc. All Rights Reserved. | Designed & Developed by <a href="https://www.linkedin.com/in/john-r-vazquez">John R Vazquez</a></p>

@@ -18,43 +18,173 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
-    <style>
-        body {
-            background: url('website images/airportphoto.png') no-repeat center center fixed;
-            background-size: cover;
-        }
+   <style>
+body {
+  background: #07130f;
+}
 
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: -1;
-        }
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(4,12,9,0.94), rgba(4,12,9,0.62)),
+    rgba(0,0,0,0.35);
+  z-index: -1;
+}
 
-        /* NAVBAR FIX */
-        body > nav {
-            position: relative !important;
-            top: 0 !important;
-            left: auto !important;
-            right: auto !important;
-        }
+.careers-page {
+  color: #fff;
+  padding: 180px 8vw 110px;
+}
 
-        body > nav .navbar-logo-container {
-            transform: translateY(12px) !important;
-        }
+.careers-layout {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 80px;
+  max-width: 1200px;
+  align-items: start;
+}
 
-        body > main,
-        body > nav + *:not(main) {
-            padding-top: 0 !important;
-            margin-top: 0 !important;
-        }
+.eyebrow {
+  color: #f4f40c;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
 
-        /* FORM BOX SPACING */
-        .form-section {
-            margin-top: 40px !important;
-        }
-    </style>
+.careers-info h1 {
+  font-size: clamp(44px, 6vw, 76px);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  margin: 18px 0 24px;
+}
+
+.careers-info p {
+  color: rgba(255,255,255,0.72);
+  font-size: 18px;
+  line-height: 1.65;
+}
+
+.career-points {
+  margin-top: 48px;
+  border-top: 1px solid rgba(255,255,255,0.14);
+}
+
+.career-point {
+  padding: 22px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.14);
+}
+
+.career-point span {
+  display: block;
+  color: rgba(255,255,255,0.45);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.career-point p {
+  color: #fff;
+  margin: 0;
+  font-size: 17px;
+}
+
+.careers-panel {
+  background: rgba(255,255,255,0.055);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 42px;
+  max-width: 680px;
+}
+
+.careers-panel h2 {
+  color: #fff;
+  font-size: 30px;
+  margin: 0 0 24px;
+}
+
+.careers-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 22px;
+  row-gap: 18px;
+}
+
+.form-group {
+  margin: 0;
+}
+
+.form-group.full {
+  grid-column: 1 / -1;
+}
+
+.careers-form label {
+  display: block;
+  color: rgba(255,255,255,0.72);
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.careers-form input,
+.careers-form select,
+.careers-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.16) !important;
+  color: #e5e7eb !important;
+  padding: 14px;
+  outline: none;
+}
+
+.careers-form option {
+  color: #111;
+}
+
+.careers-form textarea {
+  min-height: 130px;
+}
+
+.careers-form input:focus,
+.careers-form select:focus,
+.careers-form textarea:focus {
+  border-color: rgba(244,244,12,0.65) !important;
+}
+
+.g-recaptcha {
+  grid-column: 1 / -1;
+}
+
+.careers-form button {
+  background: #f4f40c;
+  color: #111;
+  border: none;
+  padding: 15px 22px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  min-width: 180px;
+}
+
+@media (max-width: 900px) {
+  .careers-page {
+    padding: 140px 24px 80px;
+  }
+
+  .careers-layout,
+  .careers-form {
+    grid-template-columns: 1fr;
+  }
+
+  .careers-panel {
+    max-width: none;
+    padding: 28px;
+  }
+}
+</style>
 </head>
 
 <body>
@@ -82,58 +212,84 @@
     </div>
 </nav>
 
-<section class="form-section">
-    <div class="form-container">
-        <h2 style="color:white;">Resume Submission Form</h2>
+<main class="careers-page">
+  <div class="careers-layout">
 
-        <form action="https://formspree.io/f/xzzpglan" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="name">Full Name:</label>
-                <input type="text" id="name" name="name" required>
-            </div>
+    <section class="careers-info">
+      <p class="eyebrow">CAREERS AT SPEEDPACK</p>
+      <h1>Join a team built around urgent logistics.</h1>
+      <p>
+        Speedpack Express is always looking for dependable people who understand
+        urgency, communication, and professional service.
+      </p>
 
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
+      <div class="career-points">
+        <div class="career-point">
+          <span>Work Type</span>
+          <p>Courier, warehouse, dispatch, and logistics support opportunities.</p>
+        </div>
 
-            <div class="form-group">
-                <label for="phone">Phone Number:</label>
-                <input type="tel" id="phone" name="phone" required>
-            </div>
+        <div class="career-point">
+          <span>Operations</span>
+          <p>24/7 logistics environment serving South Florida.</p>
+        </div>
+      </div>
+    </section>
 
-            <div class="form-group">
-                <label for="resume">Upload Resume:</label>
-                <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
-            </div>
+    <section class="careers-panel">
+      <h2>Submit your resume</h2>
 
-            <div class="form-group">
-                <label for="start-date">When can you start?</label>
-                <input type="date" id="start-date" name="start-date" required>
-            </div>
+      <form class="careers-form" action="https://formspree.io/f/xzzpglan" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="name">Full Name *</label>
+          <input type="text" id="name" name="name" required>
+        </div>
 
-            <div class="form-group">
-                <label for="availability">Availability:</label>
-                <select id="availability" name="availability" required>
-                    <option value="full-time">Full-Time</option>
-                    <option value="part-time">Part-Time</option>
-                    <option value="internship">Internship</option>
-                </select>
-            </div>
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input type="email" id="email" name="email" required>
+        </div>
 
-            <div class="form-group">
-                <label for="message">Additional Comments:</label>
-                <textarea id="message" name="message" rows="4"></textarea>
-            </div>
+        <div class="form-group">
+          <label for="phone">Phone Number *</label>
+          <input type="tel" id="phone" name="phone" required>
+        </div>
 
-            <div class="g-recaptcha" data-sitekey="6LckKTIqAAAAAAgifqjIvk3dz1llg2--MXjTPaq6"></div>
+        <div class="form-group">
+          <label for="start-date">When can you start? *</label>
+          <input type="date" id="start-date" name="start-date" required>
+        </div>
 
-            <div class="form-group">
-                <button type="submit" class="submit-btn">Submit</button>
-            </div>
-        </form>
-    </div>
-</section>
+        <div class="form-group">
+          <label for="availability">Availability *</label>
+          <select id="availability" name="availability" required>
+            <option value="" disabled selected>- Please Select -</option>
+            <option value="full-time">Full-Time</option>
+            <option value="part-time">Part-Time</option>
+            <option value="internship">Internship</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="resume">Upload Resume *</label>
+          <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
+        </div>
+
+        <div class="form-group full">
+          <label for="message">Additional Comments</label>
+          <textarea id="message" name="message"></textarea>
+        </div>
+
+        <div class="g-recaptcha" data-sitekey="6LcypZ0sAAAAANv5jC-2TRSb9N_x__4Ug8n93KNt"></div>
+
+        <div class="form-group full">
+          <button type="submit" class="submit-btn">Submit resume</button>
+        </div>
+      </form>
+    </section>
+
+  </div>
+</main>
 
 <footer>
     <p>Copyright © 2024 Speedpack Express Inc. All Rights Reserved. | Designed & Developed by <a href="https://www.linkedin.com/in/john-r-vazquez">John R Vazquez</a></p>

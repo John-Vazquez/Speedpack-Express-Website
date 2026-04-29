@@ -749,3 +749,47 @@ footer {
     border-bottom: 1px solid rgba(255,255,255,0.12);
   }
 }
+
+/* ==== NAVBAR SIZE FIX (FINAL CLEAN VERSION) ==== */
+
+body > nav {
+  top: 12px !important;              /* less gap from top */
+}
+
+/* shrink navbar height */
+body > nav .navbar-container {
+  height: 72px !important;
+  padding: 6px 20px !important;
+}
+
+/* fix logo size */
+body > nav .navbar-logo {
+  height: 300px !important;           /* THIS is the main fix */
+  width: auto;
+}
+
+/* remove weird vertical pushing */
+body > nav .navbar-logo-container {
+  transform: translateY(0) !important;
+}
+
+/* keep menu centered */
+body > nav ul {
+  align-items: center !important;
+}
+
+/* fix page spacing under navbar */
+body > main {
+  padding-top: calc(72px + 12px + 16px) !important;
+}
+
+/* ==== HIDE NAVBAR ON SCROLL ==== */
+body > nav {
+  transition: transform 0.25s ease, opacity 0.25s ease !important;
+}
+
+body > nav.nav-hidden {
+  transform: translateY(-130%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

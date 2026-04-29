@@ -21,44 +21,277 @@
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
   <style>
-    body {
-      background: url('website images/airportphoto.png') no-repeat center center fixed;
-      background-size: cover;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: -1;
-    }
-    body > nav {
-  position: relative !important;
-  top: 0 !important;
-  left: auto !important;
-  right: auto !important;
+body {
+  background: #07130f;
 }
 
-body > nav .navbar-logo-container {
-  transform: translateY(30px) !important;
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(4,12,9,0.94), rgba(4,12,9,0.62)),
+    rgba(0,0,0,0.35);
+  z-index: -1;
 }
 
-body > nav .navbar-container {
-  height: auto !important;
-  min-height: 120px !important;
+.contact-page {
+  color: #fff;
+  padding: 180px 8vw 110px;
 }
 
-body > main,
-body > nav + *:not(main) {
-  padding-top: 0 !important;
-  margin-top: 0 !important;
+.contact-layout {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 70px;
+  max-width: 1150px;
 }
 
-.contact-content {
-  margin-top: 40px !important;
+.eyebrow {
+  color: #f4f40c;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
-  </style>
+
+.contact-info h1 {
+  font-size: clamp(44px, 6vw, 76px);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  margin: 18px 0 24px;
+}
+
+.contact-info p {
+  color: rgba(255,255,255,0.72);
+  font-size: 18px;
+  line-height: 1.65;
+}
+
+.contact-details {
+  margin-top: 50px;
+  border-top: 1px solid rgba(255,255,255,0.14);
+}
+
+.contact-detail {
+  padding: 24px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.14);
+}
+
+.contact-detail span {
+  display: block;
+  color: rgba(255,255,255,0.45);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.contact-detail a,
+.contact-detail p {
+  color: #fff;
+  font-size: 18px;
+  margin: 0;
+  text-decoration: none;
+}
+
+.contact-panel {
+  background: rgba(255,255,255,0.055);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 34px;
+}
+
+.contact-panel h2 {
+  color: #fff;
+  font-size: 30px;
+  margin: 0 0 24px;
+}
+
+.contact-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.form-group {
+  margin: 0;
+}
+
+.form-group.full {
+  grid-column: 1 / -1;
+}
+
+.contact-form label {
+  color: rgba(255,255,255,0.72);
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.contact-form input,
+.contact-form select,
+.contact-form textarea {
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.16) !important;
+  color: #e5e7eb !important;
+  padding: 14px;
+}
+
+/* 👉 PUT IT RIGHT HERE */
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+  color: rgba(255,255,255,0.4);
+}
+
+.contact-form textarea {
+  min-height: 130px;
+}
+
+.contact-form input:focus,
+.contact-form select:focus,
+.contact-form textarea:focus {
+  border-color: rgba(244,244,12,0.65) !important;
+}
+
+.contact-form option {
+  color: #111;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.checkbox-group input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.checkbox-group label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+}
+
+.checkbox-group a {
+  color: #f4f40c;
+  text-decoration: none;
+}
+
+.checkbox-group input {
+  width: auto;
+  margin-top: 4px;
+}
+
+.checkbox-group label {
+  line-height: 1.5;
+}
+
+.checkbox-group a {
+  color: #f4f40c;
+}
+
+.g-recaptcha {
+  grid-column: 1 / -1;
+}
+
+.contact-form button {
+  background: #f4f40c;
+  color: #111;
+  border: none;
+  padding: 15px 22px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+/* ==== CONTACT PAGE FINAL POLISH ==== */
+
+.contact-layout {
+  grid-template-columns: 0.85fr 1.35fr;
+  max-width: 1250px;
+  gap: 90px;
+  align-items: start;
+}
+
+.contact-panel {
+  width: 100%;
+  max-width: 680px;
+  padding: 42px;
+}
+
+.contact-form input,
+.contact-form select,
+.contact-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.contact-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 22px;
+  row-gap: 18px;
+}
+
+.contact-info {
+  max-width: 470px;
+}
+
+.contact-info h1 {
+  font-size: clamp(48px, 5vw, 82px);
+}
+
+.contact-form button {
+  width: fit-content;
+  min-width: 190px;
+}
+
+@media (max-width: 900px) {
+  .contact-layout {
+    grid-template-columns: 1fr;
+    gap: 50px;
+  }
+
+  .contact-panel {
+    max-width: none;
+    padding: 28px;
+  }
+}
+
+@media (max-width: 900px) {
+  .contact-page {
+    padding: 140px 24px 80px;
+  }
+
+  .contact-layout,
+  .contact-form {
+    grid-template-columns: 1fr;
+  }
+}
+/* ==== FIX CHECKBOX ROW ==== */
+
+.contact-form .checkbox-group {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  margin-top: 4px !important;
+}
+
+.contact-form .checkbox-group input[type="checkbox"] {
+  width: 16px !important;
+  height: 16px !important;
+  flex: 0 0 16px !important;
+  margin: 0 !important;
+}
+
+.contact-form .checkbox-group label {
+  margin: 0 !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+}
+</style>
 </head>
 <body>
   <nav>
@@ -83,65 +316,90 @@ body > nav + *:not(main) {
     </div>
   </nav>
 
-  <section class="contact-content">
-    <h2>Contact Information</h2>
-    <h3>Please fill out the form or use the phone number / email below.</h3>
-    <p>Email: jv@speedpackexpress.com</p>
-    <p>Phone: Contact via email!</p>
-    <p>Fax: Contact via email!</p>
+  <main class="contact-page">
+  <div class="contact-layout">
 
-    <form class="contact-form" action="https://formspree.io/f/xzzpglan" method="POST">
-      <div class="form-group">
-        <label for="fname">First Name *</label>
-        <input type="text" id="fname" name="firstname" required>
+    <section class="contact-info">
+      <p class="eyebrow">CONTACT SPEEDPACK</p>
+      <h1>Need a shipment handled?</h1>
+      <p>
+        Send us the details and our team will get back to you as quickly as possible.
+        For urgent courier needs, include pickup, delivery, timing, and shipment details.
+      </p>
+
+      <div class="contact-details">
+        <div class="contact-detail">
+          <span>Email</span>
+          <a href="mailto:jv@speedpackexpress.com">jv@speedpackexpress.com</a>
+        </div>
+
+        <div class="contact-detail">
+          <span>Operations</span>
+          <p>24/7 courier operations across South Florida</p>
+        </div>
       </div>
+    </section>
 
-      <div class="form-group">
-        <label for="lname">Last Name *</label>
-        <input type="text" id="lname" name="lastname" required>
-      </div>
+    <section class="contact-panel">
+      <h2>Send a request</h2>
 
-      <div class="form-group">
-        <label for="email">Email *</label>
-        <input type="email" id="email" name="email" required>
-      </div>
+      <form class="contact-form" action="https://formspree.io/f/xzzpglan" method="POST">
+        <div class="form-group">
+          <label for="fname">First Name *</label>
+          <input type="text" id="fname" name="firstname" required>
+        </div>
 
-      <div class="form-group">
-        <label for="company">Company *</label>
-        <input type="text" id="company" name="company" required>
-      </div>
+        <div class="form-group">
+          <label for="lname">Last Name *</label>
+          <input type="text" id="lname" name="lastname" required>
+        </div>
 
-      <div class="form-group">
-        <label for="phone">Phone *</label>
-        <input type="text" id="phone" name="phone" required>
-      </div>
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input type="email" id="email" name="email" required>
+        </div>
 
-      <div class="form-group">
-        <label for="country">Country *</label>
-        <select id="country" name="country" required>
-          <option value="" disabled selected>- Please Select -</option>
-          <option value="usa">USA</option>
-          <option value="canada">Canada</option>
-        </select>
-      </div>
+        <div class="form-group">
+          <label for="company">Company *</label>
+          <input type="text" id="company" name="company" required>
+        </div>
 
-      <div class="form-group">
-        <label for="question">Your Question *</label>
-        <textarea id="question" name="question" required></textarea>
-      </div>
+        <div class="form-group">
+          <label for="phone">Phone *</label>
+          <input type="text" id="phone" name="phone" required>
+        </div>
 
-      <div class="form-group checkbox-group">
-        <input type="checkbox" id="agree" name="agree" required>
-        <label for="agree">I acknowledge that by clicking this button, I agree to the terms of the <a href="#">privacy policy</a>.</label>
-      </div>
+        <div class="form-group">
+          <label for="country">Country *</label>
+          <select id="country" name="country" required>
+            <option value="" disabled selected>- Please Select -</option>
+            <option value="usa">USA</option>
+            <option value="canada">Canada</option>
+          </select>
+        </div>
 
-      <div class="g-recaptcha" data-sitekey="6LcypZ0sAAAAANv5jC-2TRSb9N_x__4Ug8n93KNt"></div>
+        <div class="form-group full">
+          <label for="question">Shipment Details *</label>
+          <textarea id="question" name="question" required></textarea>
+        </div>
 
-      <div class="form-group">
-        <button type="submit">Submit your request</button>
-      </div>
-    </form>
-  </section>
+        <div class="form-group full checkbox-group">
+          <input type="checkbox" id="agree" name="agree" required>
+          <label for="agree">
+            I agree to the terms of the <a href="#">privacy policy</a>.
+          </label>
+        </div>
+
+        <div class="g-recaptcha" data-sitekey="6LcypZ0sAAAAANv5jC-2TRSb9N_x__4Ug8n93KNt"></div>
+
+        <div class="form-group full">
+          <button type="submit">Submit your request</button>
+        </div>
+      </form>
+    </section>
+
+  </div>
+</main>
 
   <footer>
     <p>Copyright © 2024 Speedpack Express Inc. All Rights Reserved. | Designed & Developed by <a href="https://www.linkedin.com/in/john-r-vazquez">John R Vazquez</a></p>
