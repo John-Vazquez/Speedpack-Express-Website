@@ -294,6 +294,7 @@ body::before {
 </style>
 </head>
 <body>
+  
   <nav>
     <div class="navbar-container">
       <div class="navbar-logo-container">
@@ -390,9 +391,10 @@ body::before {
           </label>
         </div>
 
-        <div class="g-recaptcha" data-sitekey="6LcypZ0sAAAAANv5jC-2TRSb9N_x__4Ug8n93KNt"></div>
+        
 
         <div class="form-group full">
+          <div class="g-recaptcha" data-sitekey="6LePB9EsAAAAALOX7rMHRKJRlKyXxd1d3carsIYX"></div>
           <button type="submit">Submit your request</button>
         </div>
       </form>
@@ -406,15 +408,6 @@ body::before {
   </footer>
 
   <script src="scripts.js"></script>
-  <script>
-  document.querySelector(".contact-form").addEventListener("submit", function(e) {
-    const recaptcha = grecaptcha.getResponse();
-
-    if (!recaptcha) {
-      e.preventDefault();
-      alert("Please complete the reCAPTCHA.");
-    }
-  });
-</script>
+ 
 </body>
 </html>
