@@ -183,7 +183,15 @@
     .job-row.dragging { opacity:.75; }
 
     .select-cell input { width:14px; height:14px; }
-    .job-number { color:#0097ff; font-weight:900; font-size:18px; text-decoration:none; }
+    .job-number {
+  color:#0097ff;
+  font-weight:900;
+  font-size:14px;
+  text-decoration:none;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
     .mini-meta { color:#111827; font-size:12px; line-height:1.35; }
     .mini-meta b { font-weight:900; }
     .phone-icon { color:#16a34a; font-size:15px; float:right; }
@@ -203,15 +211,19 @@
     }
     .timeline .fill {
       position:absolute; left:0; top:16px; height:6px; width:50%;
-      background:#1f9d0a; border-radius:999px;
+      background:#facc15; border-radius:999px;
+      box-shadow: 0 0 6px rgba(250, 204, 21, 0.6);
     }
+    .timeline .fill.late {
+  background: #dc2626; /* red */
+}
     .timeline .start, .timeline .end {
       position:absolute; top:5px; width:28px; height:28px; border-radius:50%;
       display:flex; align-items:center; justify-content:center; font-size:14px; color:#fff;
-      background:#1f9d0a; z-index:2;
+      background:#facc15; z-index:2;
     }
     .timeline .start { left:-2px; }
-    .timeline .end { right:-2px; background:#fff; color:#1f9d0a; border:1px solid #1f9d0a; }
+    .timeline .end { right:-2px; background:#fff; color:#facc15; border:1px solid #facc15; }
     .timeline-text { position:absolute; top:-4px; left:50%; transform:translateX(-50%); font-size:11px; white-space:nowrap; color:#111827; }
 
     .deadline-cell { text-align:right; font-size:12px; line-height:1.35; }
@@ -229,6 +241,21 @@
     }
 
     .actions-cell { display:flex; align-items:center; justify-content:flex-end; gap:8px; position:relative; }
+    .confirm-btn {
+  border: 0;
+  background: #facc15;
+  color: #fff;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 7px 9px;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.confirm-btn.delivery {
+  background: #1e3a8a;
+}
     .icon-btn { border:0; background:transparent; cursor:pointer; color:#4b5563; font-size:18px; padding:3px; }
     .card-menu {
       position:absolute; right:0; top:30px; z-index:20; width:190px; padding:10px;
@@ -291,7 +318,7 @@
     @media (max-width: 1250px) {
       .filter-row { grid-template-columns: repeat(2, 1fr); }
       .form-row { grid-template-columns: 1fr 1fr; }
-      .job-row { grid-template-columns: 28px 95px 220px 1fr 130px; }
+      .job-row { grid-template-columns: 34px 105px 270px 1fr 250px 150px 116px; }
       .category-badge { display:none; }
       .actions-cell { grid-column:auto; }
       .route-cell { grid-template-columns: 140px 1fr 140px; }
@@ -445,19 +472,64 @@ const activeJobsList = document.getElementById('active-jobs-list');
   if (hours > 0) return `${hours}h ${minutes}m overdue`;
   return `${minutes}m overdue`;
 }
-  function isArchivedJob(job) {
-    const d = new Date(job.deadline);
-    if (isNaN(d)) return false;
-    const fiveDaysAgo = new Date();
-    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 2);
-    return d < fiveDaysAgo;
-  }
+ function isArchivedJob(job) {
+  const d = new Date(job.deadline);
+  if (isNaN(d)) return false;
+
+  const cutoff = new Date();
+  cutoff.setHours(cutoff.getHours() - 12);
+
+  return d < cutoff;
+}
   function jobMatchesSearch(job, query) {
     if (!query) return true;
     return [job.title, job.driver, job.notes, CATEGORY_LABELS[job.category], formatDeadline(job.deadline)]
       .filter(Boolean).join(' ').toLowerCase().includes(query);
   }
 
+function getJobProgress(jobId) {
+  return JSON.parse(localStorage.getItem(`job-progress-${jobId}`) || '{}');
+}
+
+function saveJobProgress(jobId, data) {
+  localStorage.setItem(`job-progress-${jobId}`, JSON.stringify(data));
+}
+function parseTimeToday(timeText) {
+  if (!timeText) return null;
+
+  const now = new Date();
+  const clean = timeText.trim().toLowerCase();
+
+  const match = clean.match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/);
+  if (!match) return null;
+
+  let hours = Number(match[1]);
+  const minutes = Number(match[2] || 0);
+  const ampm = match[3];
+
+  if (ampm === 'pm' && hours !== 12) hours += 12;
+  if (ampm === 'am' && hours === 12) hours = 0;
+
+  const d = new Date(now);
+  d.setHours(hours, minutes, 0, 0);
+  return d;
+}
+
+function getProgressPercent(job) {
+  const progress = getJobProgress(job.id);
+  const pickupEta = parseTimeToday(progress.pickupEta);
+  const deadline = new Date(job.deadline);
+  const now = new Date();
+
+  if (!pickupEta || isNaN(deadline)) return 0;
+  if (now <= pickupEta) return 0;
+  if (now >= deadline) return 100;
+
+  const total = deadline - pickupEta;
+  const elapsed = now - pickupEta;
+
+  return Math.round((elapsed / total) * 100);
+}
   function createJobRowElement(job) {
     const row = document.createElement('div');
     row.className = `job-row ${getJobStatusClass(job.deadline)}`;
@@ -477,7 +549,9 @@ const activeJobsList = document.getElementById('active-jobs-list');
       </div>
       <div class="route-cell">
         <div class="place"><b>Pickup</b>${escapeHtml(CATEGORY_LABELS[job.category] || 'Dispatch')}</div>
-        <div class="timeline"><span class="start">⌂</span><span class="fill"></span><span class="timeline-text">${escapeHtml(CATEGORY_LABELS[job.category] || '')}</span><span class="end">⌄</span></div>
+        <div class="timeline"><span class="start">⌂</span><span class="fill ${getProgressPercent(job) >= 100 ? 'late' : ''}" 
+      style="width:${Math.min(getProgressPercent(job), 100)}%;">
+</span><span class="timeline-text">${escapeHtml(CATEGORY_LABELS[job.category] || '')}</span><span class="end">⌄</span></div>
         <div class="place"><b>Delivery / Notes</b>${notesHtml}</div>
       </div>
     <div class="deadline-cell">
@@ -485,9 +559,10 @@ const activeJobsList = document.getElementById('active-jobs-list');
   <span>${getDeadlineStatusText(job.deadline)}</span>
 </div>
       <div class="category-badge">${escapeHtml(CATEGORY_LABELS[job.category] || job.category || '')}</div>
-      <div class="actions-cell">
-        <button class="icon-btn menu-trigger" title="Actions">⋮</button>
-      </div>
+    <div class="actions-cell">
+  <button type="button" class="confirm-btn"></button>
+  <button class="icon-btn menu-trigger" title="Actions">⋮</button>
+</div>
     `;
 
     const menu = document.createElement('div');
@@ -505,7 +580,52 @@ const activeJobsList = document.getElementById('active-jobs-list');
       <button type="button" class="menu-delete">Archive</button>
     `;
     row.querySelector('.actions-cell').appendChild(menu);
+    const confirmBtn = row.querySelector('.confirm-btn');
+const progress = getJobProgress(job.id);
 
+if (progress.pickupConfirmed) {
+  confirmBtn.textContent = 'Confirm Delivery';
+  confirmBtn.classList.add('delivery');
+} else {
+  confirmBtn.textContent = 'Confirm Pickup';
+}
+
+confirmBtn.addEventListener('click', async () => {
+  const currentProgress = getJobProgress(job.id);
+
+  if (!currentProgress.pickupConfirmed) {
+    const eta = prompt('Enter ETA time:');
+    if (!eta) return;
+
+    saveJobProgress(job.id, {
+      pickupConfirmed: true,
+      pickupEta: eta
+    });
+
+    loadJobs();
+    return;
+  }
+
+  const dropoffTime = prompt('Enter drop off time:');
+  if (!dropoffTime) return;
+
+  saveJobProgress(job.id, {
+  ...currentProgress,
+  deliveryConfirmed: true,
+  dropoffTime
+});
+
+// 🔥 move to archive (same logic as archive button)
+const oldDate = new Date();
+oldDate.setDate(oldDate.getDate() - 6);
+
+await sb
+  .from('jobs')
+  .update({ deadline: oldDate.toISOString() })
+  .eq('id', job.id);
+
+loadJobs();
+});
     row.querySelector('.menu-trigger').addEventListener('click', (e) => {
       e.stopPropagation();
       document.querySelectorAll('.card-menu').forEach(m => { if (m !== menu) m.hidden = true; });
