@@ -152,6 +152,22 @@
     .shipments-head {
       display:flex; align-items:center; gap:12px; font-weight:800; margin-bottom:19px;
     }
+
+    .bulk-archive-btn {
+  display: none;
+  background: #dc2626;
+  color: #fff;
+  border: 0;
+  border-radius: 3px;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.bulk-archive-btn.show {
+  display: inline-block;
+}
     .shipments-head input { width:14px; height:14px; }
     .thick-line { height:5px; background:#1e3a8a; margin-bottom:18px; }
 
@@ -419,7 +435,11 @@
     </details>
 
     <section class="shipments-card" aria-label="Dispatch Board">
-      <div class="shipments-head"><input type="checkbox"> <span>Shipments (<span id="shipment-count">0</span>)</span></div>
+      <div class="shipments-head">
+  <input type="checkbox" id="select-all-jobs">
+  <span>Shipments (<span id="shipment-count">0</span>)</span>
+  <button type="button" id="bulk-archive-btn" class="bulk-archive-btn">Archive Selected</button>
+</div>
       <div class="thick-line"></div>
       <div id="active-jobs-list" class="job-list"></div>
 
@@ -555,7 +575,7 @@ function getProgressPercent(job) {
       : `<span style="color:#6b7280;">No notes</span>`;
 
     row.innerHTML = `
-      <div class="select-cell"><input type="checkbox"></div>
+      <div class="select-cell"><input type="checkbox" class="job-checkbox" data-id="${job.id}"></div>
       <a class="job-number" href="#">${escapeHtml(job.title || 'JOB')}</a>
       <div class="mini-meta">
         <b>${escapeHtml(job.driver || 'Unassigned')}</b><span class="phone-icon">▯</span><br>
@@ -759,6 +779,47 @@ function renderJob(job) {
 
 
 
+  function updateBulkArchiveButton() {
+  const checked = document.querySelectorAll('.job-checkbox:checked').length;
+  document.getElementById('bulk-archive-btn').classList.toggle('show', checked > 0);
+}
+
+document.addEventListener('change', (e) => {
+  if (e.target.classList.contains('job-checkbox')) {
+    updateBulkArchiveButton();
+  }
+
+  if (e.target.id === 'select-all-jobs') {
+    document.querySelectorAll('.job-checkbox').forEach(cb => {
+      cb.checked = e.target.checked;
+    });
+    updateBulkArchiveButton();
+  }
+});
+
+document.getElementById('bulk-archive-btn').addEventListener('click', async () => {
+  const selectedIds = Array.from(document.querySelectorAll('.job-checkbox:checked'))
+    .map(cb => cb.dataset.id);
+
+  if (!selectedIds.length) return;
+
+  if (!confirm(`Archive ${selectedIds.length} selected jobs?`)) return;
+
+  const oldDate = new Date();
+  oldDate.setDate(oldDate.getDate() - 6);
+
+  const { error } = await sb
+    .from('jobs')
+    .update({ deadline: oldDate.toISOString() })
+    .in('id', selectedIds);
+
+  if (error) {
+    alert('Bulk archive failed.');
+    return;
+  }
+
+  loadJobs();
+});
   document.querySelector('.archive-title').addEventListener('click', () => document.querySelector('.archive-card').classList.toggle('expanded'));
   document.getElementById('archive-search').addEventListener('click', e => e.stopPropagation());
   document.getElementById('archive-search').addEventListener('input', loadJobs);
