@@ -383,15 +383,42 @@
         <input id="job-search" type="text" placeholder="Search by Job/AWB/Driver/Notes">
         <span class="search-icon">⌕</span>
       </div>
-      <div class="filter-row">
-        <div class="filter-pill">Driver Name: All <span>⌄</span></div>
-        <div class="filter-pill">Pickup Address: All <span>⌄</span></div>
-        <div class="filter-pill">Delivery Address: All <span>⌄</span></div>
-        <div class="filter-pill">Pickup Date: All <span>⌄</span></div>
-        <div class="filter-pill">Delivery Date: All <span>⌄</span></div>
-        <div class="filter-pill">Category: All <span>⌄</span></div>
-        <a href="#" id="reset-search" class="reset-link">Reset to see all</a>
-      </div>
+  <div class="filter-row">
+  <select id="driver-filter" class="filter-pill">
+    <option value="all">Driver Name: All</option>
+  </select>
+
+  <select id="pickup-filter" class="filter-pill">
+    <option value="all">Pickup Address: All</option>
+  </select>
+
+  <select id="delivery-filter" class="filter-pill">
+    <option value="all">Delivery Address: All</option>
+  </select>
+
+  <select id="pickup-date-filter" class="filter-pill">
+    <option value="all">Pickup Date: All</option>
+  </select>
+
+  <select id="delivery-date-filter" class="filter-pill">
+    <option value="all">Delivery Date: All</option>
+    <option value="today">Today</option>
+    <option value="tomorrow">Tomorrow</option>
+    <option value="overdue">Overdue</option>
+  </select>
+
+  <select id="category-filter" class="filter-pill">
+    <option value="all">Category: All</option>
+    <option value="mia">MIA Recovery</option>
+    <option value="fll">FLL Recovery</option>
+    <option value="tenders">Tenders</option>
+    <option value="deliveries">Deliveries</option>
+    <option value="dispatched">Dispatched</option>
+    <option value="bullshit">Other</option>
+  </select>
+
+  <a href="#" id="reset-search" class="reset-link">Reset to see all</a>
+</div>
     </section>
 
     <details class="add-panel add-job-toggle" aria-label="Add Job">
@@ -613,6 +640,14 @@ function getProgressPercent(job) {
 
 <label style="margin-top:10px;">Change Job Type</label>
 <select class="menu-select">
+  <option value="" disabled selected>Select…</option>
+  <option value="mia">MIA Recovery</option>
+  <option value="fll">FLL Recovery</option>
+  <option value="tenders">Tenders</option>
+  <option value="deliveries">Deliveries</option>
+  <option value="dispatched">Dispatched</option>
+  <option value="bullshit">Other</option>
+</select>
       </div>
       <button type="button" class="menu-delete">Archive</button>
     `;
@@ -754,6 +789,30 @@ function renderJob(job) {
     getUrgentJobs(jobs).forEach(job => row.appendChild(createJobRowElement(job)));
     if (!row.children.length) row.innerHTML = '<div class="job-row"><div></div><div class="mini-meta">No urgent jobs</div></div>';
   }
+  function populateDriverFilter(jobs) {
+  const driverFilter = document.getElementById('driver-filter');
+  if (!driverFilter) return;
+
+  const currentValue = driverFilter.value || 'all';
+
+  const drivers = [...new Set(
+    (jobs || [])
+      .filter(job => !isArchivedJob(job))
+      .map(job => job.driver)
+      .filter(Boolean)
+  )].sort();
+
+  driverFilter.innerHTML = `<option value="all">Driver Name: All</option>`;
+
+  drivers.forEach(driver => {
+    const option = document.createElement('option');
+    option.value = driver;
+    option.textContent = driver;
+    driverFilter.appendChild(option);
+  });
+
+  driverFilter.value = drivers.includes(currentValue) ? currentValue : 'all';
+}
   function renderArchivedJobs(jobs) {
     const row = document.getElementById('completed-jobs-row');
     const query = (document.getElementById('archive-search')?.value || '').trim().toLowerCase();
@@ -768,8 +827,43 @@ function renderJob(job) {
     const { data, error } = await sb.from('jobs').select('*').order('created_at', { ascending: false });
     if (error) { console.error(error); alert('Failed to load jobs.'); return; }
     ALL_JOBS = data || [];
+    populateDriverFilter(ALL_JOBS);
     const query = (document.getElementById('job-search')?.value || '').trim().toLowerCase();
-    const activeJobs = ALL_JOBS.filter(job => !isArchivedJob(job)).filter(job => jobMatchesSearch(job, query));
+    const selectedCategory = document.getElementById('category-filter')?.value || 'all';
+const selectedDriver = document.getElementById('driver-filter')?.value || 'all';
+const selectedDeliveryDate = document.getElementById('delivery-date-filter')?.value || 'all';
+
+const activeJobs = ALL_JOBS
+  .filter(job => !isArchivedJob(job))
+  .filter(job => jobMatchesSearch(job, query))
+  .filter(job => selectedCategory === 'all' || job.category === selectedCategory)
+.filter(job => selectedDriver === 'all' || job.driver === selectedDriver)
+.filter(job => {
+  if (selectedDeliveryDate === 'all') return true;
+
+  const d = new Date(job.deadline);
+  const now = new Date();
+  if (isNaN(d)) return false;
+
+  const sameDay =
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate();
+
+  const tomorrow = new Date(now);
+  tomorrow.setDate(now.getDate() + 1);
+
+  const isTomorrow =
+    d.getFullYear() === tomorrow.getFullYear() &&
+    d.getMonth() === tomorrow.getMonth() &&
+    d.getDate() === tomorrow.getDate();
+
+  if (selectedDeliveryDate === 'today') return sameDay;
+  if (selectedDeliveryDate === 'tomorrow') return isTomorrow;
+  if (selectedDeliveryDate === 'overdue') return d < now;
+
+  return true;
+});
     document.getElementById('shipment-count').textContent = activeJobs.length;
     activeJobs
    .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
@@ -820,10 +914,13 @@ document.getElementById('bulk-archive-btn').addEventListener('click', async () =
 
   loadJobs();
 });
+document.getElementById('job-search').addEventListener('input', loadJobs);
   document.querySelector('.archive-title').addEventListener('click', () => document.querySelector('.archive-card').classList.toggle('expanded'));
   document.getElementById('archive-search').addEventListener('click', e => e.stopPropagation());
   document.getElementById('archive-search').addEventListener('input', loadJobs);
-  document.getElementById('job-search').addEventListener('input', loadJobs);
+  ['driver-filter', 'delivery-date-filter', 'category-filter'].forEach(id => {
+  document.getElementById(id)?.addEventListener('change', loadJobs);
+});
   document.getElementById('reset-search').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('job-search').value=''; loadJobs(); });
 
   document.getElementById('job-form').addEventListener('submit', async (e) => {
