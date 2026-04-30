@@ -22,6 +22,44 @@ body {
   background: url('website images/airportphoto.png') no-repeat center center fixed;
   background-size: cover;
 }
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.52);
+  z-index: -1;
+}
+body > nav {
+  position: relative !important;
+  top: 0 !important;
+  left: auto !important;
+  right: auto !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  z-index: 10;
+}
+
+body > nav .navbar-container {
+  min-height: 120px !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 10px 40px !important;
+}
+
+body > nav .navbar-logo {
+  height: 300px !important;
+  width: auto !important;
+  filter: drop-shadow(0 3px 8px rgba(0,0,0,.45));
+}
+
+body > nav a {
+  color: #fff !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,.55);
+  font-weight: 800;
+}
 
 /* ===== Layout ===== */
 .dashboard {
@@ -30,6 +68,14 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+.dashboard,
+.dashboard h1,
+.dashboard h2,
+.dashboard th,
+.dashboard td,
+.dashboard .count {
+  color: #111827 !important;
 }
 
 .dashboard h1 {
@@ -174,34 +220,27 @@ th.actions, td.actions {
 </head>
 <body>
   <nav>
-    <div class="navbar-container">
-      <div class="navbar-logo-container">
-        <img src="website images/speedpacklogo2.png" alt="Speedpack Express Logo" class="navbar-logo" />
-        <div class="navbar-title">
-          <span class="speed">Speed</span><span class="pack">pack</span>
-        </div>
-        <div class="express-container">
-          <span class="line"></span>
-          <div class="express">Express</div>
-          <span class="line"></span>
-        </div>
-      </div>
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="services.html">Services</a></li>
-        <li class="dropdown">
-          <a href="contact.html">Contact</a>
-          <ul class="dropdown-content">
-            <li><a href="contact.html">Contact Us</a></li>
-            <li><a href="careers.html">Careers</a></li>
-            <li><a href="support.html">Support</a></li>
-          </ul>
-        </li>
-        <li><a href="login.html">Logout</a></li>
-      </ul>
+  <div class="navbar-container">
+    <div class="navbar-logo-container">
+      <img src="website images/SPEEDPACK-EXPRESS-AI-LOGO.png" alt="Speedpack Express Logo" class="navbar-logo">
     </div>
-  </nav>
+
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li class="dropdown">
+        <a href="contact.html">Contact</a>
+        <ul class="dropdown-content">
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="careers.html">Careers</a></li>
+          <li><a href="support.html">Support</a></li>
+        </ul>
+      </li>
+      <li><a href="login.html">Logout</a></li>
+    </ul>
+  </div>
+</nav>
   
   <section class="dashboard">
     <!-- Back Button Added Here -->

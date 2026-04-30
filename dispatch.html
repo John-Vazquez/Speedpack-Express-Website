@@ -253,6 +253,20 @@
   white-space: nowrap;
 }
 
+.delete-btn {
+  color: #dc2626;
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 4px;
+}
+
+.delete-btn:hover {
+  color: #991b1b;
+}
+
+
 .confirm-btn.delivery {
   background: #1e3a8a;
 }
@@ -560,8 +574,11 @@ function getProgressPercent(job) {
 </div>
       <div class="category-badge">${escapeHtml(CATEGORY_LABELS[job.category] || job.category || '')}</div>
     <div class="actions-cell">
-  <button type="button" class="confirm-btn"></button>
-  <button class="icon-btn menu-trigger" title="Actions">⋮</button>
+<button type="button" class="confirm-btn"></button>
+
+<span class="delete-btn" title="Archive Job">×</span>
+
+<button class="icon-btn menu-trigger" title="Actions">⋮</button>
 </div>
     `;
 
@@ -581,6 +598,28 @@ function getProgressPercent(job) {
     `;
     row.querySelector('.actions-cell').appendChild(menu);
     const confirmBtn = row.querySelector('.confirm-btn');
+
+    const deleteBtn = row.querySelector('.delete-btn');
+
+deleteBtn.addEventListener('click', async () => {
+  const confirmDelete = confirm('Archive this job?');
+  if (!confirmDelete) return;
+
+  const oldDate = new Date();
+  oldDate.setDate(oldDate.getDate() - 6);
+
+  const { error } = await sb
+    .from('jobs')
+    .update({ deadline: oldDate.toISOString() })
+    .eq('id', job.id);
+
+  if (error) {
+    alert('Archive failed.');
+    return;
+  }
+
+  loadJobs();
+});
 const progress = getJobProgress(job.id);
 
 if (progress.pickupConfirmed) {
