@@ -114,7 +114,18 @@ body > nav a {
   color: #333;
   margin-bottom: 10px;
 }
+.table-scroll {
+  max-height: 520px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-top: 1px solid #ddd;
+}
 
+.table-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
 /* ===== Tables ===== */
 table {
   width: 100%;
@@ -193,7 +204,20 @@ th.actions, td.actions {
   background: rgba(209, 26, 42, .08);
   color: #d11a2a;         /* red on hover */
 }
+.bulk-delete-btn {
+  margin: 0 0 10px 0;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: #d11a2a;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
 
+.bulk-delete-btn:hover {
+  background: #a91421;
+}
 /* ===== Mobile: stack columns; show icons (no hover on touch) ===== */
 @media (max-width: 768px) {
   .stats-container {
@@ -248,54 +272,73 @@ th.actions, td.actions {
 
     <h1>Live Upload Activity</h1>
     <div class="stats-container">
-      <div class="stats-section">
-        <h2>Successful Uploads</h2>
-        <div class="filters" style="display:flex;gap:10px;justify-content:center;align-items:center;margin:10px 0 5px;">
-        <input id="searchJobSuccess" type="text" placeholder="Search job #…" style="padding:8px 10px;border:1px solid #ccc;border-radius:6px;min-width:220px;">
-        <select id="timeRangeSuccess" style="padding:8px 10px;border:1px solid #ccc;border-radius:6px;">
-            <option value="all">All time</option>
-            <option value="24h">Last 24h</option>
-            <option value="7d">Last 7 days</option>
-        </select>
-        </div>
+  <div class="stats-section">
+    <h2>Successful Uploads</h2>
 
-        <div class="count" id="success-count">(0)</div>
-        <table id="success-table">
-          <thead>
-            <tr>
-              <th>Job Number</th>
-              <th>Date & Time</th>
-              <th></th> <!-- actions -->
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div class="stats-section">
-        <h2>Failed Uploads</h2>
-        <div class="filters" style="display:flex;gap:10px;justify-content:center;align-items:center;margin:10px 0 5px;">
-  <input id="searchJob" type="text" placeholder="Search job #…" style="padding:8px 10px;border:1px solid #ccc;border-radius:6px;min-width:220px;">
-  <select id="timeRange" style="padding:8px 10px;border:1px solid #ccc;border-radius:6px;">
-    <option value="all">All time</option>
-    <option value="24h">Last 24h</option>
-    <option value="7d">Last 7 days</option>
-  </select>
-</div>
-        <div class="count" id="failure-count">(0)</div>
-        <table id="failure-table">
-          <thead>
-            <tr>
-              <th>Job Number</th>
-              <th>Date & Time</th>
-              <th>Error Reason</th>
-              <th></th> <!-- actions -->
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+    <div class="filters" style="display:flex;gap:10px;justify-content:center;align-items:center;margin:10px 0 5px;">
+      <input id="searchJobSuccess" type="text" placeholder="Search job #…" style="padding:8px 10px;border:1px solid #ccc;border-radius:6px;min-width:220px;">
+      <select id="timeRangeSuccess" style="padding:8px 10px;border:1px solid #ccc;border-radius:6px;">
+        <option value="all">All time</option>
+        <option value="24h">Last 24h</option>
+        <option value="7d">Last 7 days</option>
+      </select>
     </div>
-  </section>
+
+    <div class="count" id="success-count">(0)</div>
+
+    <button class="bulk-delete-btn" onclick="deleteSelectedLogs('success-table')">
+      Delete Selected
+    </button>
+
+    <div class="table-scroll">
+      <table id="success-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" onclick="toggleAllChecks('success-table', this.checked)"></th>
+            <th>Job Number</th>
+            <th>Date & Time</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="stats-section">
+    <h2>Failed Uploads</h2>
+
+    <div class="filters" style="display:flex;gap:10px;justify-content:center;align-items:center;margin:10px 0 5px;">
+      <input id="searchJob" type="text" placeholder="Search job #…" style="padding:8px 10px;border:1px solid #ccc;border-radius:6px;min-width:220px;">
+      <select id="timeRange" style="padding:8px 10px;border:1px solid #ccc;border-radius:6px;">
+        <option value="all">All time</option>
+        <option value="24h">Last 24h</option>
+        <option value="7d">Last 7 days</option>
+      </select>
+    </div>
+
+    <div class="count" id="failure-count">(0)</div>
+
+    <button class="bulk-delete-btn" onclick="deleteSelectedLogs('failure-table')">
+      Delete Selected
+    </button>
+
+    <div class="table-scroll">
+      <table id="failure-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" onclick="toggleAllChecks('failure-table', this.checked)"></th>
+            <th>Job Number</th>
+            <th>Date & Time</th>
+            <th>Error Reason</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
  <script>
   // === CONFIG ===
@@ -338,29 +381,33 @@ th.actions, td.actions {
         fetchLogsOnce("failure", searchFail, rangeFail)
       ]);
       updateSuccessTable(succ.items);
-      updateFailureTable(fail.items);
+      // auto delete "Unknown" logs
+const unknownLogs = (fail.items || []).filter(log => !log.job_number || log.job_number === "Unknown");
+
+for (const log of unknownLogs) {
+  deleteLog(log.id);
+}
+
+updateFailureTable(fail.items);
 
       // keep your counters (last 7d from backend)
-      document.getElementById("success-count").textContent = `(${succ.successCount ?? 0})`;
-      document.getElementById("failure-count").textContent = `(${fail.failureCount ?? 0})`;
+      document.getElementById("success-count").textContent = `(${succ.items?.length ?? 0})`;
+      document.getElementById("failure-count").textContent = `(${fail.items?.length ?? 0})`;
     } catch (e) {
       console.error("Error fetching logs:", e);
     }
   }
 
-  function rowHtmlSuccess(log) {
+function rowHtmlSuccess(log) {
   const dt = new Date(log.created_at).toLocaleString();
   return `
     <tr data-id="${log.id}">
+      <td><input type="checkbox" class="row-check" data-id="${log.id}"></td>
       <td>${log.job_number}</td>
       <td>${dt}</td>
       <td class="actions">
-        <button class="icon-btn del-btn" data-id="${log.id}" title="Delete" aria-label="Delete">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M9 3h6M5 7h14M7 7v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V7M10 11v6M14 11v6"
-                  fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+        <button class="icon-btn del-btn" data-id="${log.id}">
+          🗑
         </button>
       </td>
     </tr>
@@ -368,20 +415,17 @@ th.actions, td.actions {
 }
 
 
-  function rowHtmlFailure(log) {
+function rowHtmlFailure(log) {
   const dt = new Date(log.created_at).toLocaleString();
   return `
     <tr data-id="${log.id}">
+      <td><input type="checkbox" class="row-check" data-id="${log.id}"></td>
       <td>${log.job_number}</td>
       <td>${dt}</td>
       <td>${log.error_reason ?? "Unknown Error"}</td>
       <td class="actions">
-        <button class="icon-btn del-btn" data-id="${log.id}" title="Delete" aria-label="Delete">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M9 3h6M5 7h14M7 7v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V7M10 11v6M14 11v6"
-                  fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+        <button class="icon-btn del-btn" data-id="${log.id}">
+          🗑
         </button>
       </td>
     </tr>
@@ -394,10 +438,15 @@ th.actions, td.actions {
     tbody.innerHTML = (items || []).map(rowHtmlSuccess).join("");
   }
 
-  function updateFailureTable(items) {
-    const tbody = document.querySelector("#failure-table tbody");
-    tbody.innerHTML = (items || []).map(rowHtmlFailure).join("");
-  }
+function updateFailureTable(items) {
+  const tbody = document.querySelector("#failure-table tbody");
+
+  const filtered = (items || []).filter(log => {
+    return log.job_number && log.job_number !== "Unknown";
+  });
+
+  tbody.innerHTML = filtered.map(rowHtmlFailure).join("");
+}
 
   // === DELETE ===
   async function deleteLog(id) {
@@ -422,7 +471,29 @@ th.actions, td.actions {
       alert("Delete failed. Check BOT_API_KEY / function deploy.");
     }
   }
+function toggleAllChecks(tableId, checked) {
+  document.querySelectorAll(`#${tableId} .row-check`).forEach(cb => {
+    cb.checked = checked;
+  });
+}
 
+async function deleteSelectedLogs(tableId) {
+  const checked = [...document.querySelectorAll(`#${tableId} .row-check:checked`)];
+  const ids = checked.map(cb => cb.getAttribute("data-id"));
+
+  if (!ids.length) {
+    alert("No jobs selected");
+    return;
+  }
+
+  if (!confirm(`Delete ${ids.length} jobs?`)) return;
+
+  for (const id of ids) {
+    await deleteLog(id);
+  }
+
+  fetchAll();
+}
   // Delegate clicks for any delete buttons (works for both tables)
   document.addEventListener("click", (ev) => {
     const btn = ev.target.closest(".del-btn");
