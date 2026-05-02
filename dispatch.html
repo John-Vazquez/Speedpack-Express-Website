@@ -407,6 +407,14 @@
     <option value="overdue">Overdue</option>
   </select>
 
+
+
+<select id="client-filter" class="filter-pill">
+  <option value="all">Client: All</option>
+  <option value="airspace">Airspace</option>
+  <option value="quicksterling">Quick / Sterling</option>
+</select>
+
   <select id="category-filter" class="filter-pill">
     <option value="all">Category: All</option>
     <option value="mia">MIA Recovery</option>
@@ -542,6 +550,34 @@ const activeJobsList = document.getElementById('active-jobs-list');
 
   return d < cutoff;
 }
+
+
+function getJobClient(job) {
+  const clientText = [
+    job.client,
+    job.customer,
+    job.customer_name,
+    job.type,
+    job.job_type,
+    job.source,
+    job.notes
+  ].filter(Boolean).join(' ').toLowerCase();
+
+  if (clientText.includes('airspace')) return 'airspace';
+  if (clientText.includes('quick') || clientText.includes('sterling')) return 'quicksterling';
+
+  const jobNum = String(job.title || '').trim();
+
+  // Quick/Sterling usually ends in a letter, like 373739M
+  if (/[a-z]$/i.test(jobNum)) return 'quicksterling';
+
+  // Airspace usually numbers only
+  if (/^\d+$/.test(jobNum)) return 'airspace';
+
+  return 'unknown';
+}
+
+
   function jobMatchesSearch(job, query) {
     if (!query) return true;
     return [job.title, job.driver, job.notes, CATEGORY_LABELS[job.category], formatDeadline(job.deadline)]
@@ -830,6 +866,7 @@ function renderJob(job) {
     populateDriverFilter(ALL_JOBS);
     const query = (document.getElementById('job-search')?.value || '').trim().toLowerCase();
     const selectedCategory = document.getElementById('category-filter')?.value || 'all';
+    const selectedClient = document.getElementById('client-filter')?.value || 'all';
 const selectedDriver = document.getElementById('driver-filter')?.value || 'all';
 const selectedDeliveryDate = document.getElementById('delivery-date-filter')?.value || 'all';
 
@@ -837,6 +874,7 @@ const activeJobs = ALL_JOBS
   .filter(job => !isArchivedJob(job))
   .filter(job => jobMatchesSearch(job, query))
   .filter(job => selectedCategory === 'all' || job.category === selectedCategory)
+  .filter(job => selectedClient === 'all' || getJobClient(job) === selectedClient)
 .filter(job => selectedDriver === 'all' || job.driver === selectedDriver)
 .filter(job => {
   if (selectedDeliveryDate === 'all') return true;
@@ -918,7 +956,7 @@ document.getElementById('job-search').addEventListener('input', loadJobs);
   document.querySelector('.archive-title').addEventListener('click', () => document.querySelector('.archive-card').classList.toggle('expanded'));
   document.getElementById('archive-search').addEventListener('click', e => e.stopPropagation());
   document.getElementById('archive-search').addEventListener('input', loadJobs);
-  ['driver-filter', 'delivery-date-filter', 'category-filter'].forEach(id => {
+  ['driver-filter', 'delivery-date-filter', 'category-filter', 'client-filter'].forEach(id => {
   document.getElementById(id)?.addEventListener('change', loadJobs);
 });
   document.getElementById('reset-search').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('job-search').value=''; loadJobs(); });
