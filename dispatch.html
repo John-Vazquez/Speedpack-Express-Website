@@ -214,13 +214,24 @@
 
    .route-cell {
   display:grid;
-  grid-template-columns: 140px minmax(260px, 1fr) 180px;
+  grid-template-columns: 180px minmax(240px, 1fr) 180px 170px;
   gap: 18px;
   align-items:center;
   min-width: 0;
 }
     .place { font-size:12px; line-height:1.35; color:#111827; }
     .place b { display:block; text-transform:uppercase; font-size:12px; }
+
+    .place-text {
+  display:block;
+  margin-top:4px;
+  color:#374151;
+  font-size:12px;
+  white-space:normal;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
     .timeline { position: relative; height: 36px; }
     .timeline::before {
       content:''; position:absolute; left:0; right:0; top:16px; height:6px;
@@ -785,11 +796,12 @@ function getProgressPercent(job) {
         1 pcs<br>2 lbs<br>${escapeHtml(CATEGORY_LABELS[job.category] || job.category || 'Job')}
       </div>
       <div class="route-cell">
-        <div class="place"><b>Pickup</b>${escapeHtml(CATEGORY_LABELS[job.category] || 'Dispatch')}</div>
+        <div class="place"><b>Pickup</b><span class="place-text">${escapeHtml(job.pickup_location || 'Not uploaded yet')}</span></div>
         <div class="timeline"><span class="start">⌂</span><span class="fill ${getProgressPercent(job) >= 100 ? 'late' : ''}" 
       style="width:${Math.min(getProgressPercent(job), 100)}%;">
 </span><span class="timeline-text">${escapeHtml(CATEGORY_LABELS[job.category] || '')}</span><span class="end">⌄</span></div>
-        <div class="place"><b>Delivery / Notes</b>${notesHtml}</div>
+        <div class="place"><b>Delivery</b><span class="place-text">${escapeHtml(job.delivery_location || 'Not uploaded yet')}</span></div>
+        <div class="place"><b>Notes</b>${notesHtml}</div>
       </div>
     <div class="deadline-cell">
   <b>Ready:</b> ${escapeHtml(formatReadyTime(job))}<br>
