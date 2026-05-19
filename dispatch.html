@@ -260,6 +260,27 @@
   color: white;
   cursor: pointer;
 }
+
+.driver-search-results {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  width: 190px;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 50;
+  box-shadow: 0 6px 18px rgba(0,0,0,.18);
+}
+
+.driver-search-option {
+  padding: 7px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.driver-search-option:hover {
+  background: #eff6ff;
+}
     .phone-icon { color:#16a34a; font-size:15px; float:right; }
 
    .route-cell {
@@ -709,12 +730,34 @@
   const SUPABASE_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRicGN1aW1ieGRxbGtucXZwbWJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NjAxNjIsImV4cCI6MjA3MDQzNjE2Mn0.5O_hoeXuR4tLPMBWwveUTHUCQ9WbJTsiAZr4iwPcdMg";
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const ASSIGN_DRIVER_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/assign-driver";
+  const DRIVERS_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/drivers";
+  let ONTIME_DRIVERS = [];
 
   const CATEGORIES = ["mia","fll","tenders","deliveries","dispatched","bullshit"];
   const CATEGORY_LABELS = { mia:"MIA Recovery", fll:"FLL Recovery", tenders:"Tenders", deliveries:"Deliveries", dispatched:"Dispatched", bullshit:"Bullshit Pile" };
   let ALL_JOBS = [];
 
 const activeJobsList = document.getElementById('active-jobs-list');
+
+async function loadOntimeDrivers() {
+  const res = await fetch(DRIVERS_FUNCTION_URL, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "apikey": SUPABASE_ANON_KEY
+    }
+  });
+
+  const result = await res.json();
+
+  if (!res.ok || result.error) {
+    alert(`Failed to load OnTime drivers: ${result.error || 'Unknown error'}`);
+    return;
+  }
+
+  ONTIME_DRIVERS = result.drivers || [];
+}
 
   function escapeHtml(str = "") {
     return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;");
@@ -876,7 +919,8 @@ function getProgressPercent(job) {
 </button>
 
 <div class="inline-driver-box" hidden>
-  <input class="inline-driver-input" type="text" placeholder="Driver name">
+  <input class="inline-driver-input" type="text" placeholder="Search driver...">
+<div class="driver-search-results" hidden></div>
   <button type="button" class="inline-driver-save">Save</button>
 </div>
 
@@ -933,30 +977,103 @@ function getProgressPercent(job) {
 
    const inlineDriverBox = row.querySelector('.inline-driver-box');
 const inlineDriverInput = row.querySelector('.inline-driver-input');
+const driverSearchResults = row.querySelector('.driver-search-results');
+let selectedDriverGuid = "";
 const inlineDriverSave = row.querySelector('.inline-driver-save');
 
 row.querySelector('.driver-change-btn')?.addEventListener('click', (e) => {
   e.stopPropagation();
   inlineDriverBox.hidden = !inlineDriverBox.hidden;
-  if (!inlineDriverBox.hidden) inlineDriverInput.focus();
+  if (!inlineDriverBox.hidden) {
+  inlineDriverInput.value = "";
+  selectedDriverGuid = "";
+  driverSearchResults.hidden = true;
+  inlineDriverInput.focus();
+}
 });
 
-inlineDriverSave?.addEventListener('click', async () => {
-  const newDriver = inlineDriverInput.value.trim();
-  if (!newDriver) return alert('Enter a driver name first.');
+inlineDriverInput?.addEventListener('input', () => {
+  const q = inlineDriverInput.value.trim().toLowerCase();
 
-  const { error } = await sb
-    .from('jobs')
-    .update({ driver: newDriver })
-    .eq('id', job.id);
-
-  if (error) {
-    alert('Driver update failed.');
+  if (!q) {
+    driverSearchResults.hidden = true;
+    driverSearchResults.innerHTML = "";
+    selectedDriverGuid = "";
     return;
   }
 
-  loadJobs();
+  const matches = ONTIME_DRIVERS
+    .filter(driver => driver.name.toLowerCase().includes(q))
+    .slice(0, 8);
+
+  if (!matches.length) {
+    driverSearchResults.innerHTML = `<div class="driver-search-option">No drivers found</div>`;
+    driverSearchResults.hidden = false;
+    selectedDriverGuid = "";
+    return;
+  }
+
+  driverSearchResults.innerHTML = matches.map(driver => `
+    <div class="driver-search-option" data-id="${escapeHtml(driver.id)}" data-name="${escapeHtml(driver.name)}">
+      ${escapeHtml(driver.name)}
+    </div>
+  `).join('');
+
+  driverSearchResults.hidden = false;
 });
+
+driverSearchResults?.addEventListener('click', (e) => {
+  const option = e.target.closest('.driver-search-option');
+  if (!option || !option.dataset.id) return;
+
+  selectedDriverGuid = option.dataset.id;
+  inlineDriverInput.value = option.dataset.name;
+  driverSearchResults.hidden = true;
+});
+
+async function saveDriverChange(forceLocalOnly = false) {
+  const selectedDriver = ONTIME_DRIVERS.find(d => d.id === selectedDriverGuid);
+  const newDriver = selectedDriver?.name || '';
+  if (!newDriver) return alert('Select a driver first.');
+
+  const res = await fetch(ASSIGN_DRIVER_FUNCTION_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "apikey": SUPABASE_ANON_KEY
+    },
+    body: JSON.stringify({
+      jobId: job.id,
+      jobNumber: job.title,
+      driverName: newDriver,
+      driverGuid: selectedDriverGuid,
+      forceLocalOnly
+    })
+  });
+
+  const result = await res.json();
+
+  if (!res.ok || result.error) {
+    if (result.error === "MISSING_ONTIME_ORDER_ID") {
+      const continueLocalOnly = confirm(
+        "This job is not linked to OnTime. Updates on this job will NOT sync with OnTime Management Suite. Are you sure you want to continue?"
+      );
+
+      if (!continueLocalOnly) return;
+
+      return saveDriverChange(true);
+    }
+
+    alert(`Driver update failed: ${result.error || 'Unknown error'}`);
+    return;
+  }
+
+  alert(result.message || 'Driver updated successfully.');
+  loadJobs();
+}
+
+inlineDriverSave?.addEventListener('click', () => saveDriverChange(false));
     const confirmBtn = row.querySelector('.confirm-btn');
 
     row.querySelector('.time-edit-btn')?.addEventListener('click', () => {
@@ -1288,10 +1405,11 @@ document.getElementById('job-search').addEventListener('input', loadJobs);
     e.target.reset();
   });
 
-  window.addEventListener('DOMContentLoaded', () => {
-    loadJobs();
-    sb.channel('jobs-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'jobs' }, loadJobs).subscribe();
-  });
+  window.addEventListener('DOMContentLoaded', async () => {
+  await loadOntimeDrivers();
+  loadJobs();
+  sb.channel('jobs-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'jobs' }, loadJobs).subscribe();
+});
 </script>
 </body>
 </html>
