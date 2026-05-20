@@ -329,6 +329,20 @@
   background: #eff6ff;
   outline: 1px solid #93c5fd;
 }
+.awb-box {
+  margin-top: 6px;
+  padding: 4px 5px;
+  border-radius: 3px;
+  cursor: pointer;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  font-size: 12px;
+}
+
+.awb-box:hover {
+  background: #eff6ff;
+  outline: 1px solid #93c5fd;
+}
 .drag-handle {
   cursor: grab;
 }
@@ -991,6 +1005,25 @@ function getDisplayPickup(job) {
 function getDisplayDelivery(job) {
   return getLocalJobAddress(job.id, 'delivery') || job.delivery_location || 'Not uploaded yet';
 }
+function getLocalJobAwb(jobId) {
+  return localStorage.getItem(`job-${jobId}-awb`);
+}
+
+function saveLocalJobAwb(jobId, value) {
+  localStorage.setItem(`job-${jobId}-awb`, value);
+}
+
+function getAwbText(job) {
+  return getLocalJobAwb(job.id) || job.awb || job.awb_number || 'None';
+}
+
+function shouldShowPickupAwb(job) {
+  return job.category === 'mia' || job.category === 'fll';
+}
+
+function shouldShowDeliveryAwb(job) {
+  return job.category === 'tenders';
+}
 function getJobProgress(jobId) {
   return JSON.parse(localStorage.getItem(`job-progress-${jobId}`) || '{}');
 }
@@ -1071,6 +1104,7 @@ function getProgressPercent(job) {
        <div class="place editable-place pickup-edit" title="Click to edit pickup address">
   <b>Pickup</b>
   <span class="place-text">${escapeHtml(getDisplayPickup(job))}</span>
+${shouldShowPickupAwb(job) ? `<div class="awb-box awb-edit" title="Click to edit AWB"><b>AWB:</b> ${escapeHtml(getAwbText(job))}</div>` : ''}
 </div>
         <div class="timeline drag-handle">><span class="start">🚗</span><span class="fill ${getProgressPercent(job) >= 100 ? 'late' : ''}" 
       <span class="fill ${getJobProgress(job.id).pickupConfirmed && getProgressPercent(job) >= 100 ? 'late' : ''}" 
@@ -1079,6 +1113,7 @@ function getProgressPercent(job) {
 <div class="place editable-place delivery-edit" title="Click to edit delivery address">
   <b>Delivery</b>
   <span class="place-text">${escapeHtml(getDisplayDelivery(job))}</span>
+${shouldShowDeliveryAwb(job) ? `<div class="awb-box awb-edit" title="Click to edit AWB"><b>AWB:</b> ${escapeHtml(getAwbText(job))}</div>` : ''}
 </div>
         <div class="place"><b>Notes</b>${notesHtml}</div>
       </div>
@@ -1244,6 +1279,17 @@ row.querySelector('.pickup-edit')?.addEventListener('click', () => {
 
 row.querySelector('.delivery-edit')?.addEventListener('click', () => {
   openAddressModal(job, 'delivery');
+});
+
+row.querySelector('.awb-edit')?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const currentAwb = getAwbText(job) === 'None' ? '' : getAwbText(job);
+  const newAwb = prompt(`Enter AWB for job #${job.title || job.id}:`, currentAwb);
+
+  if (newAwb === null) return;
+
+  saveLocalJobAwb(job.id, newAwb.trim() || 'None');
+  loadJobs();
 });
 
     const deleteBtn = row.querySelector('.delete-btn');
