@@ -152,7 +152,21 @@
     .shipments-head {
       display:flex; align-items:center; gap:12px; font-weight:800; margin-bottom:19px;
     }
+.sync-ontime-btn {
+  background: #1e3a8a;
+  color: #fff;
+  border: 0;
+  border-radius: 3px;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
 
+.sync-ontime-btn:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+}
     .bulk-archive-btn {
   display: none;
   background: #dc2626;
@@ -190,7 +204,11 @@
       padding: 12px 16px;
       border-bottom:1px solid #e5e7eb;
       background:#fff;
-      cursor: grab;
+      cursor: default;
+    }
+    .job-row,
+    .job-row * {
+     user-select: text;
     }
     .job-row:nth-child(odd) { background:#fbfbfd; }
     .job-row.status-overdue { background:#fff1f1; }
@@ -199,14 +217,12 @@
     .job-row.dragging { opacity:.75; }
 
     .select-cell input { width:14px; height:14px; }
-    .job-number {
+.job-number {
   color:#0097ff;
   font-weight:900;
   font-size:14px;
   text-decoration:none;
   white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
 }
     .mini-meta { color:#111827; font-size:12px; line-height:1.35; }
     .mini-meta b { font-weight:900; }
@@ -281,7 +297,7 @@
 .driver-search-option:hover {
   background: #eff6ff;
 }
-    .phone-icon { color:#16a34a; font-size:15px; float:right; }
+
 
    .route-cell {
   display:grid;
@@ -293,7 +309,7 @@
     .place { font-size:12px; line-height:1.35; color:#111827; }
     .place b { display:block; text-transform:uppercase; font-size:12px; }
 
-    .place-text {
+ .place-text {
   display:block;
   margin-top:4px;
   color:#374151;
@@ -303,6 +319,19 @@
   text-overflow:ellipsis;
 }
 
+.editable-place {
+  cursor: pointer;
+  padding: 4px 5px;
+  border-radius: 3px;
+}
+
+.editable-place:hover {
+  background: #eff6ff;
+  outline: 1px solid #93c5fd;
+}
+.drag-handle {
+  cursor: grab;
+}
     .timeline { position: relative; height: 36px; }
     .timeline::before {
       content:''; position:absolute; left:0; right:0; top:16px; height:6px;
@@ -530,7 +559,76 @@
   padding: 11px;
   cursor: pointer;
 }
+.address-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
 
+.address-modal-backdrop.show {
+  display: flex;
+}
+
+.address-modal {
+  width: 520px;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.35);
+  padding: 22px;
+}
+
+.address-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.address-modal-head h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.address-modal-close {
+  border: 0;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.address-modal label {
+  display: block;
+  font-size: 12px;
+  font-weight: 900;
+  color: #374151;
+  margin-bottom: 5px;
+}
+
+.address-modal textarea {
+  width: 100%;
+  min-height: 95px;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  padding: 9px;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.address-modal-save {
+  margin-top: 14px;
+  width: 100%;
+  border: 0;
+  background: #1e3a8a;
+  color: #fff;
+  font-weight: 900;
+  padding: 11px;
+  cursor: pointer;
+}
 
 
     /* Make nav links readable over the photo again */
@@ -680,6 +778,9 @@
       <div class="shipments-head">
   <input type="checkbox" id="select-all-jobs">
   <span>Shipments (<span id="shipment-count">0</span>)</span>
+  <button type="button" id="sync-ontime-btn" class="sync-ontime-btn">
+  Sync From OnTime
+</button>
   <button type="button" id="bulk-archive-btn" class="bulk-archive-btn">Archive Selected</button>
 </div>
       <div class="thick-line"></div>
@@ -699,7 +800,19 @@
 </main>
 
 
+<div id="address-modal-backdrop" class="address-modal-backdrop">
+  <div class="address-modal">
+    <div class="address-modal-head">
+      <h3 id="address-modal-title">Edit Address</h3>
+      <button type="button" id="address-modal-close" class="address-modal-close">×</button>
+    </div>
 
+    <label for="address-modal-text">Address</label>
+    <textarea id="address-modal-text" placeholder="Enter pickup or delivery address..."></textarea>
+
+    <button type="button" id="address-modal-save" class="address-modal-save">Save Address</button>
+  </div>
+</div>
 <div id="time-modal-backdrop" class="time-modal-backdrop">
   <div class="time-modal">
     <div class="time-modal-head">
@@ -732,6 +845,7 @@
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const ASSIGN_DRIVER_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/assign-driver";
   const DRIVERS_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/drivers";
+  const SYNC_ONTIME_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/sync-ontime-jobs";
   let ONTIME_DRIVERS = [];
 
   const CATEGORIES = ["mia","fll","tenders","deliveries","dispatched","bullshit"];
@@ -749,7 +863,16 @@ async function loadOntimeDrivers() {
     }
   });
 
-  const result = await res.json();
+  const rawText = await res.text();
+console.log("Sync raw response:", rawText);
+
+let result = {};
+try {
+  result = rawText ? JSON.parse(rawText) : {};
+} catch (e) {
+  alert(`Sync failed. Non-JSON response: ${rawText}`);
+  return;
+}
 
   if (!res.ok || result.error) {
     alert(`Failed to load OnTime drivers: ${result.error || 'Unknown error'}`);
@@ -853,7 +976,21 @@ function getJobClient(job) {
     return [job.title, job.driver, job.notes, CATEGORY_LABELS[job.category], formatDeadline(job.deadline)]
       .filter(Boolean).join(' ').toLowerCase().includes(query);
   }
+function getLocalJobAddress(jobId, type) {
+  return localStorage.getItem(`job-${jobId}-${type}-address`);
+}
 
+function saveLocalJobAddress(jobId, type, value) {
+  localStorage.setItem(`job-${jobId}-${type}-address`, value);
+}
+
+function getDisplayPickup(job) {
+  return getLocalJobAddress(job.id, 'pickup') || job.pickup_location || 'Not uploaded yet';
+}
+
+function getDisplayDelivery(job) {
+  return getLocalJobAddress(job.id, 'delivery') || job.delivery_location || 'Not uploaded yet';
+}
 function getJobProgress(jobId) {
   return JSON.parse(localStorage.getItem(`job-progress-${jobId}`) || '{}');
 }
@@ -883,6 +1020,11 @@ function parseTimeToday(timeText) {
 }
 
 function getProgressPercent(job) {
+  const progress = getJobProgress(job.id);
+
+  // Do not start the bar until pickup has been confirmed
+  if (!progress.pickupConfirmed) return 0;
+
   const readyVal = job.ready_time || job.readyTime || job.pickup_time || job.pickupTime || job.ready || null;
   const ready = new Date(readyVal);
   const deadline = new Date(job.deadline);
@@ -901,7 +1043,7 @@ function getProgressPercent(job) {
   function createJobRowElement(job) {
     const row = document.createElement('div');
     row.className = `job-row ${getJobStatusClass(job.deadline)}`;
-    row.draggable = true;
+    row.draggable = false;
     row.dataset.id = job.id;
 
     const notesHtml = job.notes
@@ -912,7 +1054,7 @@ function getProgressPercent(job) {
       <div class="select-cell"><input type="checkbox" class="job-checkbox" data-id="${job.id}"></div>
       <a class="job-number" href="#">${escapeHtml(job.title || 'JOB')}</a>
       <div class="mini-meta">
-        <b>${escapeHtml(job.driver || 'Unassigned')}</b><span class="phone-icon">▯</span><br>
+        <b>${escapeHtml(job.driver || 'Unassigned')}</b><br>
         1 pcs<br>2 lbs<br>
         <button type="button" class="driver-change-btn ${(!job.driver || job.driver === 'Unassigned') ? 'assign' : ''}">
   ${(!job.driver || job.driver === 'Unassigned') ? 'ASSIGN DRIVER' : 'CHANGE DRIVER'}
@@ -926,11 +1068,18 @@ function getProgressPercent(job) {
 
       </div>
       <div class="route-cell">
-        <div class="place"><b>Pickup</b><span class="place-text">${escapeHtml(job.pickup_location || 'Not uploaded yet')}</span></div>
-        <div class="timeline"><span class="start">🚗</span><span class="fill ${getProgressPercent(job) >= 100 ? 'late' : ''}" 
-      style="width:${Math.min(getProgressPercent(job), 100)}%;">
+       <div class="place editable-place pickup-edit" title="Click to edit pickup address">
+  <b>Pickup</b>
+  <span class="place-text">${escapeHtml(getDisplayPickup(job))}</span>
+</div>
+        <div class="timeline drag-handle">><span class="start">🚗</span><span class="fill ${getProgressPercent(job) >= 100 ? 'late' : ''}" 
+      <span class="fill ${getJobProgress(job.id).pickupConfirmed && getProgressPercent(job) >= 100 ? 'late' : ''}" 
+      style="width:${getJobProgress(job.id).pickupConfirmed ? Math.min(getProgressPercent(job), 100) : 0}%;">
 </span><span class="timeline-text">${escapeHtml(CATEGORY_LABELS[job.category] || '')}</span><span class="end">✈️</span></div>
-        <div class="place"><b>Delivery</b><span class="place-text">${escapeHtml(job.delivery_location || 'Not uploaded yet')}</span></div>
+<div class="place editable-place delivery-edit" title="Click to edit delivery address">
+  <b>Delivery</b>
+  <span class="place-text">${escapeHtml(getDisplayDelivery(job))}</span>
+</div>
         <div class="place"><b>Notes</b>${notesHtml}</div>
       </div>
     <div class="deadline-cell">
@@ -1089,6 +1238,14 @@ inlineDriverSave?.addEventListener('click', () => saveDriverChange(false));
   openTimeModal(job);
 });
 
+row.querySelector('.pickup-edit')?.addEventListener('click', () => {
+  openAddressModal(job, 'pickup');
+});
+
+row.querySelector('.delivery-edit')?.addEventListener('click', () => {
+  openAddressModal(job, 'delivery');
+});
+
     const deleteBtn = row.querySelector('.delete-btn');
 
 deleteBtn.addEventListener('click', async () => {
@@ -1123,7 +1280,14 @@ confirmBtn.addEventListener('click', async () => {
   const currentProgress = getJobProgress(job.id);
 
   if (!currentProgress.pickupConfirmed) {
-    const eta = prompt('Enter ETA time:');
+    const driverName = String(job.driver || '').trim();
+
+    if (!driverName || driverName.toLowerCase() === 'unassigned') {
+      alert('Driver must be assigned to confirm pickup.');
+      return;
+    }
+
+    const eta = prompt('Enter pickup time:');
     if (!eta) return;
 
     saveJobProgress(job.id, {
@@ -1179,8 +1343,21 @@ loadJobs();
     });
 
     document.addEventListener('click', (evt) => { if (!row.contains(evt.target)) menu.hidden = true; });
-    row.addEventListener('dragstart', () => { window.__draggingRow = row; row.classList.add('dragging'); });
-    row.addEventListener('dragend', () => { window.__draggingRow = null; row.classList.remove('dragging'); });
+    const dragHandle = row.querySelector('.drag-handle');
+
+if (dragHandle) {
+  dragHandle.draggable = true;
+
+  dragHandle.addEventListener('dragstart', () => {
+    window.__draggingRow = row;
+    row.classList.add('dragging');
+  });
+
+  dragHandle.addEventListener('dragend', () => {
+    window.__draggingRow = null;
+    row.classList.remove('dragging');
+  });
+}
     return row;
   }
 
@@ -1189,6 +1366,8 @@ loadJobs();
   activeJobsList.innerHTML = '';
 }
 let CURRENT_TIME_JOB_ID = null;
+let CURRENT_ADDRESS_JOB_ID = null;
+let CURRENT_ADDRESS_TYPE = null;
 
 function toDateTimeLocalValue(val) {
   if (!val) return '';
@@ -1207,7 +1386,24 @@ function openTimeModal(job) {
 
   document.getElementById('time-modal-backdrop').classList.add('show');
 }
+function openAddressModal(job, type) {
+  CURRENT_ADDRESS_JOB_ID = job.id;
+  CURRENT_ADDRESS_TYPE = type;
 
+  const label = type === 'pickup' ? 'Pickup' : 'Delivery';
+  const currentValue = type === 'pickup' ? getDisplayPickup(job) : getDisplayDelivery(job);
+
+  document.getElementById('address-modal-title').textContent = `Edit ${label} Address for Job #${job.title || job.id}`;
+  document.getElementById('address-modal-text').value = currentValue === 'Not uploaded yet' ? '' : currentValue;
+
+  document.getElementById('address-modal-backdrop').classList.add('show');
+}
+
+function closeAddressModal() {
+  CURRENT_ADDRESS_JOB_ID = null;
+  CURRENT_ADDRESS_TYPE = null;
+  document.getElementById('address-modal-backdrop').classList.remove('show');
+}
 function closeTimeModal() {
   CURRENT_TIME_JOB_ID = null;
   document.getElementById('time-modal-backdrop').classList.remove('show');
@@ -1332,7 +1528,60 @@ document.addEventListener('change', (e) => {
     updateBulkArchiveButton();
   }
 });
+document.getElementById('sync-ontime-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('sync-ontime-btn');
 
+  const selectedIds = Array.from(document.querySelectorAll('.job-checkbox:checked'))
+    .map(cb => cb.dataset.id);
+
+  if (!selectedIds.length) {
+    alert('Select at least one job to sync from OnTime.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Syncing...';
+
+  try {
+    const res = await fetch(SYNC_ONTIME_FUNCTION_URL, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        "apikey": SUPABASE_ANON_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        jobIds: selectedIds
+      })
+    });
+
+    const rawText = await res.text();
+    console.log("Sync raw response:", rawText);
+
+    let result = {};
+    try {
+      result = rawText ? JSON.parse(rawText) : {};
+    } catch (e) {
+      alert(`Sync failed. Non-JSON response: ${rawText}`);
+      return;
+    }
+
+    if (!res.ok || result.error) {
+      console.error("Sync error result:", result);
+      alert(`Sync failed: ${result.error || result.message || JSON.stringify(result) || 'Unknown error'}`);
+      return;
+    }
+
+    alert(`Sync complete. Updated ${result.updated || 0} jobs.`);
+    await loadJobs();
+
+  } catch (err) {
+    alert(`Sync failed: ${err.message || err}`);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Sync From OnTime';
+  }
+});
 document.getElementById('bulk-archive-btn').addEventListener('click', async () => {
   const selectedIds = Array.from(document.querySelectorAll('.job-checkbox:checked'))
     .map(cb => cb.dataset.id);
@@ -1356,7 +1605,26 @@ document.getElementById('bulk-archive-btn').addEventListener('click', async () =
 
   loadJobs();
 });
+document.getElementById('address-modal-close').addEventListener('click', closeAddressModal);
 
+document.getElementById('address-modal-backdrop').addEventListener('click', (e) => {
+  if (e.target.id === 'address-modal-backdrop') closeAddressModal();
+});
+
+document.getElementById('address-modal-save').addEventListener('click', () => {
+  if (!CURRENT_ADDRESS_JOB_ID || !CURRENT_ADDRESS_TYPE) return;
+
+  const value = document.getElementById('address-modal-text').value.trim();
+
+  if (!value) {
+    alert('Enter an address first.');
+    return;
+  }
+
+  saveLocalJobAddress(CURRENT_ADDRESS_JOB_ID, CURRENT_ADDRESS_TYPE, value);
+  closeAddressModal();
+  loadJobs();
+});
 document.getElementById('time-modal-close').addEventListener('click', closeTimeModal);
 
 document.getElementById('time-modal-backdrop').addEventListener('click', (e) => {
