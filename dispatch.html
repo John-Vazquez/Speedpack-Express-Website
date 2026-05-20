@@ -1032,6 +1032,8 @@ driverSearchResults?.addEventListener('click', (e) => {
 });
 
 async function saveDriverChange(forceLocalOnly = false) {
+inlineDriverSave.disabled = true;
+inlineDriverSave.textContent = "Saving...";
   const selectedDriver = ONTIME_DRIVERS.find(d => d.id === selectedDriverGuid);
   const newDriver = selectedDriver?.name || '';
   if (!newDriver) return alert('Select a driver first.');
@@ -1060,17 +1062,24 @@ async function saveDriverChange(forceLocalOnly = false) {
         "This job is not linked to OnTime. Updates on this job will NOT sync with OnTime Management Suite. Are you sure you want to continue?"
       );
 
-      if (!continueLocalOnly) return;
+      if (!continueLocalOnly) {
+  inlineDriverSave.disabled = false;
+  inlineDriverSave.textContent = "Save";
+  return;
+}
 
       return saveDriverChange(true);
     }
-
+    inlineDriverSave.disabled = false;
+    inlineDriverSave.textContent = "Save";
     alert(`Driver update failed: ${result.error || 'Unknown error'}`);
     return;
   }
 
   alert(result.message || 'Driver updated successfully.');
   loadJobs();
+  inlineDriverSave.disabled = false;
+  inlineDriverSave.textContent = "Save";
 }
 
 inlineDriverSave?.addEventListener('click', () => saveDriverChange(false));
