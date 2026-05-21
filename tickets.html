@@ -5,7 +5,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Tickets - Speedpack Express</title>
-<link rel="stylesheet" href="styles.css"/>
+
 
  <!-- Favicons -->
   <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
@@ -20,6 +20,73 @@
   
 <style>
   body { background:url('website images/airportphoto.png') no-repeat center center fixed; background-size:cover; }
+  /* FULL NAVBAR STYLING FOR THIS PAGE ONLY */
+
+nav {
+  position: fixed;
+  top: 12px;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background: transparent;
+}
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 24px;
+  height: 95px;
+}
+
+.navbar-logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-logo {
+  height: 300px !important;
+  width: auto !important;
+  display: block;
+}
+
+.navbar-logo-container {
+  display: flex;
+  align-items: center;
+  height: 140px;
+}
+
+nav {
+  height: 140px;
+}
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 140px;
+  padding: 0 24px;
+}
+
+nav ul {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav ul li a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+nav ul li a:hover {
+  opacity: 0.8;
+}
   /* FIX WHITE TEXT ISSUE */
 body,
 .card,
@@ -38,6 +105,7 @@ body,
 .card textarea {
   background: #fff;
 }
+
   .dashboard { padding:100px 20px; min-height:100vh; display:flex; flex-direction:column; align-items:center; }
   .dashboard h1 { text-align:center; margin-bottom:20px; background:rgba(255,255,255,.85); padding:10px 20px; border-radius:10px; }
   .card { width:90%; max-width:1200px; background:#fff; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,.12); padding:18px; }
@@ -87,27 +155,20 @@ body,
 </head>
 <body>
   <nav>
-    <div class="navbar-container">
-      <div class="navbar-logo-container">
-        <img src="website images/speedpacklogo2.png" class="navbar-logo" alt="Speedpack Express Logo"/>
-        <div class="navbar-title"><span class="speed">Speed</span><span class="pack">pack</span></div>
-        <div class="express-container"><span class="line"></span><div class="express">Express</div><span class="line"></span></div>
-      </div>
-      <ul>
-        <li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li>
-        <li><a href="services.html">Services</a></li>
-        <li class="dropdown">
-          <a href="contact.html">Contact</a>
-          <ul class="dropdown-content">
-            <li><a href="contact.html">Contact Us</a></li>
-            <li><a href="careers.html">Careers</a></li>
-            <li><a href="support.html">Support</a></li>
-          </ul>
-        </li>
-        <li><a href="login.html">Logout</a></li>
-      </ul>
+  <div class="navbar-container">
+    <div class="navbar-logo-container">
+      <img src="website images/SPEEDPACK-EXPRESS-AI-LOGO.png?v=9999" class="navbar-logo" alt="Speedpack Express Logo"/>
     </div>
-  </nav>
+
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="login.html">Logout</a></li>
+    </ul>
+  </div>
+</nav>
 
   <div class="page-head">
   <a href="speedpack_online.html" class="back-btn">Back to Speedpack Online</a>

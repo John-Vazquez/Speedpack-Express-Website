@@ -644,6 +644,95 @@
   cursor: pointer;
 }
 
+.docs-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 10001;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.docs-modal-backdrop.show {
+  display: flex;
+}
+
+.docs-modal {
+  width: 760px;
+  max-width: 92vw;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.35);
+  padding: 22px;
+}
+
+.docs-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.docs-modal-head h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.docs-modal-close {
+  border: 0;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.docs-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.doc-slot {
+  min-height: 105px;
+  border: 2px dashed #cbd5e1;
+  background: #f8fafc;
+  border-radius: 6px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 12px;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.doc-slot.has-doc {
+  border-style: solid;
+  border-color: #1e3a8a;
+  background: #eff6ff;
+  font-weight: 900;
+}
+
+.doc-slot.drag-over {
+  background: #dbeafe;
+  border-color: #2563eb;
+}
+
+.doc-remove {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  color: #dc2626;
+  font-weight: 900;
+  font-size: 16px;
+  cursor: pointer;
+}
+.doc-file-input {
+  display: none;
+}
 
     /* Make nav links readable over the photo again */
     nav a, nav ul li a {
@@ -672,6 +761,152 @@
 }
       .route-cell { grid-template-columns: 140px 1fr 140px; }
     }
+
+    /* RESPONSIVE DISPATCH ROW FIX */
+.dispatch-shell {
+  width: min(98vw, 1900px);
+  max-width: none;
+}
+
+.shipments-card {
+  overflow-x: hidden;
+}
+
+.job-list {
+  width: 100%;
+  overflow: hidden;
+}
+
+.job-row {
+  width: 100%;
+  box-sizing: border-box;
+  grid-template-columns:
+    28px
+    minmax(75px, .6fr)
+    minmax(105px, .8fr)
+    minmax(300px, 3.2fr)
+    minmax(130px, .9fr)
+    minmax(180px, 1.2fr);
+  gap: clamp(6px, .7vw, 12px);
+  padding: 10px clamp(8px, 1vw, 16px);
+  overflow: hidden;
+}
+
+.route-cell {
+  min-width: 0;
+  width: 100%;
+  grid-template-columns:
+    minmax(95px, 1fr)
+    minmax(120px, 2fr)
+    minmax(95px, 1fr)
+    minmax(80px, .8fr);
+  gap: clamp(6px, 1vw, 14px);
+}
+
+.place,
+.mini-meta,
+.deadline-cell,
+.actions-cell {
+  min-width: 0;
+}
+
+.place-text,
+.note-text,
+.deadline-cell,
+.mini-meta {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.timeline {
+  min-width: 90px;
+}
+
+.actions-cell {
+  min-width: 180px;
+  gap: 5px;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+}
+
+.airspace-action-btn {
+  font-size: clamp(13px, 1vw, 18px);
+  padding: 2px;
+}
+
+.confirm-btn {
+  font-size: clamp(9px, .75vw, 11px);
+  padding: 6px 7px;
+}
+
+.delete-btn {
+  font-size: clamp(16px, 1.1vw, 20px);
+}
+
+.category-badge {
+  max-width: 100%;
+  font-size: clamp(9px, .75vw, 12px);
+  padding: 4px 6px;
+}
+
+.job-number {
+  font-size: clamp(11px, .8vw, 14px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filter-row {
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+}
+
+@media (max-width: 1050px) {
+  .job-row {
+    grid-template-columns: 24px 80px minmax(95px, .9fr) minmax(240px, 2.6fr) minmax(115px, .8fr) minmax(170px, 1.1fr);
+  }
+
+  .category-badge {
+    display: none;
+  }
+
+  .route-cell {
+    grid-template-columns: minmax(90px, 1fr) minmax(105px, 1.5fr) minmax(90px, 1fr);
+  }
+
+  .route-cell .place:last-child {
+    display: none;
+  }
+}
+
+@media (max-width: 750px) {
+  main {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .job-row {
+    grid-template-columns: 24px 75px 1fr;
+    align-items: start;
+  }
+
+  .route-cell,
+  .deadline-cell,
+  .actions-cell {
+    grid-column: 1 / -1;
+  }
+
+  .route-cell {
+    grid-template-columns: 1fr;
+  }
+
+  .timeline {
+    display: none;
+  }
+
+  .actions-cell {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
   </style>
 </head>
 <body>
@@ -813,7 +1048,16 @@
   </div>
 </main>
 
+<div id="docs-modal-backdrop" class="docs-modal-backdrop">
+  <div class="docs-modal">
+    <div class="docs-modal-head">
+      <h3 id="docs-modal-title">Job Documents</h3>
+      <button type="button" id="docs-modal-close" class="docs-modal-close">×</button>
+    </div>
 
+    <div id="docs-grid" class="docs-grid"></div>
+  </div>
+</div>
 <div id="address-modal-backdrop" class="address-modal-backdrop">
   <div class="address-modal">
     <div class="address-modal-head">
@@ -1106,10 +1350,14 @@ function getProgressPercent(job) {
   <span class="place-text">${escapeHtml(getDisplayPickup(job))}</span>
 ${shouldShowPickupAwb(job) ? `<div class="awb-box awb-edit" title="Click to edit AWB"><b>AWB:</b> ${escapeHtml(getAwbText(job))}</div>` : ''}
 </div>
-        <div class="timeline drag-handle">><span class="start">🚗</span><span class="fill ${getProgressPercent(job) >= 100 ? 'late' : ''}" 
-      <span class="fill ${getJobProgress(job.id).pickupConfirmed && getProgressPercent(job) >= 100 ? 'late' : ''}" 
-      style="width:${getJobProgress(job.id).pickupConfirmed ? Math.min(getProgressPercent(job), 100) : 0}%;">
-</span><span class="timeline-text">${escapeHtml(CATEGORY_LABELS[job.category] || '')}</span><span class="end">✈️</span></div>
+        <div class="timeline drag-handle">
+  <span class="start">🚗</span>
+  <span class="fill ${getJobProgress(job.id).pickupConfirmed && getProgressPercent(job) >= 100 ? 'late' : ''}" 
+    style="width:${getJobProgress(job.id).pickupConfirmed ? Math.min(getProgressPercent(job), 100) : 0}%;">
+  </span>
+  <span class="timeline-text">${escapeHtml(CATEGORY_LABELS[job.category] || '')}</span>
+  <span class="end">✈️</span>
+</div>
 <div class="place editable-place delivery-edit" title="Click to edit delivery address">
   <b>Delivery</b>
   <span class="place-text">${escapeHtml(getDisplayDelivery(job))}</span>
@@ -1122,11 +1370,11 @@ ${shouldShowDeliveryAwb(job) ? `<div class="awb-box awb-edit" title="Click to ed
   <b>Deadline:</b> ${escapeHtml(formatDeadline(job.deadline))}<br>
   <span>${getDeadlineStatusText(job.deadline)}</span>
 </div>
-      <div class="category-badge">${escapeHtml(CATEGORY_LABELS[job.category] || job.category || '')}</div>
+      
     <div class="actions-cell">
 <button type="button" class="airspace-action-btn time-edit-btn" title="Update pickup / delivery times">🕒</button>
 <button type="button" class="airspace-action-btn" title="Messages">💬</button>
-<button type="button" class="airspace-action-btn" title="Documents">📄</button>
+<button type="button" class="airspace-action-btn docs-btn" title="Documents">📄</button>
 <button type="button" class="airspace-action-btn" title="Flag for review">⚑</button>
 
 <button type="button" class="confirm-btn"></button>
@@ -1273,6 +1521,10 @@ inlineDriverSave?.addEventListener('click', () => saveDriverChange(false));
   openTimeModal(job);
 });
 
+row.querySelector('.docs-btn')?.addEventListener('click', () => {
+  openDocsModal(job);
+});
+
 row.querySelector('.pickup-edit')?.addEventListener('click', () => {
   openAddressModal(job, 'pickup');
 });
@@ -1410,6 +1662,205 @@ if (dragHandle) {
   function clearBoard() { Object.values(cols).forEach(c => c.innerHTML = ''); }
   function clearBoard() {
   activeJobsList.innerHTML = '';
+}
+
+let CURRENT_DOCS_JOB = null;
+
+async function loadJobDocuments(jobId) {
+  const { data, error } = await sb
+    .from('job_documents')
+    .select('*')
+    .eq('job_id', jobId)
+    .order('slot_number');
+
+  if (error) {
+    console.error(error);
+    return [];
+  }
+
+  return data || [];
+}
+
+async function openDocument(filePath) {
+  const { data, error } = await sb.storage
+    .from('job-documents')
+    .createSignedUrl(filePath, 3600);
+
+  if (error || !data?.signedUrl) {
+    alert('Failed to open file.');
+    return;
+  }
+
+  window.open(data.signedUrl, '_blank');
+}
+
+async function deleteDocument(jobId, slotNumber, filePath) {
+  const confirmDelete = confirm('Delete this document?');
+  if (!confirmDelete) return;
+
+  await sb.storage
+    .from('job-documents')
+    .remove([filePath]);
+
+  await sb
+    .from('job_documents')
+    .delete()
+    .eq('job_id', jobId)
+    .eq('slot_number', slotNumber);
+
+  renderDocsGrid();
+}
+
+async function renderDocsGrid() {
+  if (!CURRENT_DOCS_JOB) return;
+
+  const docs = await loadJobDocuments(CURRENT_DOCS_JOB.id);
+
+  const grid = document.getElementById('docs-grid');
+  grid.innerHTML = '';
+
+  for (let i = 1; i <= 10; i++) {
+    const existing = docs.find(d => Number(d.slot_number) === i);
+
+    const slot = document.createElement('div');
+    slot.className = `doc-slot ${existing ? 'has-doc' : ''}`;
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.className = 'doc-file-input';
+    fileInput.accept = 'application/pdf,image/png,image/jpeg,image/webp';
+
+    slot.innerHTML = existing
+      ? `
+        <span class="doc-remove">×</span>
+        <div>
+          📄<br>
+          ${escapeHtml(existing.file_name)}
+        </div>
+      `
+      : `
+        <div>
+          Slot ${i}<br>
+          Click or Drop PDF/Image
+        </div>
+      `;
+
+    async function uploadFileToSlot(file) {
+      if (!file) return;
+
+      const allowed = [
+        'application/pdf',
+        'image/png',
+        'image/jpeg',
+        'image/webp'
+      ];
+
+      if (!allowed.includes(file.type)) {
+        alert('Only PDF and image files allowed.');
+        return;
+      }
+
+      slot.innerHTML = `<div>Uploading...</div>`;
+
+      const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const path = `${CURRENT_DOCS_JOB.id}/slot-${i}-${Date.now()}-${cleanName}`;
+
+      const { error: uploadError } = await sb.storage
+        .from('job-documents')
+        .upload(path, file, {
+          upsert: true
+        });
+
+      if (uploadError) {
+        console.error(uploadError);
+        alert(`Upload failed: ${uploadError.message}`);
+        renderDocsGrid();
+        return;
+      }
+
+      const { error: saveError } = await sb
+        .from('job_documents')
+        .upsert({
+          job_id: CURRENT_DOCS_JOB.id,
+          slot_number: i,
+          file_name: file.name,
+          file_path: path,
+          file_type: file.type
+        }, {
+          onConflict: 'job_id,slot_number'
+        });
+
+      if (saveError) {
+        console.error(saveError);
+        alert(`Database save failed: ${saveError.message}`);
+        renderDocsGrid();
+        return;
+      }
+
+      renderDocsGrid();
+    }
+
+    fileInput.addEventListener('change', () => {
+      uploadFileToSlot(fileInput.files[0]);
+    });
+
+    slot.addEventListener('click', (e) => {
+      if (e.target.classList.contains('doc-remove')) {
+        e.stopPropagation();
+        if (!existing) return;
+        deleteDocument(CURRENT_DOCS_JOB.id, i, existing.file_path);
+        return;
+      }
+
+      if (existing) {
+        openDocument(existing.file_path);
+        return;
+      }
+
+      fileInput.click();
+    });
+
+    slot.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      slot.classList.add('drag-over');
+    });
+
+    slot.addEventListener('dragleave', () => {
+      slot.classList.remove('drag-over');
+    });
+
+    slot.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      slot.classList.remove('drag-over');
+
+      const file = e.dataTransfer.files[0];
+      await uploadFileToSlot(file);
+    });
+
+    slot.appendChild(fileInput);
+    grid.appendChild(slot);
+  }
+}
+
+async function openDocsModal(job) {
+  CURRENT_DOCS_JOB = job;
+
+  document.getElementById('docs-modal-title').textContent =
+    `Documents for Job #${job.title || job.id}`;
+
+  await renderDocsGrid();
+
+  document
+    .getElementById('docs-modal-backdrop')
+    .classList.add('show');
+}
+
+function closeDocsModal() {
+  CURRENT_DOCS_JOB = null;
+
+  document
+    .getElementById('docs-modal-backdrop')
+    .classList.remove('show');
 }
 let CURRENT_TIME_JOB_ID = null;
 let CURRENT_ADDRESS_JOB_ID = null;
@@ -1653,6 +2104,14 @@ document.getElementById('bulk-archive-btn').addEventListener('click', async () =
 });
 document.getElementById('address-modal-close').addEventListener('click', closeAddressModal);
 
+document.getElementById('docs-modal-close').addEventListener('click', closeDocsModal);
+
+document.getElementById('docs-modal-backdrop').addEventListener('click', (e) => {
+  if (e.target.id === 'docs-modal-backdrop') {
+    closeDocsModal();
+  }
+});
+
 document.getElementById('address-modal-backdrop').addEventListener('click', (e) => {
   if (e.target.id === 'address-modal-backdrop') closeAddressModal();
 });
@@ -1703,6 +2162,14 @@ document.getElementById('time-modal-save').addEventListener('click', async () =>
 
   closeTimeModal();
   loadJobs();
+});
+
+window.addEventListener('dragover', (e) => {
+  e.preventDefault();
+});
+
+window.addEventListener('drop', (e) => {
+  e.preventDefault();
 });
 document.getElementById('job-search').addEventListener('input', loadJobs);
   document.querySelector('.archive-title').addEventListener('click', () => document.querySelector('.archive-card').classList.toggle('expanded'));
