@@ -136,7 +136,16 @@
     .add-job-toggle summary::-webkit-details-marker { display:none; }
     .add-job-toggle summary::after { content:'▾'; float:right; }
     .add-job-toggle form { padding: 16px 18px 18px; }
-    .form-row { display:grid; grid-template-columns: repeat(5, 1fr); gap: 12px; align-items:end; }
+    .form-row {
+  display:grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  align-items:end;
+}
+
+.form-group textarea {
+  min-height: 38px;
+}
     .form-group label { display:block; font-size:12px; color:#4b5563; font-weight:800; margin-bottom:5px; text-transform:uppercase; }
     .form-group input, .form-group select, .form-group textarea {
       width:100%; box-sizing:border-box; border:1px solid #cbd5e1; border-radius:3px;
@@ -167,8 +176,7 @@
   opacity: .65;
   cursor: not-allowed;
 }
-    .bulk-archive-btn {
-  display: none;
+   .bulk-archive-btn {
   background: #dc2626;
   color: #fff;
   border: 0;
@@ -179,9 +187,14 @@
   cursor: pointer;
 }
 
-.bulk-archive-btn.show {
-  display: inline-block;
+.bulk-archive-btn:disabled,
+.sync-ontime-btn:disabled {
+  background: #9ca3af;
+  opacity: .65;
+  cursor: not-allowed;
 }
+
+
     .shipments-head input { width:14px; height:14px; }
     .thick-line { height:5px; background:#1e3a8a; margin-bottom:18px; }
 
@@ -343,6 +356,29 @@
   background: #eff6ff;
   outline: 1px solid #93c5fd;
 }
+
+.awb-inline-box {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.awb-inline-input {
+  width: 115px;
+  padding: 5px;
+  font-size: 11px;
+  border: 1px solid #cbd5e1;
+}
+
+.awb-inline-save {
+  padding: 5px 7px;
+  font-size: 11px;
+  font-weight: 900;
+  border: 0;
+  background: #1e3a8a;
+  color: white;
+  cursor: pointer;
+}
 .drag-handle {
   cursor: grab;
 }
@@ -418,6 +454,14 @@
 
 .delete-btn:hover {
   color: #991b1b;
+}
+
+.delete-btn.restore-job {
+  color: #16a34a;
+}
+
+.delete-btn.restore-job:hover {
+  color: #15803d;
 }
 
 
@@ -631,6 +675,24 @@
   padding: 9px;
   font-size: 14px;
   resize: vertical;
+}
+
+.address-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.address-modal input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  padding: 9px;
+  font-size: 14px;
+}
+
+.address-modal .full-width {
+  grid-column: 1 / -1;
 }
 
 .address-modal-save {
@@ -985,52 +1047,74 @@
 
     <details class="add-panel add-job-toggle" aria-label="Add Job">
       <summary>Add a Job</summary>
-      <form id="job-form">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="jobTitle">Job</label>
-            <input id="jobTitle" name="jobTitle" type="text" placeholder="AWB / Job #" required />
-          </div>
-          <div class="form-group">
-            <label for="driver">Driver</label>
-            <input id="driver" name="driver" list="driverList" placeholder="Unassigned" required />
-            <datalist id="driverList">
-              <option value="Angel R."></option><option value="Bianca S."></option><option value="Carlos P."></option><option value="Diana M."></option>
-            </datalist>
-          </div>
-          <div class="form-group">
-            <label for="deadline">Deadline</label>
-            <input id="deadline" name="deadline" type="datetime-local" required />
-          </div>
-          <div class="form-group">
-            <label for="jobCategory">Category</label>
-            <select id="jobCategory" name="jobCategory" required>
-              <option value="" disabled selected>Select…</option>
-              <option value="mia">MIA Recovery</option>
-              <option value="fll">FLL Recovery</option>
-              <option value="tenders">Tenders</option>
-              <option value="deliveries">Deliveries</option>
-              <option value="dispatched">Dispatched</option>
-              <option value="bullshit">Bullshit Pile</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="jobNotes">Notes</label>
-            <textarea id="jobNotes" name="jobNotes" placeholder="Pickup/delivery/details…"></textarea>
-          </div>
-          <button type="submit" class="btn">Add to Board</button>
-        </div>
-      </form>
+    <form id="job-form">
+  <div class="form-row">
+    <div class="form-group">
+      <label for="jobTitle">Job Number</label>
+      <input id="jobTitle" name="jobTitle" type="text" placeholder="Job #" required />
+    </div>
+
+    <div class="form-group" style="position:relative;">
+      <label for="driver">Driver</label>
+      <input id="driver" name="driver" type="text" placeholder="Unassigned" autocomplete="off" />
+      <div id="add-driver-search-results" class="driver-search-results" hidden></div>
+    </div>
+
+    <div class="form-group">
+      <label for="readyTime">Ready Time</label>
+      <input id="readyTime" name="readyTime" type="datetime-local" />
+    </div>
+
+    <div class="form-group">
+      <label for="deadline">Deadline</label>
+      <input id="deadline" name="deadline" type="datetime-local" />
+    </div>
+
+    <div class="form-group">
+      <label for="jobCategory">Category</label>
+      <select id="jobCategory" name="jobCategory">
+        <option value="bullshit" selected>Other</option>
+        <option value="mia">MIA Recovery</option>
+        <option value="fll">FLL Recovery</option>
+        <option value="tenders">Tenders</option>
+        <option value="deliveries">Deliveries</option>
+        <option value="dispatched">Dispatched</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="awbNumber">AWB Number</label>
+      <input id="awbNumber" name="awbNumber" type="text" placeholder="None" />
+    </div>
+
+    <div class="form-group">
+      <label for="pickupLocation">Pickup Location</label>
+      <textarea id="pickupLocation" name="pickupLocation" placeholder="None"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="deliveryLocation">Delivery Location</label>
+      <textarea id="deliveryLocation" name="deliveryLocation" placeholder="None"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="jobNotes">Notes</label>
+      <textarea id="jobNotes" name="jobNotes" placeholder="None"></textarea>
+    </div>
+
+    <button type="submit" class="btn">Add to Board</button>
+  </div>
+</form>
     </details>
 
     <section class="shipments-card" aria-label="Dispatch Board">
       <div class="shipments-head">
   <input type="checkbox" id="select-all-jobs">
   <span>Shipments (<span id="shipment-count">0</span>)</span>
-  <button type="button" id="sync-ontime-btn" class="sync-ontime-btn">
+  <button type="button" id="sync-ontime-btn" class="sync-ontime-btn" disabled>
   Sync From OnTime
 </button>
-  <button type="button" id="bulk-archive-btn" class="bulk-archive-btn">Archive Selected</button>
+  <button type="button" id="bulk-archive-btn" class="bulk-archive-btn" disabled>Archive Selected</button>
 </div>
       <div class="thick-line"></div>
       <div id="active-jobs-list" class="job-list"></div>
@@ -1065,10 +1149,59 @@
       <button type="button" id="address-modal-close" class="address-modal-close">×</button>
     </div>
 
-    <label for="address-modal-text">Address</label>
-    <textarea id="address-modal-text" placeholder="Enter pickup or delivery address..."></textarea>
+    <div class="address-modal-grid">
+  <div>
+    <label for="address-name">Name</label>
+    <input id="address-name" type="text" placeholder="Company / Location Name">
+  </div>
 
-    <button type="button" id="address-modal-save" class="address-modal-save">Save Address</button>
+  <div>
+    <label for="address-contact">Contact</label>
+    <input id="address-contact" type="text" placeholder="Contact Name">
+  </div>
+
+  <div>
+    <label for="address-phone">Phone</label>
+    <input id="address-phone" type="text" placeholder="Phone">
+  </div>
+
+  <div>
+    <label for="address-email">Email</label>
+    <input id="address-email" type="email" placeholder="Email">
+  </div>
+
+  <div class="full-width">
+    <label for="address-line-1">Address Line 1</label>
+    <input id="address-line-1" type="text" placeholder="Street Address">
+  </div>
+
+  <div class="full-width">
+    <label for="address-line-2">Address Line 2</label>
+    <input id="address-line-2" type="text" placeholder="Suite / Unit / Extra">
+  </div>
+
+  <div>
+    <label for="address-city">City</label>
+    <input id="address-city" type="text" placeholder="City">
+  </div>
+
+  <div>
+    <label for="address-state">State / Province</label>
+    <input id="address-state" type="text" placeholder="State">
+  </div>
+
+  <div>
+    <label for="address-postal">Postal Code</label>
+    <input id="address-postal" type="text" placeholder="Postal Code">
+  </div>
+
+  <div>
+    <label for="address-country">Country</label>
+    <input id="address-country" type="text" placeholder="USA">
+  </div>
+</div>
+
+<button type="button" id="address-modal-save" class="address-modal-save">Save Address</button>
   </div>
 </div>
 <div id="time-modal-backdrop" class="time-modal-backdrop">
@@ -1104,6 +1237,7 @@
   const ASSIGN_DRIVER_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/assign-driver";
   const DRIVERS_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/drivers";
   const SYNC_ONTIME_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/sync-ontime-jobs";
+  const UPDATE_AWB_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/update-awb";
   let ONTIME_DRIVERS = [];
 
   const CATEGORIES = ["mia","fll","tenders","deliveries","dispatched","bullshit"];
@@ -1192,14 +1326,8 @@ try {
   if (hours > 0) return `${hours}h ${minutes}m overdue`;
   return `${minutes}m overdue`;
 }
- function isArchivedJob(job) {
-  const d = new Date(job.deadline);
-  if (isNaN(d)) return false;
-
-  const cutoff = new Date();
-  cutoff.setHours(cutoff.getHours() - 6);
-
-  return d < cutoff;
+function isArchivedJob(job) {
+  return job.is_archived === true;
 }
 
 
@@ -1234,32 +1362,99 @@ function getJobClient(job) {
     return [job.title, job.driver, job.notes, CATEGORY_LABELS[job.category], formatDeadline(job.deadline)]
       .filter(Boolean).join(' ').toLowerCase().includes(query);
   }
-function getLocalJobAddress(jobId, type) {
-  return localStorage.getItem(`job-${jobId}-${type}-address`);
+function blankAddress() {
+  return {
+    name: "",
+    contact: "",
+    phone: "",
+    email: "",
+    address_line_1: "",
+    address_line_2: "",
+    city: "",
+    state: "",
+    postal_code: "",
+    country: "USA"
+  };
 }
 
-function saveLocalJobAddress(jobId, type, value) {
-  localStorage.setItem(`job-${jobId}-${type}-address`, value);
+function addressToText(addressObj, fallbackText = "None") {
+  if (!addressObj || typeof addressObj !== "object") return fallbackText;
+
+  const parts = [
+    addressObj.name,
+    addressObj.address_line_1,
+    addressObj.city,
+    addressObj.state,
+    addressObj.postal_code
+  ].filter(Boolean);
+
+  return parts.length ? parts.join(" - ") : fallbackText;
 }
 
 function getDisplayPickup(job) {
-  return getLocalJobAddress(job.id, 'pickup') || job.pickup_location || 'Not uploaded yet';
+  return addressToText(job.pickup_address, job.pickup_location || 'None');
 }
 
 function getDisplayDelivery(job) {
-  return getLocalJobAddress(job.id, 'delivery') || job.delivery_location || 'Not uploaded yet';
-}
-function getLocalJobAwb(jobId) {
-  return localStorage.getItem(`job-${jobId}-awb`);
+  return addressToText(job.delivery_address, job.delivery_location || 'None');
 }
 
-function saveLocalJobAwb(jobId, value) {
-  localStorage.setItem(`job-${jobId}-awb`, value);
-}
+let ADD_SELECTED_DRIVER_NAME = "";
 
+function setupAddJobDriverSearch() {
+  const driverInput = document.getElementById('driver');
+  const resultsBox = document.getElementById('add-driver-search-results');
+
+  if (!driverInput || !resultsBox) return;
+
+  driverInput.addEventListener('input', () => {
+    const q = driverInput.value.trim().toLowerCase();
+    ADD_SELECTED_DRIVER_NAME = "";
+
+    if (!q) {
+      resultsBox.hidden = true;
+      resultsBox.innerHTML = "";
+      return;
+    }
+
+    const matches = ONTIME_DRIVERS
+      .filter(driver => driver.name.toLowerCase().includes(q))
+      .slice(0, 8);
+
+    if (!matches.length) {
+      resultsBox.innerHTML = `<div class="driver-search-option">No drivers found</div>`;
+      resultsBox.hidden = false;
+      return;
+    }
+
+    resultsBox.innerHTML = matches.map(driver => `
+      <div class="driver-search-option" data-name="${escapeHtml(driver.name)}">
+        ${escapeHtml(driver.name)}
+      </div>
+    `).join('');
+
+    resultsBox.hidden = false;
+  });
+
+  resultsBox.addEventListener('click', (e) => {
+    const option = e.target.closest('.driver-search-option');
+    if (!option || !option.dataset.name) return;
+
+    ADD_SELECTED_DRIVER_NAME = option.dataset.name;
+    driverInput.value = option.dataset.name;
+    resultsBox.hidden = true;
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!driverInput.contains(e.target) && !resultsBox.contains(e.target)) {
+      resultsBox.hidden = true;
+    }
+  });
+}
 function getAwbText(job) {
-  return getLocalJobAwb(job.id) || job.awb || job.awb_number || 'None';
+  return job.awb_number || job.awb || 'None';
 }
+
 
 function shouldShowPickupAwb(job) {
   return job.category === 'mia' || job.category === 'fll';
@@ -1379,7 +1574,9 @@ ${shouldShowDeliveryAwb(job) ? `<div class="awb-box awb-edit" title="Click to ed
 
 <button type="button" class="confirm-btn"></button>
 
-<span class="delete-btn" title="Archive Job">×</span>
+<span class="delete-btn ${isArchivedJob(job) ? 'restore-job' : ''}" title="${isArchivedJob(job) ? 'Unarchive Job' : 'Archive Job'}">
+  ${isArchivedJob(job) ? '✓' : '×'}
+</span>
 
 <button class="icon-btn menu-trigger" title="Actions">⋮</button>
 </div>
@@ -1515,6 +1712,59 @@ inlineDriverSave.textContent = "Saving...";
 }
 
 inlineDriverSave?.addEventListener('click', () => saveDriverChange(false));
+async function saveAwbChange(job, newAwb, saveBtn, forceLocalOnly = false) {
+  const res = await fetch(UPDATE_AWB_FUNCTION_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "apikey": SUPABASE_ANON_KEY
+    },
+    body: JSON.stringify({
+      jobId: job.id,
+      jobNumber: job.title,
+      awbNumber: newAwb,
+      category: job.category,
+      forceLocalOnly
+    })
+  });
+
+  const rawText = await res.text();
+
+  let result = {};
+  try {
+    result = rawText ? JSON.parse(rawText) : {};
+  } catch (e) {
+    saveBtn.disabled = false;
+    saveBtn.textContent = "Save";
+    alert(`AWB update failed. Non-JSON response: ${rawText}`);
+    return;
+  }
+
+  if (!res.ok || result.error) {
+    if (result.error === "MISSING_ONTIME_ORDER_ID") {
+      const continueLocalOnly = confirm(
+        "This job is not linked to OnTime. Updates on this job will NOT sync with OnTime Management Suite. Are you sure you want to continue?"
+      );
+
+      if (!continueLocalOnly) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save";
+        return;
+      }
+
+      return saveAwbChange(job, newAwb, saveBtn, true);
+    }
+
+    saveBtn.disabled = false;
+    saveBtn.textContent = "Save";
+    alert(`AWB update failed: ${result.error || 'Unknown error'}`);
+    return;
+  }
+
+  alert(result.message || "AWB updated successfully.");
+  await loadJobs();
+}
     const confirmBtn = row.querySelector('.confirm-btn');
 
     row.querySelector('.time-edit-btn')?.addEventListener('click', () => {
@@ -1533,29 +1783,64 @@ row.querySelector('.delivery-edit')?.addEventListener('click', () => {
   openAddressModal(job, 'delivery');
 });
 
-row.querySelector('.awb-edit')?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  const currentAwb = getAwbText(job) === 'None' ? '' : getAwbText(job);
-  const newAwb = prompt(`Enter AWB for job #${job.title || job.id}:`, currentAwb);
+row.querySelectorAll('.awb-edit').forEach((awbBox) => {
+  awbBox.addEventListener('click', (e) => {
+    e.stopPropagation();
 
-  if (newAwb === null) return;
+    const currentAwb = getAwbText(job) === 'None' ? '' : getAwbText(job);
 
-  saveLocalJobAwb(job.id, newAwb.trim() || 'None');
-  loadJobs();
+    awbBox.innerHTML = `
+      <div class="awb-inline-box">
+        <input class="awb-inline-input" type="text" value="${escapeHtml(currentAwb)}" placeholder="Enter AWB...">
+        <button type="button" class="awb-inline-save">Save</button>
+      </div>
+    `;
+
+    const input = awbBox.querySelector('.awb-inline-input');
+    const saveBtn = awbBox.querySelector('.awb-inline-save');
+
+    input.focus();
+
+    saveBtn.addEventListener('click', async (saveEvent) => {
+      saveEvent.stopPropagation();
+
+      const newAwb = input.value.trim();
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Saving...";
+
+      await saveAwbChange(job, newAwb, saveBtn);
+    });
+  });
 });
 
     const deleteBtn = row.querySelector('.delete-btn');
 
 deleteBtn.addEventListener('click', async () => {
+  if (isArchivedJob(job)) {
+    const confirmRestore = confirm('Unarchive this job and move it back to the organizer?');
+    if (!confirmRestore) return;
+
+    const { error } = await sb
+      .from('jobs')
+      .update({ is_archived: false })
+      .eq('id', job.id);
+
+    if (error) {
+      alert('Unarchive failed.');
+      return;
+    }
+
+    loadJobs();
+    return;
+  }
+
   const confirmDelete = confirm('Archive this job?');
   if (!confirmDelete) return;
 
-  const oldDate = new Date();
-  oldDate.setDate(oldDate.getDate() - 6);
-
   const { error } = await sb
     .from('jobs')
-    .update({ deadline: oldDate.toISOString() })
+    .update({ is_archived: true })
     .eq('id', job.id);
 
   if (error) {
@@ -1610,9 +1895,9 @@ confirmBtn.addEventListener('click', async () => {
 const oldDate = new Date();
 oldDate.setDate(oldDate.getDate() - 6);
 
-await sb
+const { error } = await sb
   .from('jobs')
-  .update({ deadline: oldDate.toISOString() })
+  .update({ is_archived: true })
   .eq('id', job.id);
 
 loadJobs();
@@ -1635,7 +1920,7 @@ loadJobs();
     menu.querySelector('.menu-delete').addEventListener('click', async () => {
       const oldDate = new Date();
       oldDate.setDate(oldDate.getDate() - 6);
-      const { error } = await sb.from('jobs').update({ deadline: oldDate.toISOString() }).eq('id', job.id);
+      const { error } = await sb.from('jobs').update({ is_archived: true }).eq('id', job.id);
       if (error) alert('Archive failed.');
       loadJobs();
     });
@@ -1862,9 +2147,10 @@ function closeDocsModal() {
     .getElementById('docs-modal-backdrop')
     .classList.remove('show');
 }
-let CURRENT_TIME_JOB_ID = null;
 let CURRENT_ADDRESS_JOB_ID = null;
 let CURRENT_ADDRESS_TYPE = null;
+let CURRENT_ADDRESS_JOB = null;
+
 
 function toDateTimeLocalValue(val) {
   if (!val) return '';
@@ -1883,15 +2169,46 @@ function openTimeModal(job) {
 
   document.getElementById('time-modal-backdrop').classList.add('show');
 }
+function fillAddressModal(addressObj) {
+  const address = { ...blankAddress(), ...(addressObj || {}) };
+
+  document.getElementById('address-name').value = address.name || "";
+  document.getElementById('address-contact').value = address.contact || "";
+  document.getElementById('address-phone').value = address.phone || "";
+  document.getElementById('address-email').value = address.email || "";
+  document.getElementById('address-line-1').value = address.address_line_1 || "";
+  document.getElementById('address-line-2').value = address.address_line_2 || "";
+  document.getElementById('address-city').value = address.city || "";
+  document.getElementById('address-state').value = address.state || "";
+  document.getElementById('address-postal').value = address.postal_code || "";
+  document.getElementById('address-country').value = address.country || "USA";
+}
+
+function readAddressModal() {
+  return {
+    name: document.getElementById('address-name').value.trim(),
+    contact: document.getElementById('address-contact').value.trim(),
+    phone: document.getElementById('address-phone').value.trim(),
+    email: document.getElementById('address-email').value.trim(),
+    address_line_1: document.getElementById('address-line-1').value.trim(),
+    address_line_2: document.getElementById('address-line-2').value.trim(),
+    city: document.getElementById('address-city').value.trim(),
+    state: document.getElementById('address-state').value.trim(),
+    postal_code: document.getElementById('address-postal').value.trim(),
+    country: document.getElementById('address-country').value.trim() || "USA"
+  };
+}
+
 function openAddressModal(job, type) {
   CURRENT_ADDRESS_JOB_ID = job.id;
   CURRENT_ADDRESS_TYPE = type;
+  CURRENT_ADDRESS_JOB = job;
 
   const label = type === 'pickup' ? 'Pickup' : 'Delivery';
-  const currentValue = type === 'pickup' ? getDisplayPickup(job) : getDisplayDelivery(job);
+  const currentAddress = type === 'pickup' ? job.pickup_address : job.delivery_address;
 
   document.getElementById('address-modal-title').textContent = `Edit ${label} Address for Job #${job.title || job.id}`;
-  document.getElementById('address-modal-text').value = currentValue === 'Not uploaded yet' ? '' : currentValue;
+  fillAddressModal(currentAddress);
 
   document.getElementById('address-modal-backdrop').classList.add('show');
 }
@@ -1899,6 +2216,7 @@ function openAddressModal(job, type) {
 function closeAddressModal() {
   CURRENT_ADDRESS_JOB_ID = null;
   CURRENT_ADDRESS_TYPE = null;
+  CURRENT_ADDRESS_JOB = null;
   document.getElementById('address-modal-backdrop').classList.remove('show');
 }
 function closeTimeModal() {
@@ -2008,9 +2326,10 @@ const activeJobs = ALL_JOBS
 
 
 
-  function updateBulkArchiveButton() {
+ function updateBulkArchiveButton() {
   const checked = document.querySelectorAll('.job-checkbox:checked').length;
-  document.getElementById('bulk-archive-btn').classList.toggle('show', checked > 0);
+  document.getElementById('bulk-archive-btn').disabled = checked === 0;
+  document.getElementById('sync-ontime-btn').disabled = checked === 0;
 }
 
 document.addEventListener('change', (e) => {
@@ -2092,7 +2411,7 @@ document.getElementById('bulk-archive-btn').addEventListener('click', async () =
 
   const { error } = await sb
     .from('jobs')
-    .update({ deadline: oldDate.toISOString() })
+    .update({ is_archived: true })
     .in('id', selectedIds);
 
   if (error) {
@@ -2116,17 +2435,32 @@ document.getElementById('address-modal-backdrop').addEventListener('click', (e) 
   if (e.target.id === 'address-modal-backdrop') closeAddressModal();
 });
 
-document.getElementById('address-modal-save').addEventListener('click', () => {
+document.getElementById('address-modal-save').addEventListener('click', async () => {
   if (!CURRENT_ADDRESS_JOB_ID || !CURRENT_ADDRESS_TYPE) return;
 
-  const value = document.getElementById('address-modal-text').value.trim();
+  const address = readAddressModal();
+  const textValue = addressToText(address, 'None');
 
-  if (!value) {
-    alert('Enter an address first.');
+  const updatePayload = CURRENT_ADDRESS_TYPE === 'pickup'
+    ? {
+        pickup_address: address,
+        pickup_location: textValue
+      }
+    : {
+        delivery_address: address,
+        delivery_location: textValue
+      };
+
+  const { error } = await sb
+    .from('jobs')
+    .update(updatePayload)
+    .eq('id', CURRENT_ADDRESS_JOB_ID);
+
+  if (error) {
+    alert('Failed to save address.');
     return;
   }
 
-  saveLocalJobAddress(CURRENT_ADDRESS_JOB_ID, CURRENT_ADDRESS_TYPE, value);
   closeAddressModal();
   loadJobs();
 });
@@ -2181,22 +2515,62 @@ document.getElementById('job-search').addEventListener('input', loadJobs);
   document.getElementById('reset-search').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('job-search').value=''; loadJobs(); });
 
   document.getElementById('job-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const title = document.getElementById('jobTitle').value.trim();
-    const driver = document.getElementById('driver').value.trim();
-    const deadline = document.getElementById('deadline').value.trim();
-    const category = document.getElementById('jobCategory').value;
-    const notes = document.getElementById('jobNotes').value.trim();
-    if (!title || !driver || !deadline || !category) return;
-    const payload = { title, driver, deadline: new Date(deadline).toISOString(), category, notes: notes || null };
-    const { error } = await sb.from('jobs').insert(payload);
-    if (error) { console.error('Insert error:', error); alert(`Failed to add job: ${error.message}`); return; }
-    await loadJobs();
-    e.target.reset();
-  });
+  e.preventDefault();
+
+  const title = document.getElementById('jobTitle').value.trim();
+  if (!title) {
+    alert('Job number is required.');
+    return;
+  }
+
+  const typedDriver = document.getElementById('driver').value.trim();
+  const validDriver = ONTIME_DRIVERS.some(d => d.name === typedDriver);
+
+  if (typedDriver && !validDriver) {
+    alert('Please select a driver from the driver search list, or leave it blank.');
+    return;
+  }
+
+  const readyTime = document.getElementById('readyTime').value.trim();
+  const deadline = document.getElementById('deadline').value.trim();
+  const category = document.getElementById('jobCategory').value || 'bullshit';
+  const awbNumber = document.getElementById('awbNumber').value.trim();
+  const pickupLocation = document.getElementById('pickupLocation').value.trim();
+  const deliveryLocation = document.getElementById('deliveryLocation').value.trim();
+  const notes = document.getElementById('jobNotes').value.trim();
+
+  const payload = {
+    title,
+    driver: validDriver ? typedDriver : 'Unassigned',
+    ready_time: readyTime ? new Date(readyTime).toISOString() : null,
+    deadline: deadline ? new Date(deadline).toISOString() : null,
+    category,
+    awb_number: awbNumber || 'None',
+    pickup_location: pickupLocation || 'None',
+delivery_location: deliveryLocation || 'None',
+pickup_address: blankAddress(),
+delivery_address: blankAddress(),
+    notes: notes || 'None',
+    is_archived: false
+  };
+
+  const { error } = await sb.from('jobs').insert(payload);
+
+  if (error) {
+    console.error('Insert error:', error);
+    alert(`Failed to add job: ${error.message}`);
+    return;
+  }
+
+  ADD_SELECTED_DRIVER_NAME = "";
+  await loadJobs();
+  e.target.reset();
+  document.getElementById('jobCategory').value = 'bullshit';
+});
 
   window.addEventListener('DOMContentLoaded', async () => {
   await loadOntimeDrivers();
+  setupAddJobDriverSearch();
   loadJobs();
   sb.channel('jobs-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'jobs' }, loadJobs).subscribe();
 });
