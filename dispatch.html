@@ -2273,12 +2273,51 @@ function renderJob(job) {
       .forEach(job => row.appendChild(createJobRowElement(job)));
   }
 
+async function autoArchiveOldJobs(jobs) {
+  const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
+
+  const oldJobIds = (jobs || [])
+    .filter(job => !isArchivedJob(job))
+    .filter(job => {
+      const deadline = new Date(job.deadline);
+      return !isNaN(deadline) && deadline < sixHoursAgo;
+    })
+    .map(job => job.id);
+
+  if (!oldJobIds.length) return;
+
+  const { error } = await sb
+    .from('jobs')
+    .update({ is_archived: true })
+    .in('id', oldJobIds);
+
+  if (error) {
+    console.error('Auto archive failed:', error);
+  }
+}
+
   async function loadJobs() {
     clearBoard();
     const { data, error } = await sb.from('jobs').select('*').order('created_at', { ascending: false });
     if (error) { console.error(error); alert('Failed to load jobs.'); return; }
     ALL_JOBS = data || [];
-    populateDriverFilter(ALL_JOBS);
+
+await autoArchiveOldJobs(ALL_JOBS);
+
+const { data: refreshedData, error: refreshedError } = await sb
+  .from('jobs')
+  .select('*')
+  .order('created_at', { ascending: false });
+
+if (refreshedError) {
+  console.error(refreshedError);
+  alert('Failed to reload jobs after auto archive.');
+  return;
+}
+
+ALL_JOBS = refreshedData || [];
+
+populateDriverFilter(ALL_JOBS);
     const query = (document.getElementById('job-search')?.value || '').trim().toLowerCase();
     const selectedCategory = document.getElementById('category-filter')?.value || 'all';
     const selectedClient = document.getElementById('client-filter')?.value || 'all';
