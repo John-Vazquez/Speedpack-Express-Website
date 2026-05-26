@@ -32,13 +32,19 @@
     }
 
     /* Keep the normal Speedpack navbar/background look */
-    nav {
-      background: transparent !important;
-      border-bottom: 0 !important;
-      box-shadow: none !important;
-      position: relative;
-      z-index: 2;
-    }
+  nav {
+  background: transparent !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  transition: transform 0.2s ease;
+}
+
+nav.hide-on-scroll {
+  transform: translateY(-100%);
+}
 
     main { padding:70px 30px 60px; }
 
@@ -622,7 +628,47 @@
   padding: 9px;
   font-size: 14px;
 }
+.status-step-card {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  padding: 12px;
+  margin-bottom: 12px;
+}
 
+.status-step-card.done {
+  background: #f0fdf4;
+}
+
+.status-step-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.status-saved-time {
+  font-size: 12px;
+  color: #374151;
+  margin-left: 24px;
+}
+
+.status-input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.status-complete-btn {
+  margin-top: 10px;
+  width: 100%;
+  border: 0;
+  background: #16a34a;
+  color: white;
+  font-weight: 900;
+  padding: 9px;
+  cursor: pointer;
+}
 .time-modal-save {
   margin-top: 18px;
   width: 100%;
@@ -847,12 +893,13 @@
 }
 
 .shipments-card {
-  overflow-x: hidden;
+  overflow-x: visible;
+  overflow-y: visible;
 }
 
 .job-list {
   width: 100%;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .job-row {
@@ -1492,7 +1539,21 @@ function shouldShowDeliveryAwb(job) {
   return job.category === 'tenders';
 }
 let CURRENT_STATUS_JOB = null;
+function formatStatusDate(dateValue) {
+  const [year, month, day] = dateValue.split('-');
+  return `${month}/${day}/${year}`;
+}
 
+function formatStatusTime(timeValue) {
+  const [hourText, minute] = timeValue.split(':');
+  let hour = Number(hourText);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+
+  hour = hour % 12;
+  if (hour === 0) hour = 12;
+
+  return `${hour}:${minute} ${ampm}`;
+}
 function getStatusSteps(job) {
   if (job.category === 'tenders') {
     return [
@@ -1516,6 +1577,16 @@ function openStatusModal(job) {
 
   const progress = getJobProgress(job.id);
   const steps = getStatusSteps(job);
+  const statusSteps = progress.statusSteps || [];
+
+let activeIndex = 0;
+
+for (let i = 0; i < steps.length; i++) {
+  if (!statusSteps[i]?.confirmed) {
+    activeIndex = i;
+    break;
+  }
+}
 
   document.getElementById('status-modal-title').textContent =
     `Update status for job #${job.title || job.id}`;
@@ -1523,39 +1594,83 @@ function openStatusModal(job) {
   const box = document.getElementById('status-steps-box');
 
   box.innerHTML = steps.map((label, index) => {
-    const saved = progress.statusSteps?.[index];
-
-    const previousDone = index === 0 || progress.statusSteps?.[index - 1]?.confirmed;
-    const disabled = previousDone ? '' : 'disabled';
+    const saved = statusSteps[index];
+    const isDone = saved?.confirmed;
+    const isActive = index === activeIndex && !isDone;
 
     return `
-      <div style="margin-bottom:14px; padding:12px; background:#f8fafc; border:1px solid #e5e7eb;">
-        <label style="display:flex; align-items:center; gap:8px; font-weight:900;">
-          <input 
-            type="checkbox" 
-            class="status-step-check" 
-            data-index="${index}" 
-            ${saved?.confirmed ? 'checked' : ''} 
-            ${disabled}
-          >
-          ${label}
-        </label>
+      <div class="status-step-card ${isDone ? 'done' : ''}">
+        <div class="status-step-title">
+          <span>${isDone ? '✅' : isActive ? '🟢' : '⚪'}</span>
+          <strong>${label}</strong>
+        </div>
 
-        <input 
-          type="datetime-local" 
-          class="status-step-time" 
-          data-index="${index}" 
-          value="${saved?.time || ''}" 
-          ${disabled}
-          style="margin-top:8px; width:100%; box-sizing:border-box; padding:8px;"
-        >
+        ${isDone ? `
+          <div class="status-saved-time">
+            ${escapeHtml(saved.displayDate || '')} ${escapeHtml(saved.displayTime || '')}
+          </div>
+        ` : ''}
+
+        ${isActive ? `
+          <div class="status-input-row">
+            <div>
+              <label>Date</label>
+              <input type="date" id="status-step-date">
+            </div>
+            <div>
+              <label>Time</label>
+              <input type="time" id="status-step-time">
+            </div>
+          </div>
+
+          <button type="button" id="complete-status-step" class="status-complete-btn" data-index="${index}">
+            Complete
+          </button>
+        ` : ''}
       </div>
     `;
   }).join('');
 
   document.getElementById('status-modal-backdrop').classList.add('show');
 }
+document.addEventListener('click', (e) => {
+  if (!e.target || e.target.id !== 'complete-status-step') return;
+  if (!CURRENT_STATUS_JOB) return;
 
+  const index = Number(e.target.dataset.index);
+  const dateValue = document.getElementById('status-step-date')?.value;
+  const timeValue = document.getElementById('status-step-time')?.value;
+
+  if (!dateValue || !timeValue) {
+    alert('Enter both date and time.');
+    return;
+  }
+
+  const progress = getJobProgress(CURRENT_STATUS_JOB.id);
+  const steps = getStatusSteps(CURRENT_STATUS_JOB);
+  const statusSteps = progress.statusSteps || [];
+
+  statusSteps[index] = {
+    label: steps[index],
+    confirmed: true,
+    date: dateValue,
+    time: timeValue,
+    displayDate: formatStatusDate(dateValue),
+    displayTime: formatStatusTime(timeValue)
+  };
+
+  const allDone = statusSteps.length === steps.length && statusSteps.every(step => step?.confirmed);
+
+  saveJobProgress(CURRENT_STATUS_JOB.id, {
+    ...progress,
+    pickupConfirmed: statusSteps.some(step => step?.confirmed),
+    deliveryConfirmed: allDone,
+    statusSteps
+  });
+
+  openStatusModal(CURRENT_STATUS_JOB);
+  loadJobs();
+});
 function closeStatusModal() {
   CURRENT_STATUS_JOB = null;
   document.getElementById('status-modal-backdrop').classList.remove('show');
@@ -1960,7 +2075,7 @@ const steps = getStatusSteps(job);
 const completedSteps = progress.statusSteps?.filter(step => step.confirmed).length || 0;
 
 if (completedSteps >= steps.length) {
-  confirmBtn.textContent = 'Completed';
+  confirmBtn.textContent = 'Delivery Confirmed';
   confirmBtn.classList.add('delivery');
 } else {
   confirmBtn.textContent = steps[completedSteps] || 'Update Status';
@@ -2577,57 +2692,8 @@ document.getElementById('status-modal-backdrop').addEventListener('click', (e) =
   if (e.target.id === 'status-modal-backdrop') closeStatusModal();
 });
 
-document.getElementById('status-modal-save').addEventListener('click', async () => {
-  if (!CURRENT_STATUS_JOB) return;
-
-  const checks = Array.from(document.querySelectorAll('.status-step-check'));
-  const times = Array.from(document.querySelectorAll('.status-step-time'));
-
-  const statusSteps = checks.map((check, index) => {
-    const timeInput = times.find(t => Number(t.dataset.index) === index);
-
-    return {
-      label: getStatusSteps(CURRENT_STATUS_JOB)[index],
-      confirmed: check.checked,
-      time: timeInput?.value || ''
-    };
-  });
-
-  for (let i = 0; i < statusSteps.length; i++) {
-    if (statusSteps[i].confirmed && !statusSteps[i].time) {
-      alert('Every confirmed step needs a time.');
-      return;
-    }
-
-    if (i > 0 && statusSteps[i].confirmed && !statusSteps[i - 1].confirmed) {
-      alert('You must confirm the previous step first.');
-      return;
-    }
-  }
-
-  const allDone = statusSteps.every(step => step.confirmed);
-
-  saveJobProgress(CURRENT_STATUS_JOB.id, {
-    ...getJobProgress(CURRENT_STATUS_JOB.id),
-    pickupConfirmed: statusSteps.some(step => step.confirmed),
-    deliveryConfirmed: allDone,
-    statusSteps
-  });
-
-  if (allDone) {
-    const { error } = await sb
-      .from('jobs')
-      .update({ is_archived: true })
-      .eq('id', CURRENT_STATUS_JOB.id);
-
-    if (error) {
-      alert('Final status saved, but archive failed.');
-      return;
-    }
-  }
-
+document.getElementById('status-modal-save').addEventListener('click', () => {
   closeStatusModal();
-  loadJobs();
 });
 document.getElementById('time-modal-close').addEventListener('click', closeTimeModal);
 
@@ -2732,7 +2798,20 @@ delivery_address: blankAddress(),
   e.target.reset();
   document.getElementById('jobCategory').value = 'bullshit';
 });
+let lastScrollY = window.scrollY;
 
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  if (!nav) return;
+
+  if (window.scrollY > lastScrollY && window.scrollY > 80) {
+    nav.classList.add('hide-on-scroll');
+  } else {
+    nav.classList.remove('hide-on-scroll');
+  }
+
+  lastScrollY = window.scrollY;
+});
   window.addEventListener('DOMContentLoaded', async () => {
   await loadOntimeDrivers();
   setupAddJobDriverSearch();
