@@ -2274,13 +2274,18 @@ function renderJob(job) {
   }
 
 async function autoArchiveOldJobs(jobs) {
-  const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
+  const sixHoursAgo = Date.now() - (6 * 60 * 60 * 1000);
 
   const oldJobIds = (jobs || [])
     .filter(job => !isArchivedJob(job))
     .filter(job => {
-      const deadline = new Date(job.deadline);
-      return !isNaN(deadline) && deadline < sixHoursAgo;
+      const deadlineValue = job.deadline;
+      if (!deadlineValue) return false;
+
+      const deadlineTime = new Date(deadlineValue).getTime();
+      if (Number.isNaN(deadlineTime)) return false;
+
+      return deadlineTime < sixHoursAgo;
     })
     .map(job => job.id);
 
@@ -2300,22 +2305,14 @@ async function autoArchiveOldJobs(jobs) {
     clearBoard();
     const { data, error } = await sb.from('jobs').select('*').order('created_at', { ascending: false });
     if (error) { console.error(error); alert('Failed to load jobs.'); return; }
-    ALL_JOBS = data || [];
+ALL_JOBS = data || [];
 
 await autoArchiveOldJobs(ALL_JOBS);
 
-const { data: refreshedData, error: refreshedError } = await sb
-  .from('jobs')
-  .select('*')
-  .order('created_at', { ascending: false });
-
-if (refreshedError) {
-  console.error(refreshedError);
-  alert('Failed to reload jobs after auto archive.');
-  return;
-}
-
-ALL_JOBS = refreshedData || [];
+ALL_JOBS = ALL_JOBS.filter(job => {
+  const deadlineTime = new Date(job.deadline).getTime();
+  return isArchivedJob(job) || Number.isNaN(deadlineTime) || deadlineTime >= Date.now() - (6 * 60 * 60 * 1000);
+});
 
 populateDriverFilter(ALL_JOBS);
     const query = (document.getElementById('job-search')?.value || '').trim().toLowerCase();
