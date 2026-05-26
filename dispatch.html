@@ -316,7 +316,7 @@
   display:grid;
   grid-template-columns: 170px minmax(520px, 1fr) 170px 240px;
   gap: 18px;
-  align-items:center;
+  align-items:start;
   min-width: 0;
 }
     .place { font-size:12px; line-height:1.35; color:#111827; }
@@ -382,6 +382,21 @@
 .drag-handle {
   cursor: grab;
 }
+.status-button-under-bar {
+  position: absolute;
+  left: 50%;
+  top: 22px;
+  transform: translateX(-50%);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.status-button-under-bar .confirm-btn {
+  margin: 0;
+  transform: scale(0.82);
+  pointer-events: auto;
+}
+
     .timeline { position: relative; height: 36px; }
     .timeline::before {
       content:''; position:absolute; left:0; right:0; top:16px; height:6px;
@@ -424,7 +439,7 @@
 
 .actions-cell {
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   justify-content:flex-end;
   gap:7px;
   position:relative;
@@ -441,6 +456,7 @@
   border-radius: 3px;
   cursor: pointer;
   white-space: nowrap;
+  margin-top: 6px;
 }
 
 .delete-btn {
@@ -1204,6 +1220,18 @@
 <button type="button" id="address-modal-save" class="address-modal-save">Save Address</button>
   </div>
 </div>
+<div id="status-modal-backdrop" class="time-modal-backdrop">
+  <div class="time-modal">
+    <div class="time-modal-head">
+      <h3 id="status-modal-title">Update Job Status</h3>
+      <button type="button" id="status-modal-close" class="time-modal-close">×</button>
+    </div>
+
+    <div id="status-steps-box"></div>
+
+    <button type="button" id="status-modal-save" class="time-modal-save">Save Status</button>
+  </div>
+</div>
 <div id="time-modal-backdrop" class="time-modal-backdrop">
   <div class="time-modal">
     <div class="time-modal-head">
@@ -1463,6 +1491,75 @@ function shouldShowPickupAwb(job) {
 function shouldShowDeliveryAwb(job) {
   return job.category === 'tenders';
 }
+let CURRENT_STATUS_JOB = null;
+
+function getStatusSteps(job) {
+  if (job.category === 'tenders') {
+    return [
+      'Arrived at pickup location',
+      'Depart from pickup location',
+      'Arrive at cargo facility',
+      'Confirm tender to airline'
+    ];
+  }
+
+  return [
+    'Arrive at cargo facility',
+    'Depart cargo facility',
+    'Arrive at destination',
+    'Confirm final delivery'
+  ];
+}
+
+function openStatusModal(job) {
+  CURRENT_STATUS_JOB = job;
+
+  const progress = getJobProgress(job.id);
+  const steps = getStatusSteps(job);
+
+  document.getElementById('status-modal-title').textContent =
+    `Update status for job #${job.title || job.id}`;
+
+  const box = document.getElementById('status-steps-box');
+
+  box.innerHTML = steps.map((label, index) => {
+    const saved = progress.statusSteps?.[index];
+
+    const previousDone = index === 0 || progress.statusSteps?.[index - 1]?.confirmed;
+    const disabled = previousDone ? '' : 'disabled';
+
+    return `
+      <div style="margin-bottom:14px; padding:12px; background:#f8fafc; border:1px solid #e5e7eb;">
+        <label style="display:flex; align-items:center; gap:8px; font-weight:900;">
+          <input 
+            type="checkbox" 
+            class="status-step-check" 
+            data-index="${index}" 
+            ${saved?.confirmed ? 'checked' : ''} 
+            ${disabled}
+          >
+          ${label}
+        </label>
+
+        <input 
+          type="datetime-local" 
+          class="status-step-time" 
+          data-index="${index}" 
+          value="${saved?.time || ''}" 
+          ${disabled}
+          style="margin-top:8px; width:100%; box-sizing:border-box; padding:8px;"
+        >
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('status-modal-backdrop').classList.add('show');
+}
+
+function closeStatusModal() {
+  CURRENT_STATUS_JOB = null;
+  document.getElementById('status-modal-backdrop').classList.remove('show');
+}
 function getJobProgress(jobId) {
   return JSON.parse(localStorage.getItem(`job-progress-${jobId}`) || '{}');
 }
@@ -1552,7 +1649,14 @@ ${shouldShowPickupAwb(job) ? `<div class="awb-box awb-edit" title="Click to edit
   </span>
   <span class="timeline-text">${escapeHtml(CATEGORY_LABELS[job.category] || '')}</span>
   <span class="end">✈️</span>
+
+<div class="status-button-under-bar">
+  <button type="button" class="confirm-btn"></button>
 </div>
+</div>
+
+
+
 <div class="place editable-place delivery-edit" title="Click to edit delivery address">
   <b>Delivery</b>
   <span class="place-text">${escapeHtml(getDisplayDelivery(job))}</span>
@@ -1572,7 +1676,7 @@ ${shouldShowDeliveryAwb(job) ? `<div class="awb-box awb-edit" title="Click to ed
 <button type="button" class="airspace-action-btn docs-btn" title="Documents">📄</button>
 <button type="button" class="airspace-action-btn" title="Flag for review">⚑</button>
 
-<button type="button" class="confirm-btn"></button>
+
 
 <span class="delete-btn ${isArchivedJob(job) ? 'restore-job' : ''}" title="${isArchivedJob(job) ? 'Unarchive Job' : 'Archive Job'}">
   ${isArchivedJob(job) ? '✓' : '×'}
@@ -1852,55 +1956,22 @@ deleteBtn.addEventListener('click', async () => {
 });
 const progress = getJobProgress(job.id);
 
-if (progress.pickupConfirmed) {
-  confirmBtn.textContent = 'Confirm Delivery';
+const steps = getStatusSteps(job);
+const completedSteps = progress.statusSteps?.filter(step => step.confirmed).length || 0;
+
+if (completedSteps >= steps.length) {
+  confirmBtn.textContent = 'Completed';
   confirmBtn.classList.add('delivery');
 } else {
-  confirmBtn.textContent = 'Confirm Pickup';
+  confirmBtn.textContent = steps[completedSteps] || 'Update Status';
+
+  if (completedSteps > 0) {
+    confirmBtn.classList.add('delivery');
+  }
 }
 
-confirmBtn.addEventListener('click', async () => {
-  const currentProgress = getJobProgress(job.id);
-
-  if (!currentProgress.pickupConfirmed) {
-    const driverName = String(job.driver || '').trim();
-
-    if (!driverName || driverName.toLowerCase() === 'unassigned') {
-      alert('Driver must be assigned to confirm pickup.');
-      return;
-    }
-
-    const eta = prompt('Enter pickup time:');
-    if (!eta) return;
-
-    saveJobProgress(job.id, {
-      pickupConfirmed: true,
-      pickupEta: eta
-    });
-
-    loadJobs();
-    return;
-  }
-
-  const dropoffTime = prompt('Enter drop off time:');
-  if (!dropoffTime) return;
-
-  saveJobProgress(job.id, {
-  ...currentProgress,
-  deliveryConfirmed: true,
-  dropoffTime
-});
-
-// 🔥 move to archive (same logic as archive button)
-const oldDate = new Date();
-oldDate.setDate(oldDate.getDate() - 6);
-
-const { error } = await sb
-  .from('jobs')
-  .update({ is_archived: true })
-  .eq('id', job.id);
-
-loadJobs();
+confirmBtn.addEventListener('click', () => {
+  openStatusModal(job);
 });
     row.querySelector('.menu-trigger').addEventListener('click', (e) => {
       e.stopPropagation();
@@ -2498,6 +2569,64 @@ document.getElementById('address-modal-save').addEventListener('click', async ()
   }
 
   closeAddressModal();
+  loadJobs();
+});
+document.getElementById('status-modal-close').addEventListener('click', closeStatusModal);
+
+document.getElementById('status-modal-backdrop').addEventListener('click', (e) => {
+  if (e.target.id === 'status-modal-backdrop') closeStatusModal();
+});
+
+document.getElementById('status-modal-save').addEventListener('click', async () => {
+  if (!CURRENT_STATUS_JOB) return;
+
+  const checks = Array.from(document.querySelectorAll('.status-step-check'));
+  const times = Array.from(document.querySelectorAll('.status-step-time'));
+
+  const statusSteps = checks.map((check, index) => {
+    const timeInput = times.find(t => Number(t.dataset.index) === index);
+
+    return {
+      label: getStatusSteps(CURRENT_STATUS_JOB)[index],
+      confirmed: check.checked,
+      time: timeInput?.value || ''
+    };
+  });
+
+  for (let i = 0; i < statusSteps.length; i++) {
+    if (statusSteps[i].confirmed && !statusSteps[i].time) {
+      alert('Every confirmed step needs a time.');
+      return;
+    }
+
+    if (i > 0 && statusSteps[i].confirmed && !statusSteps[i - 1].confirmed) {
+      alert('You must confirm the previous step first.');
+      return;
+    }
+  }
+
+  const allDone = statusSteps.every(step => step.confirmed);
+
+  saveJobProgress(CURRENT_STATUS_JOB.id, {
+    ...getJobProgress(CURRENT_STATUS_JOB.id),
+    pickupConfirmed: statusSteps.some(step => step.confirmed),
+    deliveryConfirmed: allDone,
+    statusSteps
+  });
+
+  if (allDone) {
+    const { error } = await sb
+      .from('jobs')
+      .update({ is_archived: true })
+      .eq('id', CURRENT_STATUS_JOB.id);
+
+    if (error) {
+      alert('Final status saved, but archive failed.');
+      return;
+    }
+  }
+
+  closeStatusModal();
   loadJobs();
 });
 document.getElementById('time-modal-close').addEventListener('click', closeTimeModal);
