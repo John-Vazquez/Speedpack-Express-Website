@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driver Job Action - Speedpack Express</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 480px;
+      background: #1c1c1c;
+      border: 1px solid #333;
+      border-radius: 16px;
+      padding: 28px;
+      text-align: center;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+    }
+
+    .status-icon {
+      font-size: 56px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: 28px;
+    }
+
+    .job-number {
+      color: #f7c600;
+      font-weight: bold;
+    }
+
+    p {
+      color: #ddd;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .next-box {
+      margin-top: 22px;
+      padding: 16px;
+      border-radius: 12px;
+      background: #262626;
+      border: 1px solid #3a3a3a;
+    }
+
+    .eta-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 13px 14px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #f7c600;
+      color: #111;
+    }
+
+    button.secondary {
+      background: #333;
+      color: white;
+      border: 1px solid #555;
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 12px;
+      padding: 13px;
+      border-radius: 10px;
+      border: 1px solid #555;
+      background: #111;
+      color: white;
+      font-size: 16px;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #aaa;
+      margin-top: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div id="statusIcon" class="status-icon">⏳</div>
+    <h1 id="title">Processing...</h1>
+    <p id="message">Please wait.</p>
+
+    <div id="etaBox" class="next-box" style="display:none;">
+      <strong>Confirm ETA to pickup</strong>
+
+      <div class="eta-buttons">
+        <button onclick="submitEta('15 min')">15 min</button>
+        <button onclick="submitEta('30 min')">30 min</button>
+        <button onclick="submitEta('45 min')">45 min</button>
+        <button onclick="submitEta('60 min')">60 min</button>
+      </div>
+
+      <input id="customEta" placeholder="Or type custom ETA, example: 22 min" />
+      <button style="width:100%; margin-top:10px;" onclick="submitCustomEta()">Submit Custom ETA</button>
+    </div>
+
+    <p class="small">Speedpack Express driver test page.</p>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+
+    const job = params.get("job") || "UNKNOWN";
+    const action = (params.get("action") || "").toLowerCase();
+
+    const statusIcon = document.getElementById("statusIcon");
+    const title = document.getElementById("title");
+    const message = document.getElementById("message");
+    const etaBox = document.getElementById("etaBox");
+
+    function saveActionToLocalTest(jobNumber, actionValue, extraData = {}) {
+      const existing = JSON.parse(localStorage.getItem("speedpack_driver_actions") || "[]");
+
+      existing.push({
+        job: jobNumber,
+        action: actionValue,
+        extraData,
+        timestamp: new Date().toISOString()
+      });
+
+      localStorage.setItem("speedpack_driver_actions", JSON.stringify(existing));
+
+      console.log("Saved test action:", existing);
+    }
+
+    if (action === "accept") {
+      statusIcon.textContent = "✅";
+      title.innerHTML = `Job <span class="job-number">${job}</span> accepted`;
+      message.textContent = "Thank you. Please confirm your ETA to pickup.";
+      etaBox.style.display = "block";
+
+      saveActionToLocalTest(job, "accept");
+    } else if (action === "deny") {
+      statusIcon.textContent = "❌";
+      title.innerHTML = `Job <span class="job-number">${job}</span> denied`;
+      message.textContent = "Dispatcher has been notified. No further action is needed.";
+
+      saveActionToLocalTest(job, "deny");
+    } else {
+      statusIcon.textContent = "⚠️";
+      title.textContent = "Invalid job action";
+      message.textContent = "This link is missing an accept or deny action.";
+    }
+
+    function submitEta(etaValue) {
+      saveActionToLocalTest(job, "eta", { eta: etaValue });
+
+      statusIcon.textContent = "🕒";
+      title.innerHTML = `ETA saved for <span class="job-number">${job}</span>`;
+      message.textContent = `Your ETA to pickup is ${etaValue}.`;
+      etaBox.style.display = "none";
+    }
+
+    function submitCustomEta() {
+      const customEta = document.getElementById("customEta").value.trim();
+
+      if (!customEta) {
+        alert("Please type an ETA first.");
+        return;
+      }
+
+      submitEta(customEta);
+    }
+  </script>
+
+</body>
+</html>
