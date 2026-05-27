@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Programming - Speedpack Express</title>
+  <link rel="stylesheet" href="styles.css" />
+
+
+  <!-- Favicons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
+  <link rel="manifest" href="/favicons/site.webmanifest">
+  <link rel="shortcut icon" href="/favicons/favicon.ico">
+
+  <!-- Optional for Android -->
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicons/android-chrome-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicons/android-chrome-512x512.png">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      background: url('website images/airportphoto.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: -1;
+    }
+
+   body > nav {
+  position: relative !important;
+  top: 0 !important;
+  left: auto !important;
+  right: auto !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  z-index: 10;
+}
+
+body > nav .navbar-container {
+  min-height: 120px !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 10px 40px !important;
+}
+
+body > nav .navbar-logo {
+  height: 300px !important;
+  width: auto !important;
+  filter: drop-shadow(0 3px 8px rgba(0,0,0,.45));
+}
+
+body > nav a {
+  color: #fff !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,.55);
+  font-weight: 800;
+}
+
+    body > main,
+    body > nav + *:not(main) {
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+    }
+
+    .programming-main {
+      padding: 40px 20px 60px;
+      box-sizing: border-box;
+      color: white;
+    }
+
+    .programming-title {
+      text-align: center;
+      font-size: 2.5em;
+      font-weight: bold;
+      color: white;
+      margin: 20px 0 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    }
+
+    .programming-subtitle {
+      text-align: center;
+      font-size: 1.1em;
+      margin-bottom: 35px;
+      color: #f1f1f1;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    }
+
+    .programming-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .programming-card {
+      background: rgba(15, 15, 15, 0.82);
+      border: 1px solid rgba(255, 199, 51, 0.45);
+      border-radius: 12px;
+      padding: 22px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+    }
+
+    .programming-card h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #FFC733;
+      font-size: 1.35em;
+    }
+
+    .programming-card p {
+      color: #e8e8e8;
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    .programming-button {
+      display: inline-block;
+      padding: 10px 16px;
+      border-radius: 8px;
+      background: #FFC733;
+      color: #222;
+      font-weight: bold;
+      text-decoration: none;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .programming-button:hover {
+      transform: scale(1.04);
+      background: #ffd766;
+    }
+
+    .back-button {
+  display: inline-block;
+  margin: 0 auto 25px;
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: #0056b3;
+}
+.programming-logout-button {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 10px 15px;
+  background-color: #d11a2a;
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: bold;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.programming-logout-button:hover {
+  background-color: #a91421;
+}
+.back-button-wrap {
+  text-align: center;
+}
+
+    .disabled-button {
+      opacity: 0.55;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body>
+  <nav>
+    <div class="navbar-container">
+      <div class="navbar-logo-container">
+        <img src="website images/SPEEDPACK-EXPRESS-AI-LOGO.png" alt="Speedpack Express Logo" class="navbar-logo" />
+      </div>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li class="dropdown">
+          <a href="contact.html">Contact</a>
+          <ul class="dropdown-content">
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="support.html">Support</a></li>
+          </ul>
+        </li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="login.html">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="programming-main">
+  <div class="back-button-wrap">
+  <a href="speedpack_online.html" class="back-button">Back to Speedpack Online</a>
+  <button onclick="logoutProgramming()" class="programming-logout-button">Logout Programming</button>
+</div>
+
+<h1 class="programming-title">Programming</h1>
+    <p class="programming-subtitle">
+      Manage bot tools, job tracking, automation controls, and internal Speedpack systems.
+    </p>
+
+    <div class="programming-container">
+
+      <div class="programming-card">
+        <h2>Job Tracking</h2>
+        <p>
+          View and manage active jobs, upload activity, failed jobs, and job status tools.
+        </p>
+        <a href="live_upload_activity.html" class="programming-button">Open Job Tracking</a>
+      </div>
+
+      <div class="programming-card">
+        <h2>Bot Controls</h2>
+        <p>
+          Future area for starting, stopping, syncing, and monitoring the Speedpack bot.
+        </p>
+        <a href="#" class="programming-button disabled-button">Coming Soon</a>
+      </div>
+
+      <div class="programming-card">
+        <h2>Driver Sync</h2>
+        <p>
+          Future area for syncing OnTime drivers, checking driver data, and fixing driver issues.
+        </p>
+        <a href="#" class="programming-button disabled-button">Coming Soon</a>
+      </div>
+
+      <div class="programming-card">
+        <h2>System Logs</h2>
+        <p>
+          Future area for viewing bot logs, errors, skipped jobs, and automation history.
+        </p>
+        <a href="#" class="programming-button disabled-button">Coming Soon</a>
+      </div>
+
+    </div>
+  </main>
+<script>
+  
+  const SUPABASE_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRicGN1aW1ieGRxbGtucXZwbWJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NjAxNjIsImV4cCI6MjA3MDQzNjE2Mn0.5O_hoeXuR4tLPMBWwveUTHUCQ9WbJTsiAZr4iwPcdMg";
+
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  async function protectProgrammingPage() {
+    const { data, error } = await supabaseClient.auth.getUser();
+
+    if (error || !data.user) {
+      window.location.href = "programming-login.html";
+      return;
+    }
+  }
+
+  async function logoutProgramming() {
+    await supabaseClient.auth.signOut();
+    window.location.href = "programming-login.html";
+  }
+
+  protectProgrammingPage();
+</script>
+
+
+</body>
+</html>

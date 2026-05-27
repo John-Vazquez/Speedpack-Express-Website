@@ -1498,6 +1498,10 @@ nav.hide-on-scroll {
   const DRIVERS_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/drivers";
   const SYNC_ONTIME_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/sync-ontime-jobs";
   const UPDATE_AWB_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/update-awb";
+  const ONTIME_LOCATIONS_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/ontime-locations";
+  let ONTIME_LOCATION_RESULTS = [];
+  let ALL_ONTIME_LOCATIONS = [];
+  let ONTIME_LOCATION_QUERY_CACHE = {};
   let ONTIME_DRIVERS = [];
 
   const CATEGORIES = ["mia","fll","tenders","deliveries","dispatched","bullshit"];
@@ -1535,6 +1539,8 @@ try {
 
   ONTIME_DRIVERS = result.drivers || [];
 }
+
+
 
   function escapeHtml(str = "") {
     return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;");
@@ -2740,7 +2746,10 @@ function readAddressModal() {
     city: document.getElementById('address-city').value.trim(),
     state: document.getElementById('address-state').value.trim(),
     postal_code: document.getElementById('address-postal').value.trim(),
-    country: document.getElementById('address-country').value.trim() || "USA"
+    country: document.getElementById('address-country').value.trim() || "USA",
+
+    latitude: CURRENT_SELECTED_LOCATION?.latitude || null,
+    longitude: CURRENT_SELECTED_LOCATION?.longitude || null
   };
 }
 
@@ -2750,14 +2759,249 @@ function openAddressModal(job, type) {
   CURRENT_ADDRESS_JOB = job;
 
   const label = type === 'pickup' ? 'Pickup' : 'Delivery';
-  const currentAddress = type === 'pickup' ? job.pickup_address : job.delivery_address;
 
-  document.getElementById('address-modal-title').textContent = `Edit ${label} Address for Job #${job.title || job.id}`;
-  fillAddressModal(currentAddress);
+  document.getElementById('address-modal-title').textContent =
+    `Edit ${label} Address for Job #${job.title || job.id}`;
+
+  document.querySelector('.address-modal').innerHTML = `
+    <div class="address-modal-head">
+      <h3 id="address-modal-title">Edit ${label} Address for Job #${job.title || job.id}</h3>
+      <button type="button" id="address-modal-close" class="address-modal-close">×</button>
+    </div>
+
+    <button type="button" id="choose-existing-address" class="address-modal-save">
+      Choose Existing Address
+    </button>
+
+    <button type="button" id="upload-new-address" class="address-modal-save" style="background:#16a34a;">
+      Upload New Address
+    </button>
+  `;
+
+  document.getElementById('address-modal-close').addEventListener('click', closeAddressModal);
+
+  document.getElementById('choose-existing-address').addEventListener('click', openExistingAddressSearch);
+
+  document.getElementById('upload-new-address').addEventListener('click', () => {
+    alert('We are doing existing addresses first. New address upload comes next.');
+  });
 
   document.getElementById('address-modal-backdrop').classList.add('show');
 }
+function openExistingAddressSearch() {
+  const label = CURRENT_ADDRESS_TYPE === 'pickup' ? 'Pickup' : 'Delivery';
 
+  document.querySelector('.address-modal').innerHTML = `
+    <div class="address-modal-head">
+      <h3>Edit ${label} Address for Job #${CURRENT_ADDRESS_JOB?.title || CURRENT_ADDRESS_JOB_ID}</h3>
+      <button type="button" id="address-modal-close" class="address-modal-close">×</button>
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;">
+  <input id="ontime-location-name-search" type="text" placeholder="Name, ex: American" autocomplete="off">
+  <input id="ontime-location-address-search" type="text" placeholder="Address, ex: Cargo / Airport" autocomplete="off">
+  <input id="ontime-location-city-search" type="text" placeholder="City, ex: Miami" autocomplete="off">
+  <input id="ontime-location-zip-search" type="text" placeholder="Zip, ex: 33166" autocomplete="off">
+</div>
+
+
+
+<div id="ontime-location-results" style="margin-top:14px; max-height:60vh; overflow-y:auto;"></div>
+  `;
+
+  document.querySelector('.address-modal').style.width = "95vw";
+  document.querySelector('.address-modal').style.maxWidth = "1400px";
+
+  document.getElementById('address-modal-close').addEventListener('click', closeAddressModal);
+
+const nameInput = document.getElementById('ontime-location-name-search');
+const addressInput = document.getElementById('ontime-location-address-search');
+const cityInput = document.getElementById('ontime-location-city-search');
+const zipInput = document.getElementById('ontime-location-zip-search');
+const resultsBox = document.getElementById('ontime-location-results');
+
+let searchTimer = null;
+
+function queueLocationSearch() {
+  clearTimeout(searchTimer);
+
+  const filters = {
+    name: nameInput.value.trim(),
+    addressLine1: addressInput.value.trim(),
+    city: cityInput.value.trim(),
+    postalCode: zipInput.value.trim()
+  };
+
+  if (!filters.name && !filters.addressLine1 && !filters.city && !filters.postalCode) {
+    resultsBox.innerHTML = '';
+    ONTIME_LOCATION_RESULTS = [];
+    return;
+  }
+  const longestValue = Object.values(filters).sort((a, b) => b.length - a.length)[0] || "";
+
+if (longestValue.length < 3) {
+  resultsBox.innerHTML = `<div style="padding:10px;">Type at least 3 letters.</div>`;
+  ONTIME_LOCATION_RESULTS = [];
+  return;
+}
+  resultsBox.innerHTML = `<div style="padding:10px;">Searching...</div>`;
+
+  searchTimer = setTimeout(() => {
+    searchOntimeLocations(filters);
+  }, 150);
+}
+
+[nameInput, addressInput, cityInput, zipInput].forEach(input => {
+  input.addEventListener('input', queueLocationSearch);
+});
+}
+
+
+
+async function searchOntimeLocations(filters) {
+  const resultsBox = document.getElementById('ontime-location-results');
+
+  try {
+    const res = await fetch(ONTIME_LOCATIONS_FUNCTION_URL, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        "apikey": SUPABASE_ANON_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        mode: "search",
+        filters
+      })
+    });
+
+    const rawText = await res.text();
+
+    let result = {};
+    try {
+      result = rawText ? JSON.parse(rawText) : {};
+    } catch {
+      resultsBox.innerHTML = `<div style="padding:10px;color:red;">Non-JSON response: ${escapeHtml(rawText)}</div>`;
+      return;
+    }
+
+    if (!res.ok || result.error) {
+      resultsBox.innerHTML = `<div style="padding:10px;color:red;">Search failed: ${escapeHtml(result.error || rawText)}</div>`;
+      return;
+    }
+
+    ONTIME_LOCATION_RESULTS = result.locations || [];
+    console.log("FIRST LOCATION RESULT:", ONTIME_LOCATION_RESULTS[0]);
+
+    if (!ONTIME_LOCATION_RESULTS.length) {
+      resultsBox.innerHTML = `<div style="padding:10px;">No locations found</div>`;
+      return;
+    }
+
+    resultsBox.innerHTML = ONTIME_LOCATION_RESULTS
+      .slice(0, 100)
+      .map((loc, index) => `
+        <div class="ontime-location-row" data-index="${index}" style="
+          display:grid;
+          grid-template-columns: 1.3fr 1.8fr .7fr .5fr .6fr .9fr 90px;
+          gap:8px;
+          align-items:center;
+          padding:9px;
+          border-bottom:1px solid #e5e7eb;
+          font-size:12px;
+          cursor:pointer;
+        ">
+          <div><b>${escapeHtml(loc.name || 'No Name')}</b></div>
+          <div>${escapeHtml(loc.address_line_1 || '')} ${escapeHtml(loc.address_line_2 || '')}</div>
+          <div>${escapeHtml(loc.city || '')}</div>
+          <div>${escapeHtml(loc.state || '')}</div>
+          <div>${escapeHtml(loc.postal_code || '')}</div>
+
+<div style="font-size:11px;color:#334155;line-height:1.25;">
+  ${loc.latitude && loc.longitude
+    ? `
+      <b>Lat:</b> ${escapeHtml(String(loc.latitude))}<br>
+      <b>Lng:</b> ${escapeHtml(String(loc.longitude))}
+    `
+    : `<span style="color:#dc2626;">No coords</span>`
+  }
+</div>
+
+<button type="button" class="address-modal-save" style="margin:0;padding:7px;">Select</button>
+        </div>
+      `).join('');
+
+    document.querySelectorAll('.ontime-location-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const loc = ONTIME_LOCATION_RESULTS[Number(row.dataset.index)];
+        assignExistingOntimeLocation(loc);
+      });
+    });
+
+  } catch (err) {
+    resultsBox.innerHTML = `<div style="padding:10px;color:red;">Search failed: ${escapeHtml(err.message || err)}</div>`;
+  }
+}
+let CURRENT_SELECTED_LOCATION = null;
+async function assignExistingOntimeLocation(location, forceLocalOnly = false) {
+  if (!CURRENT_ADDRESS_JOB_ID || !CURRENT_ADDRESS_TYPE || !location?.id) return;
+  CURRENT_SELECTED_LOCATION = location;
+
+  const confirmPick = confirm(`Use this address?\n\n${location.name || ''}\n${location.address_line_1 || ''}\n${location.city || ''}, ${location.state || ''} ${location.postal_code || ''}`);
+
+  if (!confirmPick) return;
+
+  try {
+    const res = await fetch(ONTIME_LOCATIONS_FUNCTION_URL, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        "apikey": SUPABASE_ANON_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        mode: "assign",
+        jobId: CURRENT_ADDRESS_JOB_ID,
+        addressType: CURRENT_ADDRESS_TYPE,
+        locationId: location.id,
+        location,
+        forceLocalOnly
+      })
+    });
+
+    const rawText = await res.text();
+
+    let result = {};
+    try {
+      result = rawText ? JSON.parse(rawText) : {};
+    } catch {
+      alert(`Address update failed. Non-JSON response: ${rawText}`);
+      return;
+    }
+
+    if (!res.ok || result.error) {
+      if (result.error === "MISSING_ONTIME_ORDER_ID") {
+        const continueLocalOnly = confirm(
+          "This job is not linked to OnTime. Updates on this job will NOT sync with OnTime Management Suite. Continue local only?"
+        );
+
+        if (!continueLocalOnly) return;
+
+        return assignExistingOntimeLocation(location, true);
+      }
+
+      alert(`Address update failed: ${result.error || rawText}`);
+      return;
+    }
+
+    alert(result.message || "Address updated.");
+    closeAddressModal();
+    await loadJobs();
+
+  } catch (err) {
+    alert(`Address update failed: ${err.message || err}`);
+  }
+}
 function closeAddressModal() {
   CURRENT_ADDRESS_JOB_ID = null;
   CURRENT_ADDRESS_TYPE = null;
@@ -3027,14 +3271,22 @@ document.getElementById('address-modal-save').addEventListener('click', async ()
   const textValue = addressToText(address, 'None');
 
   const updatePayload = CURRENT_ADDRESS_TYPE === 'pickup'
-    ? {
-        pickup_address: address,
-        pickup_location: textValue
-      }
-    : {
-        delivery_address: address,
-        delivery_location: textValue
-      };
+  ? {
+      pickup_address: {
+        ...address,
+        latitude: address.latitude || null,
+        longitude: address.longitude || null
+      },
+      pickup_location: textValue
+    }
+  : {
+      delivery_address: {
+        ...address,
+        latitude: address.latitude || null,
+        longitude: address.longitude || null
+      },
+      delivery_location: textValue
+    };
 
   const { error } = await sb
     .from('jobs')
@@ -3221,11 +3473,14 @@ window.addEventListener('scroll', () => {
 
   lastScrollY = window.scrollY;
 });
-  window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener('DOMContentLoaded', async () => {
   await loadOntimeDrivers();
   setupAddJobDriverSearch();
-  loadJobs();
-  sb.channel('jobs-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'jobs' }, loadJobs).subscribe();
+  await loadJobs();
+
+  sb.channel('jobs-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'jobs' }, loadJobs)
+    .subscribe();
 });
 </script>
 </body>
