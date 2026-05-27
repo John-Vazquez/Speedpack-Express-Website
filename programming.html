@@ -94,35 +94,102 @@ body > nav a {
       text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
     }
 
-    .programming-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px;
-    }
+.programming-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+.programming-card {
+  align-self: start;
+}
+.programming-card {
+  background: rgba(15, 15, 15, 0.86);
+  border: 1px solid rgba(255, 199, 51, 0.45);
+  border-radius: 12px;
+  padding: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  align-self: start;
+}
 
-    .programming-card {
-      background: rgba(15, 15, 15, 0.82);
-      border: 1px solid rgba(255, 199, 51, 0.45);
-      border-radius: 12px;
-      padding: 22px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
-    }
+.programming-card-header {
+  width: 100%;
+  min-height: 88px;
+  padding: 16px;
+  background: transparent;
+  border: 0;
+  color: white;
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+}
 
-    .programming-card h2 {
-      margin-top: 0;
-      margin-bottom: 10px;
-      color: #FFC733;
-      font-size: 1.35em;
-    }
+.programming-card-header h2 {
+  margin: 0 0 8px;
+  color: #FFC733;
+  font-size: 1.15em;
+}
 
-    .programming-card p {
-      color: #e8e8e8;
-      line-height: 1.5;
-      margin-bottom: 18px;
-    }
+.expand-hint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #dddddd;
+  font-size: 0.9em;
+  font-weight: bold;
+}
 
+.expand-arrow {
+  font-size: 1.1em;
+  transition: transform 0.2s ease;
+}
+
+.programming-card.open .expand-arrow {
+  transform: rotate(180deg);
+}
+
+.programming-card-body {
+  padding: 0 16px 16px;
+}
+
+.programming-card-body[hidden] {
+  display: none !important;
+}
+
+.programming-card.open .expand-arrow {
+  transform: rotate(180deg);
+}
+
+.programming-card-body p {
+  color: #e8e8e8;
+  line-height: 1.4;
+  margin: 0 0 12px;
+  font-size: 0.95em;
+}
+.programming-stat-box {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 199, 51, 0.35);
+  border-radius: 10px;
+  padding: 12px;
+  margin: 14px 0 18px;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.85em;
+  color: #cccccc;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.25em;
+  color: #FFC733;
+  font-weight: bold;
+}
     .programming-button {
       display: inline-block;
       padding: 10px 16px;
@@ -217,44 +284,144 @@ body > nav a {
 
 <h1 class="programming-title">Programming</h1>
     <p class="programming-subtitle">
-      Manage bot tools, job tracking, automation controls, and internal Speedpack systems.
+      Internal control center for bot updates, OnTime360 syncing, API usage, and Speedpack backend tools.
     </p>
 
     <div class="programming-container">
 
-      <div class="programming-card">
-        <h2>Job Tracking</h2>
-        <p>
-          View and manage active jobs, upload activity, failed jobs, and job status tools.
-        </p>
-        <a href="live_upload_activity.html" class="programming-button">Open Job Tracking</a>
+  <div class="programming-card">
+    <button class="programming-card-header" type="button">
+      <h2>API Requests Left</h2>
+      <span class="expand-hint">
+        Click to collapse
+        <span class="expand-arrow">▼</span>
+      </span>
+    </button>
+
+    <div class="programming-card-body" hidden>
+      <p>
+        View how many OnTime360 API requests are still available. This will eventually update automatically or load when requested.
+      </p>
+
+      <div class="programming-stat-box">
+        <span class="stat-label">Requests Left</span>
+        <span class="stat-value" id="apiRequestsLeft">Not Loaded</span>
       </div>
 
-      <div class="programming-card">
-        <h2>Bot Controls</h2>
-        <p>
-          Future area for starting, stopping, syncing, and monitoring the Speedpack bot.
-        </p>
-        <a href="#" class="programming-button disabled-button">Coming Soon</a>
+      <div class="programming-stat-box">
+        <span class="stat-label">Daily Limit</span>
+        <span class="stat-value" id="apiDailyLimit">Not Loaded</span>
       </div>
 
-      <div class="programming-card">
-        <h2>Driver Sync</h2>
-        <p>
-          Future area for syncing OnTime drivers, checking driver data, and fixing driver issues.
-        </p>
-        <a href="#" class="programming-button disabled-button">Coming Soon</a>
+      <div class="programming-stat-box">
+        <span class="stat-label">Reset Time</span>
+        <span class="stat-value" id="apiResetTime">Not Loaded</span>
       </div>
 
-      <div class="programming-card">
-        <h2>System Logs</h2>
-        <p>
-          Future area for viewing bot logs, errors, skipped jobs, and automation history.
-        </p>
-        <a href="#" class="programming-button disabled-button">Coming Soon</a>
+      <div class="programming-stat-box">
+        <span class="stat-label">Status</span>
+        <span class="stat-value" id="apiUsageStatus">Not Loaded</span>
       </div>
 
+      <button id="loadApiUsageBtn" class="programming-button" type="button">
+        Load API Usage
+      </button>
     </div>
+  </div>
+
+  <div class="programming-card">
+    <button class="programming-card-header" type="button">
+      <h2>Update Bot From GitHub</h2>
+      <span class="expand-hint">
+        Click to expand
+        <span class="expand-arrow">▼</span>
+      </span>
+    </button>
+
+    <div class="programming-card-body" hidden>
+      <p>
+        Future tool for updating the bot after new code is pushed to GitHub. This will eventually run the update commands automatically.
+      </p>
+
+      <div class="programming-stat-box">
+        <span class="stat-label">Update Status</span>
+        <span class="stat-value">Not Connected</span>
+      </div>
+
+      <button class="programming-button disabled-button">Run Bot Update</button>
+    </div>
+  </div>
+
+  <div class="programming-card">
+    <button class="programming-card-header" type="button">
+      <h2>Sync Drivers to Supabase</h2>
+      <span class="expand-hint">
+        Click to expand
+        <span class="expand-arrow">▼</span>
+      </span>
+    </button>
+
+    <div class="programming-card-body" hidden>
+      <p>
+        Future tool for pulling drivers from OnTime360 and saving/updating them in Supabase.
+      </p>
+
+      <div class="programming-stat-box">
+        <span class="stat-label">Last Driver Sync</span>
+        <span class="stat-value">Never</span>
+      </div>
+
+      <button class="programming-button disabled-button">Sync Drivers</button>
+    </div>
+  </div>
+
+  <div class="programming-card">
+    <button class="programming-card-header" type="button">
+      <h2>Sync Locations to Supabase</h2>
+      <span class="expand-hint">
+        Click to expand
+        <span class="expand-arrow">▼</span>
+      </span>
+    </button>
+
+    <div class="programming-card-body" hidden>
+      <p>
+        Future tool for pulling locations from OnTime360 and saving/updating them in Supabase.
+      </p>
+
+      <div class="programming-stat-box">
+        <span class="stat-label">Last Location Sync</span>
+        <span class="stat-value">Never</span>
+      </div>
+
+      <button class="programming-button disabled-button">Sync Locations</button>
+    </div>
+  </div>
+
+  <div class="programming-card">
+    <button class="programming-card-header" type="button">
+      <h2>Pause OnTime360 Bot</h2>
+      <span class="expand-hint">
+        Click to expand
+        <span class="expand-arrow">▼</span>
+      </span>
+    </button>
+
+    <div class="programming-card-body" hidden>
+      <p>
+        Future tool for pausing the OnTime360 bot so it temporarily stops processing jobs.
+      </p>
+
+      <div class="programming-stat-box">
+        <span class="stat-label">Bot Pause Status</span>
+        <span class="stat-value">Not Connected</span>
+      </div>
+
+      <button class="programming-button disabled-button">Pause Bot</button>
+    </div>
+  </div>
+
+</div>
   </main>
 <script>
   
@@ -262,6 +429,101 @@ body > nav a {
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRicGN1aW1ieGRxbGtucXZwbWJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NjAxNjIsImV4cCI6MjA3MDQzNjE2Mn0.5O_hoeXuR4tLPMBWwveUTHUCQ9WbJTsiAZr4iwPcdMg";
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const ONTIME_API_USAGE_FUNCTION_URL =
+  "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/supabase-functions-ontime-api-usage-index-ts";
+
+function formatUnixResetTime(value) {
+  if (!value) return "Unknown";
+
+  const seconds = Number(value);
+  if (!Number.isFinite(seconds)) return value;
+
+  const d = new Date(seconds * 1000);
+
+  return d.toLocaleString();
+}
+
+async function loadApiUsage() {
+  const btn = document.getElementById("loadApiUsageBtn");
+  const leftBox = document.getElementById("apiRequestsLeft");
+  const limitBox = document.getElementById("apiDailyLimit");
+  const resetBox = document.getElementById("apiResetTime");
+  const statusBox = document.getElementById("apiUsageStatus");
+
+  btn.disabled = true;
+  btn.textContent = "Loading...";
+
+  leftBox.textContent = "Checking...";
+  limitBox.textContent = "Checking...";
+  resetBox.textContent = "Checking...";
+  statusBox.textContent = "Checking...";
+
+  try {
+    const res = await fetch(ONTIME_API_USAGE_FUNCTION_URL, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        "apikey": SUPABASE_ANON_KEY,
+      },
+    });
+
+    const rawText = await res.text();
+
+    let result = {};
+    try {
+      result = rawText ? JSON.parse(rawText) : {};
+    } catch {
+      statusBox.textContent = "Non-JSON response";
+      alert(`API usage failed. Non-JSON response:\n\n${rawText}`);
+      return;
+    }
+
+    leftBox.textContent = result.dailyRemaining ?? "Unknown";
+limitBox.textContent = result.dailyLimit ?? "86400";
+resetBox.textContent = formatUnixResetTime(result.dailyReset);
+
+if (String(result.dailyRemaining) === "0") {
+  statusBox.textContent =
+    `Daily limit hit. Retry after ${result.retryAfter || "unknown"} seconds`;
+} else {
+  statusBox.textContent =
+    result.statusLabel || `HTTP ${result.status || "Unknown"}`;
+}
+
+} catch (err) {
+  leftBox.textContent = "Unknown";
+  limitBox.textContent = "86400";
+  resetBox.textContent = "Unknown";
+  statusBox.textContent = "Could not contact usage checker";
+  alert(`Could not contact usage checker: ${err.message || err}`);
+} finally {
+    btn.disabled = false;
+    btn.textContent = "Load API Usage";
+  }
+}
+
+document.getElementById("loadApiUsageBtn")?.addEventListener("click", loadApiUsage);
+
+document.querySelectorAll(".programming-card-header").forEach((header) => {
+  header.addEventListener("click", () => {
+    const card = header.parentElement;
+    const body = header.nextElementSibling;
+    const hint = header.querySelector(".expand-hint");
+
+    const isClosed = body.hasAttribute("hidden");
+
+    if (isClosed) {
+      body.removeAttribute("hidden");
+      card.classList.add("open");
+      hint.firstChild.nodeValue = "Click to collapse ";
+    } else {
+      body.setAttribute("hidden", "");
+      card.classList.remove("open");
+      hint.firstChild.nodeValue = "Click to expand ";
+    }
+  });
+});
 
   async function protectProgrammingPage() {
     const { data, error } = await supabaseClient.auth.getUser();
