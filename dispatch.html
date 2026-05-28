@@ -3572,7 +3572,7 @@ const activeJobs = ALL_JOBS
 
 
  function updateBulkArchiveButton() {
-  const checked = document.querySelectorAll('.job-checkbox:checked').length;
+  const checked = document.querySelectorAll('#active-jobs-list .job-checkbox:checked').length;
   document.getElementById('bulk-archive-btn').disabled = checked === 0;
   document.getElementById('sync-ontime-btn').disabled = checked === 0;
 }
@@ -3583,17 +3583,18 @@ document.addEventListener('change', (e) => {
   }
 
   if (e.target.id === 'select-all-jobs') {
-    document.querySelectorAll('.job-checkbox').forEach(cb => {
-      cb.checked = e.target.checked;
-    });
-    updateBulkArchiveButton();
-  }
+  document.querySelectorAll('#active-jobs-list .job-checkbox').forEach(cb => {
+    cb.checked = e.target.checked;
+  });
+  updateBulkArchiveButton();
+}
 });
 document.getElementById('sync-ontime-btn').addEventListener('click', async () => {
   const btn = document.getElementById('sync-ontime-btn');
 
-  const selectedIds = Array.from(document.querySelectorAll('.job-checkbox:checked'))
-    .map(cb => cb.dataset.id);
+  const selectedIds = Array.from(document.querySelectorAll('#active-jobs-list .job-checkbox:checked'))
+    .map(cb => cb.dataset.id)
+    .filter(Boolean);
 
   if (!selectedIds.length) {
     alert('Select at least one job to sync from OnTime.');
@@ -3601,39 +3602,88 @@ document.getElementById('sync-ontime-btn').addEventListener('click', async () =>
   }
 
   btn.disabled = true;
-  btn.textContent = 'Syncing...';
+
+  const BATCH_SIZE = 10;
+  let totalUpdated = 0;
+  let totalFailures = [];
 
   try {
-    const res = await fetch(SYNC_ONTIME_FUNCTION_URL, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-        "apikey": SUPABASE_ANON_KEY,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        jobIds: selectedIds
-      })
-    });
+    for (let i = 0; i < selectedIds.length; i += BATCH_SIZE) {
+      const batch = selectedIds.slice(i, i + BATCH_SIZE);
+      const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
+      const totalBatches = Math.ceil(selectedIds.length / BATCH_SIZE);
 
-    const rawText = await res.text();
-    console.log("Sync raw response:", rawText);
+      btn.textContent = `Syncing ${batchNumber}/${totalBatches}...`;
 
-    let result = {};
-    try {
-      result = rawText ? JSON.parse(rawText) : {};
-    } catch (e) {
-      alert(`Sync failed. Non-JSON response: ${rawText}`);
-      return;
+      const res = await fetch(SYNC_ONTIME_FUNCTION_URL, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+          "apikey": SUPABASE_ANON_KEY,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          jobIds: batch
+        })
+      });
+
+      const rawText = await res.text();
+      console.log(`Sync batch ${batchNumber} raw response:`, rawText);
+
+      let result = {};
+      try {
+        result = rawText ? JSON.parse(rawText) : {};
+      } catch (e) {
+        totalFailures.push({
+          batch: batchNumber,
+          error: `Non-JSON response: ${rawText}`,
+          jobIds: batch
+        });
+        continue;
+      }
+
+      if (!res.ok || result.error) {
+        console.error("Sync batch error result:", result);
+
+        totalFailures.push({
+          batch: batchNumber,
+          error: result.error || result.message || JSON.stringify(result) || 'Unknown error',
+          jobIds: batch
+        });
+
+        continue;
+      }
+
+      totalUpdated += Number(result.updated || 0);
+
+if (i === 0 && selectedIds.length > BATCH_SIZE) {
+  alert(
+    `The first ${batch.length} jobs are synced. The rest will continue to sync. Please wait.`
+  );
+}
+
+if (Array.isArray(result.failures) && result.failures.length) {
+        totalFailures = totalFailures.concat(
+          result.failures.map(failure => ({
+            batch: batchNumber,
+            ...failure
+          }))
+        );
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 250));
     }
 
-    if (!res.ok || result.error) {
-      console.error("Sync error result:", result);
-      alert(`Sync failed: ${result.error || result.message || JSON.stringify(result) || 'Unknown error'}`);
-      return;
+    console.log("All sync failures:", totalFailures);
+
+    if (totalFailures.length) {
+      alert(
+        `Sync finished with some skipped/errors.\n\nUpdated: ${totalUpdated}\nIssues: ${totalFailures.length}\n\nCheck console for details.`
+      );
+    } else {
+      alert(`Sync complete. Updated ${totalUpdated} jobs.`);
     }
 
-    alert(`Sync complete. Updated ${result.updated || 0} jobs.`);
     await loadJobs();
 
   } catch (err) {
@@ -3643,8 +3693,13 @@ document.getElementById('sync-ontime-btn').addEventListener('click', async () =>
     btn.textContent = 'Sync From OnTime';
   }
 });
+
+
+
+
+
 document.getElementById('bulk-archive-btn').addEventListener('click', async () => {
-  const selectedIds = Array.from(document.querySelectorAll('.job-checkbox:checked'))
+  const selectedIds = Array.from(document.querySelectorAll('#active-jobs-list .job-checkbox:checked'))
     .map(cb => cb.dataset.id);
 
   if (!selectedIds.length) return;
