@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Printing Center - Speedpack Express</title>
+  <link rel="stylesheet" href="styles.css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <style>
+    body {
+      background: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+    }
+
+    .printing-main {
+      padding: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .printing-title {
+      text-align: center;
+      font-size: 34px;
+      margin-bottom: 25px;
+    }
+
+    .panel {
+      background: #1f1f1f;
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 20px;
+      border: 1px solid #333;
+    }
+
+    .drop-zone {
+      border: 2px dashed #777;
+      border-radius: 12px;
+      padding: 35px;
+      text-align: center;
+      cursor: pointer;
+      background: #181818;
+    }
+
+    .drop-zone:hover {
+      border-color: #ffd000;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    button {
+      background: #ffd000;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 220px;
+      background: #0d0d0d;
+      color: white;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 12px;
+      box-sizing: border-box;
+    }
+
+    #printPreview {
+      background: white;
+      color: black;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 8px;
+    }
+
+    .print-sheet {
+  font-family: Arial, sans-serif;
+  color: #000;
+  width: 100%;
+  font-size: 16px;
+}
+
+.big-id-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.big-id-box {
+  border: 3px solid #000;
+  padding: 10px;
+  text-align: center;
+}
+
+.big-id-label {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.big-id-value {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.time-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.time-box {
+  border: 2px solid #000;
+  padding: 8px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.print-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.box {
+  border: 2px solid #000;
+  padding: 8px;
+  min-height: 120px;
+  font-size: 16px;
+  line-height: 1.25;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.box h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  border-bottom: 2px solid #000;
+  padding-bottom: 4px;
+}
+
+.wide-box {
+  border: 2px solid #000;
+  padding: 7px;
+  margin-top: 8px;
+  font-size: 15px;
+  line-height: 1.25;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+pre {
+  white-space: pre-wrap;
+  font-family: Arial, sans-serif;
+  margin: 0;
+}
+
+    .print-header {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 2px solid #000;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+
+    .print-title-main {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .print-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .box {
+      border: 1px solid #000;
+      padding: 8px;
+      min-height: 80px;
+    }
+
+    .box h3 {
+      margin: 0 0 6px;
+      font-size: 14px;
+      border-bottom: 1px solid #000;
+      padding-bottom: 3px;
+    }
+
+    .field {
+      margin-bottom: 5px;
+    }
+
+    .label {
+      font-weight: bold;
+    }
+
+    .wide-box {
+      border: 1px solid #000;
+      padding: 8px;
+      margin-top: 10px;
+    }
+
+    .bottom-dispatch {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+      font-size: 12px;
+    }
+
+    .line {
+      border-bottom: 1px solid #000;
+      display: inline-block;
+      min-width: 190px;
+      height: 14px;
+    }
+    .print-sheet,
+.print-sheet * {
+  box-sizing: border-box;
+}
+
+.print-sheet {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.print-sheet pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.print-sheet .box {
+  border: 2px solid #000;
+  padding: 8px;
+  min-height: 120px;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.print-sheet .wide-box {
+  border: 2px solid #000;
+  padding: 7px;
+  margin-top: 8px;
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.print-sheet .box h3 {
+  font-size: 17px;
+  margin: 0 0 6px;
+  border-bottom: 2px solid #000;
+}
+
+
+
+
+.front-print-page,
+.back-print-page,
+.front-print-page *,
+.back-print-page * {
+  box-sizing: border-box;
+}
+
+.front-print-page,
+.back-print-page {
+  background: white;
+  color: black;
+  font-family: Arial, sans-serif;
+}
+
+.top-id-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.top-id-box {
+  border: 2px solid #000;
+  padding: 6px;
+  text-align: center;
+}
+
+.top-id-label {
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.top-id-value {
+  font-size: 23px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.time-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.time-box {
+  border: 2px solid #000;
+  padding: 6px;
+  font-size: 13px;
+  line-height: 1.15;
+}
+
+.front-grid,
+.back-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+
+.parsed-box {
+  border: 2px solid #000;
+  padding: 6px;
+  font-size: 11.5px;
+  line-height: 1.12;
+  overflow: hidden;
+}
+
+.parsed-box h3 {
+  margin: 0 0 4px;
+  font-size: 12px;
+  border-bottom: 1px solid #000;
+  padding-bottom: 2px;
+}
+
+.parsed-box pre {
+  white-space: pre-wrap;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.important-box {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.small-info-row {
+  border: 2px solid #000;
+  margin-top: 8px;
+  padding: 5px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+  font-size: 10.5px;
+  line-height: 1.1;
+}
+
+
+
+    @media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  #printPreview,
+  #printPreview * {
+    visibility: visible !important;
+  }
+
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  #printPreview {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    border-radius: 0 !important;
+  }
+
+  .front-print-page {
+    width: 8.5in;
+    height: 11in;
+    margin: 0;
+    padding: 0;
+    page-break-after: always;
+    break-after: page;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .front-safe-area {
+    position: absolute;
+    left: 0.35in;
+    right: 0.35in;
+
+    /* top blank space */
+    top: 0.60in;
+
+    /* THIS FORCES THE BOTTOM 20-25% TO STAY BLANK */
+    height: 7.85in;
+
+    overflow: hidden;
+  }
+
+  .front-bottom-blank {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2.25in;
+    background: white;
+  }
+
+  .back-print-page {
+    width: 8.5in;
+    min-height: 11in;
+    margin: 0;
+    padding: 0.35in;
+    page-break-before: always;
+    break-before: page;
+    background: white;
+  }
+
+  .parsed-box,
+  .time-box,
+  .top-id-box,
+  .small-info-row {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  button {
+    display: none !important;
+  }
+
+  @page {
+    size: letter portrait;
+    margin: 0;
+  }
+}
+  </style>
+</head>
+
+<body>
+  <main class="printing-main">
+    <h1 class="printing-title">Speedpack Printing Center</h1>
+
+    <div class="panel">
+      <h2>Airspace PDF Formatter</h2>
+      <p>Save the Airspace email as PDF, then drag it here.</p>
+
+      <label class="drop-zone" id="dropZone" for="pdfInput">
+        Drop Airspace PDF Here or Click to Upload
+      </label>
+
+      <input id="pdfInput" type="file" accept="application/pdf" />
+
+  
+      <button onclick="printCleanSheet()">Print Clean Sheet</button>
+    </div>
+
+    <div class="panel">
+      <h2>Extracted PDF Text</h2>
+      <textarea id="rawText" placeholder="PDF text will appear here..."></textarea>
+    </div>
+
+    <div id="printPreview"></div>
+  </main>
+
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+    const pdfInput = document.getElementById("pdfInput");
+    const dropZone = document.getElementById("dropZone");
+    const rawTextBox = document.getElementById("rawText");
+
+      function showUploadStatus(message) {
+      dropZone.textContent = message;
+    }
+
+    function isPdfFile(file) {
+      return file && (
+        file.type === "application/pdf" ||
+        file.name.toLowerCase().endsWith(".pdf")
+      );
+    }
+
+    async function handlePdfFile(file) {
+      if (!file) {
+        showUploadStatus("No file selected.");
+        return;
+      }
+
+      if (!isPdfFile(file)) {
+        showUploadStatus("That is not a PDF. Please upload a PDF file.");
+        return;
+      }
+
+      try {
+        showUploadStatus("Reading PDF...");
+        await extractPdfText(file);
+        showUploadStatus("PDF loaded. Drop another PDF here or click to upload.");
+      } catch (err) {
+        console.error("PDF upload/read failed:", err);
+        showUploadStatus("Could not read this PDF. Try saving it again as PDF, then upload it.");
+        alert("PDF failed to load. Open the browser console for details.");
+      }
+    }
+
+    dropZone.addEventListener("click", () => {
+      pdfInput.click();
+    });
+
+    pdfInput.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      await handlePdfFile(file);
+
+      // Allows uploading the same file again if needed
+      pdfInput.value = "";
+    });
+
+    ["dragenter", "dragover"].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.style.borderColor = "#ffd000";
+        dropZone.style.background = "#222";
+      });
+    });
+
+    ["dragleave", "drop"].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.style.borderColor = "#777";
+        dropZone.style.background = "#181818";
+      });
+    });
+
+    dropZone.addEventListener("drop", async (e) => {
+      const file = e.dataTransfer.files && e.dataTransfer.files[0];
+      await handlePdfFile(file);
+    });
+
+    // Prevent browser from opening the PDF if they drop it outside the box
+    window.addEventListener("dragover", (e) => {
+      e.preventDefault();
+    });
+
+    window.addEventListener("drop", (e) => {
+      e.preventDefault();
+    });
+
+    async function extractPdfText(file) {
+  rawTextBox.value = "";
+  document.getElementById("printPreview").innerHTML = `
+    <div style="padding:20px; background:white; color:black; font-size:24px; font-weight:bold;">
+      Reading PDF... please wait.
+    </div>
+  `;
+
+  const arrayBuffer = await file.arrayBuffer();
+
+  const pdf = await pdfjsLib.getDocument({
+    data: arrayBuffer
+  }).promise;
+
+  let fullText = "";
+
+  // First try normal PDF text extraction
+  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+    document.getElementById("printPreview").innerHTML = `
+      <div style="padding:20px; background:white; color:black; font-size:24px; font-weight:bold;">
+        Reading PDF page ${pageNum} of ${pdf.numPages}...
+      </div>
+    `;
+
+    const page = await pdf.getPage(pageNum);
+    const content = await page.getTextContent();
+
+    const strings = content.items
+      .map(item => item.str)
+      .filter(Boolean);
+
+    fullText += strings.join("\n") + "\n\n";
+  }
+
+  rawTextBox.value = fullText.trim();
+
+  // If normal text extraction worked, format immediately
+  if (rawTextBox.value) {
+    formatAirspace();
+    return;
+  }
+
+  // If no text was found, use OCR fallback
+  document.getElementById("printPreview").innerHTML = `
+    <div style="padding:20px; background:white; color:black; font-size:24px; font-weight:bold;">
+      PDF has no readable text. Running OCR... this may take a little while.
+    </div>
+  `;
+
+  let ocrText = "";
+
+  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+    document.getElementById("printPreview").innerHTML = `
+      <div style="padding:20px; background:white; color:black; font-size:24px; font-weight:bold;">
+        OCR reading page ${pageNum} of ${pdf.numPages}...
+      </div>
+    `;
+
+    const page = await pdf.getPage(pageNum);
+    const viewport = page.getViewport({ scale: 2.5 });
+
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+
+    await page.render({
+      canvasContext: context,
+      viewport: viewport
+    }).promise;
+
+    const result = await Tesseract.recognize(canvas, "eng", {
+      logger: progress => {
+        if (progress.status === "recognizing text") {
+          const percent = Math.round(progress.progress * 100);
+          document.getElementById("printPreview").innerHTML = `
+            <div style="padding:20px; background:white; color:black; font-size:24px; font-weight:bold;">
+              OCR reading page ${pageNum} of ${pdf.numPages}... ${percent}%
+            </div>
+          `;
+        }
+      }
+    });
+
+    ocrText += result.data.text + "\n\n";
+  }
+
+  rawTextBox.value = ocrText.trim();
+
+  if (!rawTextBox.value) {
+    document.getElementById("printPreview").innerHTML = `
+      <div style="padding:20px; background:white; color:black; font-size:22px; font-weight:bold;">
+        OCR could not read this PDF.
+      </div>
+    `;
+    return;
+  }
+
+  formatAirspace();
+}
+
+    function findValue(text, patterns) {
+      for (const pattern of patterns) {
+        const match = text.match(pattern);
+        if (match && match[1]) return match[1].trim();
+      }
+      return "";
+    }
+
+    function getBlock(text, startWords, endWords) {
+      const startRegex = new RegExp(startWords.join("|"), "i");
+      const startMatch = text.search(startRegex);
+      if (startMatch === -1) return "";
+
+      const afterStart = text.slice(startMatch);
+
+      let endIndex = -1;
+      for (const word of endWords) {
+        const idx = afterStart.slice(20).search(new RegExp(word, "i"));
+        if (idx !== -1 && (endIndex === -1 || idx < endIndex)) {
+          endIndex = idx + 20;
+        }
+      }
+
+      return endIndex === -1 ? afterStart.trim() : afterStart.slice(0, endIndex).trim();
+    }
+
+    function normalizeAirspaceText(text) {
+  return text
+    .replace(/\r/g, "")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/ATTACHMENTS\s*\(\d+\)[\s\S]*?(?=Order details|ORDER REFERENCES|PICKUP ADDRESS|FLIGHT INFO|$)/gi, "")
+    .replace(/Please click the link\(s\)[\s\S]*?(?=Order details|ORDER REFERENCES|PICKUP ADDRESS|FLIGHT INFO|$)/gi, "")
+    .replace(/[A-Z0-9_-]+\.pdf/gi, "")
+    .replace(/Kind regards,?/gi, "")
+    .replace(/Download this Driver App[\s\S]*?(?=Call us|ORDER REFERENCES|PICKUP ADDRESS|$)/gi, "")
+    .replace(/Call us 24-7[\s\S]*?(?=Airspace <|ORDER REFERENCES|PICKUP ADDRESS|$)/gi, "")
+    .replace(/Have the App already\?[\s\S]*?(?=Call us|ORDER REFERENCES|PICKUP ADDRESS|$)/gi, "")
+    .replace(/BEGIN JOB/gi, "")
+    .replace(/On .* wrote:[\s\S]*/gi, "")
+    .trim();
+}
+
+function getLastValue(text, patterns) {
+  let finalValue = "";
+
+  for (const pattern of patterns) {
+    const matches = [...text.matchAll(pattern)];
+    if (matches.length) {
+      const last = matches[matches.length - 1];
+      if (last && last[1]) finalValue = last[1].trim();
+    }
+  }
+
+  return finalValue;
+}
+
+function getSection(text, heading, stopHeadings) {
+  const headingPattern = new RegExp(
+    heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*:?\\s*",
+    "gi"
+  );
+
+  const matches = [...text.matchAll(headingPattern)];
+  if (!matches.length) return "";
+
+  // Use the last matching section because Gmail thread PDFs often contain old updates first
+  const match = matches[matches.length - 1];
+  const start = match.index + match[0].length;
+  const after = text.slice(start);
+
+  let end = after.length;
+
+  for (const stop of stopHeadings) {
+    const stopPattern = new RegExp(
+      "\\n\\s*" + stop.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*:?\\s*",
+      "i"
+    );
+
+    const stopMatch = after.search(stopPattern);
+    if (stopMatch !== -1 && stopMatch < end) {
+      end = stopMatch;
+    }
+  }
+
+  return after.slice(0, end).trim();
+}
+
+function cleanupSection(value) {
+  if (!value) return "";
+
+  return value
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => {
+      if (!line) return false;
+
+      const lower = line.toLowerCase();
+
+      if (lower.includes("attachments")) return false;
+      if (lower.includes("please click")) return false;
+      if (lower.includes(".pdf")) return false;
+      if (lower.includes("kind regards")) return false;
+      if (lower.includes("download this driver app")) return false;
+      if (lower.includes("google play")) return false;
+      if (lower.includes("app store")) return false;
+      if (lower.includes("begin job")) return false;
+      if (lower.includes("airspace.com")) return false;
+      if (lower.includes("quoted text hidden")) return false;
+      if (lower.includes("quoted costs")) return false;
+
+      return true;
+    })
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function normalizeAirspaceText(text) {
+  return text
+    .replace(/\r/g, "")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/ATTACHMENTS\s*\(\d+\)[\s\S]*?(?=Order details|ORDER REFERENCES|PICKUP ADDRESS|FLIGHT INFO|$)/gi, "")
+    .replace(/Please click the link\(s\)[\s\S]*?(?=Order details|ORDER REFERENCES|PICKUP ADDRESS|FLIGHT INFO|$)/gi, "")
+    .replace(/[A-Z0-9_-]+\.pdf/gi, "")
+    .replace(/Kind regards,?/gi, "")
+    .replace(/Download this Driver App[\s\S]*?(?=Call us|ORDER REFERENCES|PICKUP ADDRESS|$)/gi, "")
+    .replace(/Call us 24-7[\s\S]*?(?=Airspace <|ORDER REFERENCES|PICKUP ADDRESS|$)/gi, "")
+    .replace(/Have the App already\?[\s\S]*?(?=Call us|ORDER REFERENCES|PICKUP ADDRESS|$)/gi, "")
+    .replace(/BEGIN JOB/gi, "")
+    .replace(/On .* wrote:[\s\S]*/gi, "")
+    .trim();
+}
+
+function getLastValue(text, patterns) {
+  let finalValue = "";
+
+  for (const pattern of patterns) {
+    const matches = [...text.matchAll(pattern)];
+    if (matches.length) {
+      const last = matches[matches.length - 1];
+      if (last && last[1]) finalValue = last[1].trim();
+    }
+  }
+
+  return finalValue;
+}
+
+function getSection(text, heading, stopHeadings) {
+  const headingPattern = new RegExp(
+    heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*:?\\s*",
+    "gi"
+  );
+
+  const matches = [...text.matchAll(headingPattern)];
+  if (!matches.length) return "";
+
+  // Use the last matching section because Gmail thread PDFs often contain old updates first
+  const match = matches[matches.length - 1];
+  const start = match.index + match[0].length;
+  const after = text.slice(start);
+
+  let end = after.length;
+
+  for (const stop of stopHeadings) {
+    const stopPattern = new RegExp(
+      "\\n\\s*" + stop.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*:?\\s*",
+      "i"
+    );
+
+    const stopMatch = after.search(stopPattern);
+    if (stopMatch !== -1 && stopMatch < end) {
+      end = stopMatch;
+    }
+  }
+
+  return after.slice(0, end).trim();
+}
+
+function cleanupSection(value) {
+  if (!value) return "";
+
+  return value
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => {
+      if (!line) return false;
+
+      const lower = line.toLowerCase();
+
+      if (lower.includes("attachments")) return false;
+      if (lower.includes("please click")) return false;
+      if (lower.includes(".pdf")) return false;
+      if (lower.includes("kind regards")) return false;
+      if (lower.includes("download this driver app")) return false;
+      if (lower.includes("google play")) return false;
+      if (lower.includes("app store")) return false;
+      if (lower.includes("begin job")) return false;
+      if (lower.includes("airspace.com")) return false;
+      if (lower.includes("quoted text hidden")) return false;
+      if (lower.includes("quoted costs")) return false;
+
+      return true;
+    })
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function parseAirspace(text) {
+  const cleaned = normalizeAirspaceText(text);
+
+  const stopHeadings = [
+    "PICKUP TIME",
+    "DELIVER BY",
+    "DELIVERY INSTRUCTIONS",
+    "AIR WAYBILLS",
+    "Order details",
+    "ORDER REFERENCES",
+    "ORDER REQUIREMENTS",
+    "PICKUP ADDRESS",
+    "DELIVERY ADDRESS",
+    "DELIVERY CONTACT",
+    "FLIGHT INFO",
+    "AIRLINE ACCOUNT NUMBER",
+    "VEHICLE TYPE",
+    "DANGEROUS GOODS",
+    "TOTAL PIECES",
+    "TOTAL WEIGHT",
+    "Commodity",
+    "ID"
+  ];
+
+  const trackingId = getLastValue(cleaned, [
+    /Tracking ID[:\s]*([A-Z0-9.-]+)/gi
+  ]);
+
+  const orderNumber = getLastValue(cleaned, [
+    /Order #[:\s]*([A-Z0-9-]+)/gi,
+    /Order Number[:\s]*([A-Z0-9-]+)/gi
+  ]);
+
+  const pickupTime = cleanupSection(getSection(cleaned, "PICKUP TIME", stopHeadings));
+  const deliverBy = cleanupSection(getSection(cleaned, "DELIVER BY", stopHeadings));
+  const deliveryInstructions = cleanupSection(getSection(cleaned, "DELIVERY INSTRUCTIONS", stopHeadings));
+  const airWaybills = cleanupSection(getSection(cleaned, "AIR WAYBILLS", stopHeadings));
+  const orderReferences = cleanupSection(getSection(cleaned, "ORDER REFERENCES", stopHeadings));
+  const orderRequirements = cleanupSection(getSection(cleaned, "ORDER REQUIREMENTS", stopHeadings));
+  const pickupAddress = cleanupSection(getSection(cleaned, "PICKUP ADDRESS", stopHeadings));
+  const deliveryAddress = cleanupSection(getSection(cleaned, "DELIVERY ADDRESS", stopHeadings));
+  const deliveryContact = cleanupSection(getSection(cleaned, "DELIVERY CONTACT", stopHeadings));
+  const flightInfo = cleanupSection(getSection(cleaned, "FLIGHT INFO", stopHeadings));
+  const airlineAccount = cleanupSection(getSection(cleaned, "AIRLINE ACCOUNT NUMBER", stopHeadings));
+  const vehicleType = cleanupSection(getSection(cleaned, "VEHICLE TYPE", stopHeadings));
+  const dangerousGoods = cleanupSection(getSection(cleaned, "DANGEROUS GOODS", stopHeadings));
+  const totalPieces = cleanupSection(getSection(cleaned, "TOTAL PIECES", stopHeadings));
+  const totalWeight = cleanupSection(getSection(cleaned, "TOTAL WEIGHT", stopHeadings));
+
+  const crNumber = getLastValue(cleaned, [
+    /CR#[:\s]*([A-Z0-9-]+)/gi,
+    /CR #[:\s]*([A-Z0-9-]+)/gi
+  ]);
+
+  return {
+    trackingId,
+    orderNumber,
+    pickupTime,
+    deliverBy,
+    deliveryInstructions,
+    airWaybills,
+    orderReferences,
+    orderRequirements,
+    pickupAddress,
+    deliveryAddress,
+    deliveryContact,
+    flightInfo,
+    airlineAccount,
+    vehicleType,
+    dangerousGoods,
+    totalPieces,
+    totalWeight,
+    crNumber
+  };
+}
+
+
+
+
+
+
+
+
+    function cleanText(value) {
+      if (!value) return "N/A";
+      return value
+        .replace(/\n{3,}/g, "\n\n")
+        .replace(/^\s+|\s+$/g, "")
+        .replace(/(PICKUP ADDRESS|DELIVERY ADDRESS)/gi, "")
+        .trim();
+    }
+function resetPrintingCenter() {
+  rawTextBox.value = "";
+  pdfInput.value = "";
+
+  document.getElementById("printPreview").innerHTML = "";
+
+  dropZone.textContent = "Drop Airspace PDF Here or Click to Upload";
+  dropZone.style.borderColor = "#777";
+  dropZone.style.background = "#181818";
+}
+
+function printCleanSheet() {
+  window.print();
+
+  // Give Chrome time to open/send the print job before clearing the page
+  setTimeout(() => {
+    resetPrintingCenter();
+  }, 1500);
+}
+  function printBox(title, content, extraClass = "") {
+  const clean = cleanText(content);
+  if (!clean || clean === "N/A") return "";
+
+  return `
+    <div class="parsed-box ${extraClass}">
+      <h3>${title}</h3>
+      <pre>${clean}</pre>
+    </div>
+  `;
+}
+
+function formatAirspace() {
+  const text = rawTextBox.value.trim();
+
+  if (!text) {
+    document.getElementById("printPreview").innerHTML = `
+      <div style="padding:20px; background:white; color:black; font-size:22px; font-weight:bold;">
+        Waiting for PDF text...
+      </div>
+    `;
+    return;
+  }
+
+  const data = parseAirspace(text);
+
+  document.getElementById("printPreview").innerHTML = `
+    <div class="front-print-page">
+      <div class="front-safe-area">
+
+        <div class="top-id-row">
+          <div class="top-id-box">
+            <div class="top-id-label">TRACKING ID</div>
+            <div class="top-id-value">${cleanText(data.trackingId)}</div>
+          </div>
+
+          <div class="top-id-box">
+            <div class="top-id-label">ORDER #</div>
+            <div class="top-id-value">${cleanText(data.orderNumber)}</div>
+          </div>
+        </div>
+
+        <div class="time-row">
+          <div class="time-box">
+            <strong>PICKUP TIME</strong><br>
+            ${cleanText(data.pickupTime)}
+          </div>
+
+          <div class="time-box">
+            <strong>DELIVER BY</strong><br>
+            ${cleanText(data.deliverBy)}
+          </div>
+        </div>
+
+        <div class="front-grid">
+          ${printBox("PICKUP ADDRESS", data.pickupAddress)}
+          ${printBox("DELIVERY ADDRESS", data.deliveryAddress)}
+          ${printBox("DELIVERY CONTACT", data.deliveryContact)}
+          ${printBox("AIR WAYBILLS", data.airWaybills)}
+          ${printBox("ORDER REFERENCES", data.orderReferences)}
+          ${printBox("ORDER REQUIREMENTS", data.orderRequirements)}
+        </div>
+
+        <div class="small-info-row">
+          <div><strong>CR#:</strong> ${cleanText(data.crNumber)}</div>
+          <div><strong>Vehicle:</strong> ${cleanText(data.vehicleType)}</div>
+          <div><strong>DG:</strong> ${cleanText(data.dangerousGoods)}</div>
+          <div><strong>Pieces:</strong> ${cleanText(data.totalPieces)}</div>
+          <div><strong>Weight:</strong> ${cleanText(data.totalWeight)}</div>
+        </div>
+
+      </div>
+
+      <div class="front-bottom-blank"></div>
+    </div>
+
+    <div class="back-print-page">
+      <div class="back-grid">
+        ${printBox("DELIVERY INSTRUCTIONS", data.deliveryInstructions, "important-box")}
+        ${printBox("FLIGHT INFO", data.flightInfo)}
+        ${printBox("AIRLINE ACCOUNT NUMBER", data.airlineAccount)}
+        ${printBox("FULL PICKUP ADDRESS", data.pickupAddress)}
+        ${printBox("FULL DELIVERY ADDRESS", data.deliveryAddress)}
+        ${printBox("FULL ORDER REFERENCES", data.orderReferences)}
+      </div>
+    </div>
+  `;
+}
+
+
+  </script>
+</body>
+</html>

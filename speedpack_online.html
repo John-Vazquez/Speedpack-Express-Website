@@ -94,6 +94,11 @@
     .dashboard-box:nth-child(2) { background: #33A1FF; }
     .dashboard-box:nth-child(3) { background: #33FF57; }
     .dashboard-box:nth-child(4) { background: #FFC733; color: #333; }
+    .dashboard-box.printing-box {
+  background: linear-gradient(135deg, #8E2DE2, #4A00E0);
+  color: white;
+  border: 2px solid rgba(255,255,255,0.2);
+}
 
     .dashboard-box:hover {
       transform: scale(1.05);
@@ -127,11 +132,12 @@
     <h1 class="dashboard-title">Welcome to Speedpack Express Online</h1>
 
     <div class="dashboard-container">
-      <a href="live_upload_activity.html" class="dashboard-box">Live Upload Activity</a>
-      <a href="programming-login.html" class="dashboard-box">Programming</a>
-      <a href="tickets.html" class="dashboard-box">Submit A Ticket</a>
-      <a href="dispatch.html" class="dashboard-box">Dispatch Virtual Table</a>
-    </div>
+  <a href="live_upload_activity.html" class="dashboard-box">Live Upload Activity</a>
+  <a href="programming-login.html" class="dashboard-box">Programming</a>
+  <a href="tickets.html" class="dashboard-box">Submit A Ticket</a>
+  <a href="dispatch.html" class="dashboard-box">Dispatch Virtual Table</a>
+  <a href="printing.html" class="dashboard-box printing-box">Printing Center</a>
+</div>
   </main>
 </body>
 </html>
