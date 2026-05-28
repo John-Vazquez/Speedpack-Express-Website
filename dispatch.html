@@ -564,6 +564,10 @@ nav.hide-on-scroll {
   transform: translateX(-50%);
   z-index: 5;
   pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 
 .status-button-under-bar .confirm-btn {
@@ -572,7 +576,66 @@ nav.hide-on-scroll {
   pointer-events: auto;
 }
 
-    .timeline { position: relative; height: 36px; }
+.status-mini-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.status-mini-step {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 8px;
+  font-weight: 900;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.status-mini-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: 1px solid #9ca3af;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.status-mini-dot.done {
+  background: #16a34a;
+  border-color: #16a34a;
+}
+
+.status-mini-dot.current {
+  background: #facc15;
+  border-color: #facc15;
+}
+
+.job-complete-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #dcfce7;
+  border: 1px solid #16a34a;
+  color: #15803d;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.status-button-under-bar .confirm-btn {
+  margin: 0;
+  transform: scale(0.82);
+  pointer-events: auto;
+}
+
+    .timeline {
+  position: relative;
+  height: 72px;
+}
     .timeline::before {
       content:''; position:absolute; left:0; right:0; top:16px; height:6px;
       background:#d1d5db; border-radius:999px;
@@ -1971,6 +2034,52 @@ function getStatusSteps(job) {
   ];
 }
 
+function getShortStatusLabel(label) {
+  const map = {
+    'Arrived at pickup location': 'Arrived PU',
+    'Depart from pickup location': 'Depart PU',
+    'Arrive at cargo facility': 'Arrive Cargo',
+    'Confirm tender to airline': 'Tendered',
+    'Depart cargo facility': 'Depart Cargo',
+    'Arrive at destination': 'Arrive Dest',
+    'Confirm final delivery': 'Delivered'
+  };
+
+  return map[label] || label;
+}
+
+function renderMiniStatusSteps(job) {
+  const progress = getJobProgress(job.id);
+  const steps = getStatusSteps(job);
+  const statusSteps = progress.statusSteps || [];
+
+  const completedCount = statusSteps.filter(step => step?.confirmed).length;
+
+  if (completedCount >= steps.length) {
+    return `<div class="job-complete-badge">Job Complete</div>`;
+  }
+
+  return `
+    <div class="status-mini-steps">
+      ${steps.map((label, index) => {
+        const isDone = statusSteps[index]?.confirmed;
+        const isCurrent = index === completedCount && !isDone;
+
+        let dotClass = '';
+        if (isDone) dotClass = 'done';
+        else if (isCurrent) dotClass = 'current';
+
+        return `
+          <div class="status-mini-step">
+            <span class="status-mini-dot ${dotClass}"></span>
+            <span>${escapeHtml(getShortStatusLabel(label))}</span>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
 function openStatusModal(job) {
   CURRENT_STATUS_JOB = job;
 
@@ -2171,6 +2280,7 @@ function getProgressPercent(job) {
 
 <div class="status-button-under-bar">
   <button type="button" class="confirm-btn"></button>
+  ${renderMiniStatusSteps(job)}
 </div>
 </div>
 
