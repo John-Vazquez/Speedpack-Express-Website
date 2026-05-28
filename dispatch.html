@@ -482,6 +482,10 @@ nav.hide-on-scroll {
   align-items:start;
   min-width: 0;
 }
+
+.place-stack {
+  min-width: 0;
+}
     .place { font-size:12px; line-height:1.35; color:#111827; }
     .place b { display:block; text-transform:uppercase; font-size:12px; }
 
@@ -507,12 +511,15 @@ nav.hide-on-scroll {
 }
 .awb-box {
   margin-top: 6px;
-  padding: 4px 5px;
+  padding: 6px;
   border-radius: 3px;
   cursor: pointer;
   background: #f8fafc;
   border: 1px solid #e5e7eb;
   font-size: 12px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
 }
 
 .awb-box:hover {
@@ -522,19 +529,24 @@ nav.hide-on-scroll {
 
 .awb-inline-box {
   display: flex;
-  gap: 4px;
-  align-items: center;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .awb-inline-input {
-  width: 115px;
-  padding: 5px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px;
   font-size: 11px;
   border: 1px solid #cbd5e1;
 }
 
 .awb-inline-save {
-  padding: 5px 7px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 8px;
   font-size: 11px;
   font-weight: 900;
   border: 0;
@@ -929,7 +941,103 @@ nav.hide-on-scroll {
   padding: 11px;
   cursor: pointer;
 }
+.messages-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 10002;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
 
+.messages-modal-backdrop.show {
+  display: flex;
+}
+
+.messages-modal {
+  width: 650px;
+  max-width: 92vw;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.35);
+  padding: 22px;
+}
+
+.messages-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.messages-modal-head h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.messages-modal-close {
+  border: 0;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.messages-list {
+  height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.message-item {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  padding: 9px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.message-item strong {
+  color: #1e3a8a;
+}
+
+.message-time {
+  color: #6b7280;
+  font-size: 10px;
+  margin-left: 6px;
+}
+
+.messages-input-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 80px;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.messages-input-row input,
+.messages-input-row textarea {
+  border: 1px solid #cbd5e1;
+  padding: 8px;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.messages-input-row textarea {
+  min-height: 45px;
+  resize: vertical;
+}
+
+#message-send-btn {
+  border: 0;
+  background: #1e3a8a;
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+}
 .docs-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -1380,6 +1488,22 @@ nav.hide-on-scroll {
   </div>
 </main>
 
+<div id="messages-modal-backdrop" class="messages-modal-backdrop">
+  <div class="messages-modal">
+    <div class="messages-modal-head">
+      <h3 id="messages-modal-title">Job Messages</h3>
+      <button type="button" id="messages-modal-close" class="messages-modal-close">×</button>
+    </div>
+
+    <div id="messages-list" class="messages-list"></div>
+
+    <div class="messages-input-row">
+      <input id="message-sender" type="text" placeholder="Your name">
+      <textarea id="message-text" placeholder="Type a message about this job..."></textarea>
+      <button type="button" id="message-send-btn">Send</button>
+    </div>
+  </div>
+</div>
 <div id="docs-modal-backdrop" class="docs-modal-backdrop">
   <div class="docs-modal">
     <div class="docs-modal-head">
@@ -1720,17 +1844,51 @@ function setupAddJobDriverSearch() {
   });
 }
 function getJobFilters(job) {
-  if (Array.isArray(job.job_filters)) return job.job_filters;
-  if (typeof job.job_filters === 'string') {
+  const raw =
+    job.job_filters ??
+    job.filters ??
+    job.jobFilters ??
+    [];
+
+  if (Array.isArray(raw)) {
+    return raw.filter(Boolean);
+  }
+
+  if (typeof raw === 'string') {
+    const clean = raw.trim();
+
+    if (!clean || clean === 'null') return [];
+
     try {
-      const parsed = JSON.parse(job.job_filters);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
+      const parsed = JSON.parse(clean);
+
+      if (Array.isArray(parsed)) {
+        return parsed.filter(Boolean);
+      }
+
+      if (parsed && Array.isArray(parsed.filters)) {
+        return parsed.filters.filter(Boolean);
+      }
+
       return [];
+    } catch {
+      return clean
+        .split(',')
+        .map(x => x.trim())
+        .filter(Boolean);
     }
   }
+
+  if (raw && typeof raw === 'object') {
+    if (Array.isArray(raw.filters)) {
+      return raw.filters.filter(Boolean);
+    }
+  }
+
   return [];
 }
+
+
 function getFilterClass(filter) {
   switch (filter) {
     case 'Pending Docs':
@@ -1996,10 +2154,12 @@ function getProgressPercent(job) {
 
       </div>
       <div class="route-cell">
-       <div class="place editable-place pickup-edit" title="Click to edit pickup address">
-  <b>Pickup</b>
-  <span class="place-text">${escapeHtml(getDisplayPickup(job))}</span>
-${shouldShowPickupAwb(job) ? `<div class="awb-box awb-edit" title="Click to edit AWB"><b>AWB:</b> ${escapeHtml(getAwbText(job))}</div>` : ''}
+              <div class="place-stack">
+  <div class="place editable-place pickup-edit" title="Click to edit pickup address">
+    <b>Pickup</b>
+    <span class="place-text">${escapeHtml(getDisplayPickup(job))}</span>
+  </div>
+  ${shouldShowPickupAwb(job) ? `<div class="awb-box awb-edit" title="Click to edit AWB"><b>AWB:</b> ${escapeHtml(getAwbText(job))}</div>` : ''}
 </div>
         <div class="timeline drag-handle">
   <span class="start">🚗</span>
@@ -2016,10 +2176,12 @@ ${shouldShowPickupAwb(job) ? `<div class="awb-box awb-edit" title="Click to edit
 
 
 
-<div class="place editable-place delivery-edit" title="Click to edit delivery address">
-  <b>Delivery</b>
-  <span class="place-text">${escapeHtml(getDisplayDelivery(job))}</span>
-${shouldShowDeliveryAwb(job) ? `<div class="awb-box awb-edit" title="Click to edit AWB"><b>AWB:</b> ${escapeHtml(getAwbText(job))}</div>` : ''}
+<div class="place-stack">
+  <div class="place editable-place delivery-edit" title="Click to edit delivery address">
+    <b>Delivery</b>
+    <span class="place-text">${escapeHtml(getDisplayDelivery(job))}</span>
+  </div>
+  ${shouldShowDeliveryAwb(job) ? `<div class="awb-box awb-edit" title="Click to edit AWB"><b>AWB:</b> ${escapeHtml(getAwbText(job))}</div>` : ''}
 </div>
         <div class="place"><b>Notes</b>${notesHtml}</div>
       </div>
@@ -2031,7 +2193,7 @@ ${shouldShowDeliveryAwb(job) ? `<div class="awb-box awb-edit" title="Click to ed
       
     <div class="actions-cell">
 <button type="button" class="airspace-action-btn time-edit-btn" title="Update pickup / delivery times">🕒</button>
-<button type="button" class="airspace-action-btn" title="Messages">💬</button>
+<button type="button" class="airspace-action-btn messages-btn" title="Messages">💬</button>
 <button type="button" class="airspace-action-btn docs-btn" title="Documents">📄</button>
 <button type="button" class="airspace-action-btn" title="Flag for review">⚑</button>
 
@@ -2044,6 +2206,8 @@ ${shouldShowDeliveryAwb(job) ? `<div class="awb-box awb-edit" title="Click to ed
 <button class="icon-btn menu-trigger" title="Actions">⋮</button>
 </div>
     `;
+
+
 
     const menu = document.createElement('div');
     menu.className = 'card-menu';
@@ -2255,6 +2419,10 @@ async function saveAwbChange(job, newAwb, saveBtn, forceLocalOnly = false) {
   await loadJobs();
 }
     const confirmBtn = row.querySelector('.confirm-btn');
+
+    row.querySelector('.messages-btn')?.addEventListener('click', () => {
+  openMessagesModal(job);
+});
 
     row.querySelector('.time-edit-btn')?.addEventListener('click', () => {
   openTimeModal(job);
@@ -2499,7 +2667,102 @@ if (dragHandle) {
   function clearBoard() {
   activeJobsList.innerHTML = '';
 }
+let CURRENT_MESSAGES_JOB = null;
 
+async function loadJobMessages(jobId) {
+  const list = document.getElementById('messages-list');
+
+  list.innerHTML = `<div style="padding:10px;">Loading messages...</div>`;
+
+  const { data, error } = await sb
+    .from('job_messages')
+    .select('*')
+    .eq('job_id', jobId)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error(error);
+    list.innerHTML = `<div style="padding:10px;color:red;">Failed to load messages.</div>`;
+    return;
+  }
+
+  if (!data || !data.length) {
+    list.innerHTML = `<div style="padding:10px;color:#6b7280;">No messages yet.</div>`;
+    return;
+  }
+
+  list.innerHTML = data.map(msg => `
+    <div class="message-item">
+      <div>
+        <strong>${escapeHtml(msg.sender_name || 'Office')}</strong>
+        <span class="message-time">${escapeHtml(formatDeadline(msg.created_at))}</span>
+      </div>
+      <div>${escapeHtml(msg.message || '')}</div>
+    </div>
+  `).join('');
+
+  list.scrollTop = list.scrollHeight;
+}
+
+async function openMessagesModal(job) {
+  CURRENT_MESSAGES_JOB = job;
+
+  document.getElementById('messages-modal-title').textContent =
+    `Messages for Job #${job.title || job.id}`;
+
+  document.getElementById('message-text').value = '';
+
+  document
+    .getElementById('messages-modal-backdrop')
+    .classList.add('show');
+
+  await loadJobMessages(job.id);
+}
+
+function closeMessagesModal() {
+  CURRENT_MESSAGES_JOB = null;
+
+  document
+    .getElementById('messages-modal-backdrop')
+    .classList.remove('show');
+}
+
+async function sendJobMessage() {
+  if (!CURRENT_MESSAGES_JOB) return;
+
+  const senderName = document.getElementById('message-sender').value.trim() || 'Office';
+  const messageText = document.getElementById('message-text').value.trim();
+
+  if (!messageText) {
+    alert('Type a message first.');
+    return;
+  }
+
+  const sendBtn = document.getElementById('message-send-btn');
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'Sending...';
+
+  const { error } = await sb
+    .from('job_messages')
+    .insert({
+      job_id: CURRENT_MESSAGES_JOB.id,
+      sender_name: senderName,
+      message: messageText,
+      message_type: 'office'
+    });
+
+  sendBtn.disabled = false;
+  sendBtn.textContent = 'Send';
+
+  if (error) {
+    console.error(error);
+    alert('Failed to send message.');
+    return;
+  }
+
+  document.getElementById('message-text').value = '';
+  await loadJobMessages(CURRENT_MESSAGES_JOB.id);
+}
 let CURRENT_DOCS_JOB = null;
 
 async function loadJobDocuments(jobId) {
@@ -3065,20 +3328,50 @@ function renderJob(job) {
 async function autoArchiveOldJobs(jobs) {
   const sixHoursAgo = Date.now() - (6 * 60 * 60 * 1000);
 
+  const protectedFilters = [
+    'Pending Docs',
+    'At Unit (MIA)',
+    'At Unit (FLL)'
+  ];
+
   const oldJobIds = (jobs || [])
     .filter(job => !isArchivedJob(job))
     .filter(job => {
+      const jobFilters = getJobFilters(job);
+
+      const hasProtectedFilter = jobFilters.some(filter =>
+        protectedFilters.includes(String(filter).trim())
+      );
+
+      if (hasProtectedFilter) {
+        console.log('Skipping auto archive because job has protected filter:', {
+          job: job.title,
+          filters: jobFilters
+        });
+        return false;
+      }
+
       const deadlineValue = job.deadline;
       if (!deadlineValue) return false;
 
       const deadlineTime = new Date(deadlineValue).getTime();
       if (Number.isNaN(deadlineTime)) return false;
 
-      return deadlineTime < sixHoursAgo;
+      const shouldArchive = deadlineTime < sixHoursAgo;
+
+      if (shouldArchive) {
+        console.log('Auto archiving old job:', {
+          job: job.title,
+          deadline: job.deadline,
+          filters: jobFilters
+        });
+      }
+
+      return shouldArchive;
     })
     .map(job => job.id);
 
-  if (!oldJobIds.length) return;
+  if (!oldJobIds.length) return [];
 
   const { error } = await sb
     .from('jobs')
@@ -3087,18 +3380,31 @@ async function autoArchiveOldJobs(jobs) {
 
   if (error) {
     console.error('Auto archive failed:', error);
+    return [];
   }
+
+  return oldJobIds;
 }
 
-  async function loadJobs() {
+
+
+async function loadJobs() {
     clearBoard();
     const { data, error } = await sb.from('jobs').select('*').order('created_at', { ascending: false });
     if (error) { console.error(error); alert('Failed to load jobs.'); return; }
 ALL_JOBS = data || [];
 
-//await autoArchiveOldJobs(ALL_JOBS);
+const autoArchivedIds = await autoArchiveOldJobs(ALL_JOBS);
 
-ALL_JOBS = ALL_JOBS;
+if (autoArchivedIds.length) {
+  ALL_JOBS = ALL_JOBS.map(job =>
+    autoArchivedIds.includes(job.id)
+      ? { ...job, is_archived: true }
+      : job
+  );
+}
+
+
 
 populateDriverFilter(ALL_JOBS);
     const query = (document.getElementById('job-search')?.value || '').trim().toLowerCase();
@@ -3251,7 +3557,15 @@ document.getElementById('bulk-archive-btn').addEventListener('click', async () =
   loadJobs();
 });
 document.getElementById('address-modal-close').addEventListener('click', closeAddressModal);
+document.getElementById('messages-modal-close').addEventListener('click', closeMessagesModal);
 
+document.getElementById('messages-modal-backdrop').addEventListener('click', (e) => {
+  if (e.target.id === 'messages-modal-backdrop') {
+    closeMessagesModal();
+  }
+});
+
+document.getElementById('message-send-btn').addEventListener('click', sendJobMessage);
 document.getElementById('docs-modal-close').addEventListener('click', closeDocsModal);
 
 document.getElementById('docs-modal-backdrop').addEventListener('click', (e) => {
