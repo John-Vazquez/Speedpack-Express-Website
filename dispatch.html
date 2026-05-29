@@ -557,84 +557,10 @@ nav.hide-on-scroll {
 .drag-handle {
   cursor: grab;
 }
-.status-button-under-bar {
-  position: absolute;
-  left: 50%;
-  top: 22px;
-  transform: translateX(-50%);
-  z-index: 5;
-  pointer-events: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.status-button-under-bar .confirm-btn {
-  margin: 0;
-  transform: scale(0.82);
-  pointer-events: auto;
-}
-
-.status-mini-steps {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-.status-mini-step {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 8px;
-  font-weight: 900;
-  color: #6b7280;
-  text-transform: uppercase;
-}
-
-.status-mini-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  border: 1px solid #9ca3af;
-  background: #fff;
-  box-sizing: border-box;
-}
-
-.status-mini-dot.done {
-  background: #16a34a;
-  border-color: #16a34a;
-}
-
-.status-mini-dot.current {
-  background: #facc15;
-  border-color: #facc15;
-}
-
-.job-complete-badge {
-  display: inline-block;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: #dcfce7;
-  border: 1px solid #16a34a;
-  color: #15803d;
-  font-size: 10px;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.status-button-under-bar .confirm-btn {
-  margin: 0;
-  transform: scale(0.82);
-  pointer-events: auto;
-}
 
     .timeline {
   position: relative;
-  height: 72px;
+  height: 96px;
 }
     .timeline::before {
       content:''; position:absolute; left:0; right:0; top:16px; height:6px;
@@ -645,9 +571,7 @@ nav.hide-on-scroll {
       background:#facc15; border-radius:999px;
       box-shadow: 0 0 6px rgba(250, 204, 21, 0.6);
     }
-    .timeline .fill.late {
-  background: #dc2626; /* red */
-}
+ 
     .timeline .start, .timeline .end {
       position:absolute; top:5px; width:28px; height:28px; border-radius:50%;
       display:flex; align-items:center; justify-content:center; font-size:14px; color:#fff;
@@ -656,7 +580,25 @@ nav.hide-on-scroll {
     .timeline .start { left:-2px; }
     .timeline .end { right:-2px; background:#fff; color:#facc15; border:1px solid #facc15; }
     .timeline-text { position:absolute; top:-4px; left:50%; transform:translateX(-50%); font-size:11px; white-space:nowrap; color:#111827; }
+    .telegram-workflow-log {
+  position: absolute;
+  top: 31px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  text-align: center;
+  z-index: 4;
+  pointer-events: none;
+}
 
+.telegram-workflow-line {
+  display: block;
+  color: #1e3a8a;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1.25;
+  white-space: nowrap;
+}
     .deadline-cell { text-align:right; font-size:12px; line-height:1.35; }
     .deadline-cell b { color:#111827; }
 .category-badge {
@@ -1365,6 +1307,317 @@ nav.hide-on-scroll {
     flex-wrap: wrap;
   }
 }
+
+.inline-driver-save {
+  display: none !important;
+}
+
+.telegram-confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 10050;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.telegram-confirm-backdrop.show {
+  display: flex;
+}
+
+.telegram-confirm-modal {
+  width: 520px;
+  max-width: 92vw;
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.35);
+  padding: 22px;
+}
+
+.telegram-confirm-modal h3 {
+  margin: 0 0 12px;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.telegram-confirm-modal p {
+  font-size: 14px;
+  line-height: 1.45;
+  color: #111827;
+}
+
+.telegram-confirm-modal label {
+  display: block;
+  font-size: 12px;
+  font-weight: 900;
+  color: #374151;
+  margin: 14px 0 6px;
+  text-transform: uppercase;
+}
+
+.telegram-confirm-modal textarea {
+  width: 100%;
+  min-height: 95px;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  padding: 9px;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.telegram-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 16px;
+}
+
+.telegram-modal-cancel {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #111827;
+  font-weight: 900;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+.telegram-modal-confirm {
+  border: 0;
+  background: #16a34a;
+  color: #fff;
+  font-weight: 900;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+.driver-change-btn.pending {
+  background: #f59e0b;
+  color: #111827;
+  border-color: #f59e0b;
+}
+
+.driver-action-line {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 6px;
+  flex-wrap: nowrap;
+}
+
+.driver-change-btn.accepted {
+  background: #16a34a;
+  color: #fff;
+  border-color: #16a34a;
+  cursor: default;
+}
+
+.driver-eta-badge {
+  display: inline-block;
+  color: #1e3a8a;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+  margin-top: 6px;
+}
+.driver-change-btn.assign {
+  background: #374151;
+  color: #fff;
+  border-color: #374151;
+}
+
+.driver-change-btn.arrived {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+  cursor: default;
+}
+
+.driver-arrival-badge {
+  display: inline-block;
+  color: #1e3a8a;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+  margin-top: 6px;
+}
+
+.driver-change-btn.verify-photos {
+  background: #7c3aed;
+  color: #fff;
+  border-color: #7c3aed;
+}
+
+.photo-review-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  z-index: 10080;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-review-backdrop.show {
+  display: flex;
+}
+
+.photo-review-modal {
+  width: 900px;
+  max-width: 94vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 0 18px 50px rgba(0,0,0,.4);
+  padding: 20px;
+}
+
+.photo-review-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.photo-review-head h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.photo-review-close {
+  border: 0;
+  background: transparent;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.photo-review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.photo-review-card {
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+  padding: 10px;
+}
+
+.photo-review-card b {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.photo-review-card img {
+  width: 100%;
+  max-height: 430px;
+  object-fit: contain;
+  background: #111827;
+  cursor: zoom-in;
+}
+
+.photo-lightbox-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.88);
+  z-index: 10100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.photo-lightbox-backdrop.show {
+  display: flex;
+}
+
+.photo-lightbox-inner {
+  position: relative;
+  width: 96vw;
+  height: 94vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-lightbox-inner img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  background: #111827;
+  cursor: zoom-in;
+  transition: transform .12s ease;
+  transform-origin: center center;
+}
+
+.photo-lightbox-inner img.zoomed {
+  cursor: grab;
+}
+
+.photo-lightbox-controls {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  background: rgba(255,255,255,.92);
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.photo-lightbox-controls button {
+  border: 0;
+  background: #1e3a8a;
+  color: #fff;
+  font-weight: 900;
+  padding: 8px 11px;
+  cursor: pointer;
+}
+
+.photo-lightbox-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  border: 0;
+  background: #fff;
+  color: #111827;
+  font-size: 24px;
+  font-weight: 900;
+  width: 38px;
+  height: 38px;
+  cursor: pointer;
+}
+
+.photo-review-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.photo-review-accept {
+  border: 0;
+  background: #16a34a;
+  color: #fff;
+  font-weight: 900;
+  padding: 10px 13px;
+  cursor: pointer;
+}
+
+.photo-review-decline {
+  border: 0;
+  background: #dc2626;
+  color: #fff;
+  font-weight: 900;
+  padding: 10px 13px;
+  cursor: pointer;
+}
+
   </style>
 </head>
 <body>
@@ -1550,6 +1803,59 @@ nav.hide-on-scroll {
     </section>
   </div>
 </main>
+<div id="telegram-confirm-backdrop" class="telegram-confirm-backdrop">
+  <div class="telegram-confirm-modal">
+    <h3 id="telegram-confirm-title">Confirm Driver Assignment</h3>
+    <p id="telegram-confirm-text"></p>
+
+    <label for="telegram-driver-notes">Notes for Driver</label>
+    <textarea id="telegram-driver-notes" placeholder="Optional. These notes will be sent to the driver only for this alert."></textarea>
+
+    <div class="telegram-confirm-actions">
+      <button type="button" id="telegram-confirm-cancel" class="telegram-modal-cancel">No, go back</button>
+      <button type="button" id="telegram-confirm-send" class="telegram-modal-confirm">Confirm & Send Job Alert</button>
+    </div>
+  </div>
+</div>
+
+<div id="telegram-cancel-backdrop" class="telegram-confirm-backdrop">
+  <div class="telegram-confirm-modal">
+    <h3>Cancel Pending Driver Request</h3>
+    <p id="telegram-cancel-text"></p>
+
+    <div class="telegram-confirm-actions">
+      <button type="button" id="telegram-cancel-no" class="telegram-modal-cancel">No, do not cancel</button>
+      <button type="button" id="telegram-cancel-yes" class="telegram-modal-confirm" style="background:#dc2626;">Yes, cancel this job</button>
+    </div>
+  </div>
+</div>
+<div id="photo-lightbox-backdrop" class="photo-lightbox-backdrop">
+  <div class="photo-lightbox-inner">
+    <button type="button" id="photo-lightbox-close" class="photo-lightbox-close">×</button>
+    <img id="photo-lightbox-img" src="" alt="Full size job photo">
+
+    <div class="photo-lightbox-controls">
+  <button type="button" id="photo-zoom-out">−</button>
+  <button type="button" id="photo-zoom-reset">Reset</button>
+  <button type="button" id="photo-zoom-in">+</button>
+</div>
+  </div>
+</div>
+<div id="photo-review-backdrop" class="photo-review-backdrop">
+  <div class="photo-review-modal">
+    <div class="photo-review-head">
+      <h3 id="photo-review-title">Review Photos</h3>
+      <button type="button" id="photo-review-close" class="photo-review-close">×</button>
+    </div>
+
+    <div id="photo-review-grid" class="photo-review-grid"></div>
+
+    <div class="photo-review-actions">
+  <button type="button" id="photo-review-decline" class="photo-review-decline">Decline Photos</button>
+  <button type="button" id="photo-review-accept" class="photo-review-accept">Confirm Photos</button>
+</div>
+  </div>
+</div>
 
 <div id="messages-modal-backdrop" class="messages-modal-backdrop">
   <div class="messages-modal">
@@ -1639,18 +1945,7 @@ nav.hide-on-scroll {
 <button type="button" id="address-modal-save" class="address-modal-save">Save Address</button>
   </div>
 </div>
-<div id="status-modal-backdrop" class="time-modal-backdrop">
-  <div class="time-modal">
-    <div class="time-modal-head">
-      <h3 id="status-modal-title">Update Job Status</h3>
-      <button type="button" id="status-modal-close" class="time-modal-close">×</button>
-    </div>
 
-    <div id="status-steps-box"></div>
-
-    <button type="button" id="status-modal-save" class="time-modal-save">Save Status</button>
-  </div>
-</div>
 <div id="time-modal-backdrop" class="time-modal-backdrop">
   <div class="time-modal">
     <div class="time-modal-head">
@@ -1682,6 +1977,10 @@ nav.hide-on-scroll {
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRicGN1aW1ieGRxbGtucXZwbWJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NjAxNjIsImV4cCI6MjA3MDQzNjE2Mn0.5O_hoeXuR4tLPMBWwveUTHUCQ9WbJTsiAZr4iwPcdMg";
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const ASSIGN_DRIVER_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/assign-driver";
+  const SEND_TELEGRAM_JOB_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/send-telegram-job";
+  const CANCEL_TELEGRAM_JOB_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/cancel-telegram-job";
+  const GET_TELEGRAM_PHOTO_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/get-telegram-photo";
+  const REVIEW_TELEGRAM_PHOTOS_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/review-telegram-photos";
   const DRIVERS_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/drivers";
   const SYNC_ONTIME_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/sync-ontime-jobs";
   const UPDATE_AWB_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/update-awb";
@@ -1694,10 +1993,248 @@ nav.hide-on-scroll {
   const CATEGORIES = ["mia","fll","tenders","deliveries","dispatched","bullshit"];
   const CATEGORY_LABELS = { mia:"MIA Recovery", fll:"FLL Recovery", tenders:"Tenders", deliveries:"Deliveries", dispatched:"Dispatched", bullshit:"Bullshit Pile" };
   let ALL_JOBS = [];
+
+  let TELEGRAM_DISPATCH_BY_JOB_ID = {};
+
+async function loadTelegramDispatchesForJobs(jobs) {
+  TELEGRAM_DISPATCH_BY_JOB_ID = {};
+
+  try {
+    const jobIdSet = new Set(
+      (jobs || [])
+        .map(job => String(job.id || ""))
+        .filter(Boolean)
+    );
+
+    if (!jobIdSet.size) return;
+
+    const { data, error } = await sb
+      .from("telegram_job_dispatches")
+      .select("id, job_id, job_number, driver_id, driver_name, status, eta_status, eta_text, eta_received_at, delivery_eta_status, delivery_eta_text, delivery_eta_requested_at, delivery_eta_received_at, accepted_at, declined_at, arrival_confirmed_at, waiting_time_started_at, waiting_time_ended_at, arrived_dropoff_at, delivered_at, delivered_to_name, delivery_receipt_status, delivery_receipt_submitted_at, delivery_receipt_reviewed_at, workflow_step, photo_review_status, photos_submitted_at, created_at")
+      .order("created_at", { ascending: false })
+      .limit(300);
+
+    if (error) {
+      console.error("Failed to load Telegram dispatch statuses:", error);
+      return;
+    }
+
+    (data || []).forEach(row => {
+      const jobId = String(row.job_id || "");
+      if (!jobId || !jobIdSet.has(jobId)) return;
+
+      if (row.status === "accepted") {
+        TELEGRAM_DISPATCH_BY_JOB_ID[jobId] = row;
+        clearPendingDispatch(jobId);
+        return;
+      }
+
+      if (!TELEGRAM_DISPATCH_BY_JOB_ID[jobId] && row.status === "pending") {
+        TELEGRAM_DISPATCH_BY_JOB_ID[jobId] = row;
+      }
+    });
+  } catch (err) {
+    console.error("Telegram dispatch status lookup crashed:", err);
+  }
+}
+
+
+function getTelegramDispatchForJob(job) {
+  const jobId = String(job.id || "");
+  const dispatchRow = TELEGRAM_DISPATCH_BY_JOB_ID[jobId] || null;
+
+  if (dispatchRow && dispatchRow.status !== "pending") {
+    clearPendingDispatch(jobId);
+  }
+
+  return dispatchRow;
+}
+function formatTelegramTime(value) {
+  const d = new Date(value);
+  if (isNaN(d)) return "";
+  return `${pad(d.getMonth()+1)}/${pad(d.getDate())}/${pad(d.getFullYear()%100)} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function getEtaDisplayText(dispatchRow) {
+  if (!dispatchRow || dispatchRow.status !== "accepted") return "";
+
+  if (dispatchRow.eta_text) {
+    return `ETA: ${dispatchRow.eta_text}`;
+  }
+
+  return "ETA: Waiting on driver response";
+}
+
+function renderTelegramWorkflowLog(dispatchRow) {
+  if (!dispatchRow || dispatchRow.status !== "accepted") return "";
+
+  const lines = [];
+
+  if (dispatchRow.eta_text) {
+    lines.push(`ETA to Pickup: ${dispatchRow.eta_text}`);
+  } else {
+    lines.push("ETA to Pickup: Waiting on driver response");
+  }
+
+  const waitStart = dispatchRow.waiting_time_started_at || dispatchRow.arrival_confirmed_at;
+  if (waitStart) {
+    lines.push(`Wait Time Start: ${formatTelegramTime(waitStart)}`);
+  }
+
+  const waitEnd = dispatchRow.waiting_time_ended_at || dispatchRow.delivery_eta_received_at;
+  if (waitEnd) {
+    lines.push(`Wait Time End: ${formatTelegramTime(waitEnd)}`);
+  }
+
+  if (dispatchRow.workflow_step === "awaiting_delivery_eta") {
+    lines.push("ETA to Delivery: Waiting on driver response");
+  }
+
+  if (dispatchRow.delivery_eta_text) {
+    lines.push(`ETA to Delivery: ${dispatchRow.delivery_eta_text}`);
+  }
+
+  if (dispatchRow.delivered_at) {
+    lines.push(`Delivered: ${formatTelegramTime(dispatchRow.delivered_at)}`);
+  }
+
+  if (dispatchRow.delivered_to_name) {
+    lines.push(`Delivered To: ${dispatchRow.delivered_to_name}`);
+  }
+
+  return `
+    <div class="telegram-workflow-log">
+      ${lines.map(line => `<span class="telegram-workflow-line">${escapeHtml(line)}</span>`).join("")}
+    </div>
+  `;
+}
+
+
+
   let TOP_OTHER_FILTERS = [];
   setTimeout(updateTopOtherFilterLabel, 0);
 
 const activeJobsList = document.getElementById('active-jobs-list');
+
+document.getElementById("telegram-confirm-cancel")?.addEventListener("click", () => {
+  closeTelegramAssignModal();
+});
+
+document.getElementById("telegram-confirm-send")?.addEventListener("click", async () => {
+  if (!TELEGRAM_ASSIGN_CONTEXT) return;
+
+  const { job, selectedDriver } = TELEGRAM_ASSIGN_CONTEXT;
+  const confirmBtn = document.getElementById("telegram-confirm-send");
+  const driverNotes = document.getElementById("telegram-driver-notes").value.trim();
+
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = "Sending...";
+
+  const payload = {
+    job_id: String(job.id || ""),
+    job_number: String(job.title || job.job_number || ""),
+    driver_id: String(selectedDriver.id || ""),
+    job_type: String(CATEGORY_LABELS[job.category] || job.category || ""),
+    pickup: String(getDisplayPickup(job) || ""),
+    dropoff: String(getDisplayDelivery(job) || ""),
+    ready_time: String(formatReadyTime(job) || ""),
+    due_time: String(formatDeadline(job.deadline) || ""),
+    due_time_iso: job.deadline || null,
+    awb: String(getAwbText(job) || ""),
+    pieces: String(job.pieces || job.piece_count || "1"),
+    weight: String(job.weight || job.total_weight || "2 lbs"),
+    notes: driverNotes
+  };
+
+  const res = await fetch(SEND_TELEGRAM_JOB_FUNCTION_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "apikey": SUPABASE_ANON_KEY
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const rawText = await res.text();
+
+  let result = {};
+  try {
+    result = rawText ? JSON.parse(rawText) : {};
+  } catch (e) {
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = "Confirm & Send Job Alert";
+    alert(`Telegram dispatch failed. Non-JSON response: ${rawText}`);
+    return;
+  }
+
+  confirmBtn.disabled = false;
+  confirmBtn.textContent = "Confirm & Send Job Alert";
+
+  if (!res.ok || result.error || result.success === false) {
+    alert(`Telegram dispatch failed: ${result.error || "Unknown error"}`);
+    return;
+  }
+
+  savePendingDispatch(job.id, {
+    dispatch_id: result.dispatch_id,
+    driver_name: result.driver_name || selectedDriver.name,
+    job_number: payload.job_number,
+    sent_at: new Date().toISOString()
+  });
+
+  closeTelegramAssignModal();
+  loadJobs();
+});
+
+document.getElementById("telegram-cancel-no")?.addEventListener("click", () => {
+  closeTelegramCancelModal();
+});
+
+document.getElementById("telegram-cancel-yes")?.addEventListener("click", async () => {
+  if (!TELEGRAM_CANCEL_CONTEXT) return;
+
+  const { job, pendingData } = TELEGRAM_CANCEL_CONTEXT;
+  const cancelBtn = document.getElementById("telegram-cancel-yes");
+
+  cancelBtn.disabled = true;
+  cancelBtn.textContent = "Cancelling...";
+
+  const res = await fetch(CANCEL_TELEGRAM_JOB_FUNCTION_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "apikey": SUPABASE_ANON_KEY
+    },
+    body: JSON.stringify({
+      dispatch_id: pendingData.dispatch_id
+    })
+  });
+
+  const rawText = await res.text();
+
+  let result = {};
+  try {
+    result = rawText ? JSON.parse(rawText) : {};
+  } catch (e) {
+    cancelBtn.disabled = false;
+    cancelBtn.textContent = "Yes, cancel this job";
+    alert(`Cancel failed. Non-JSON response: ${rawText}`);
+    return;
+  }
+
+  cancelBtn.disabled = false;
+  cancelBtn.textContent = "Yes, cancel this job";
+
+  if (!res.ok || result.error || result.success === false) {
+    alert(`Cancel failed: ${result.error || "Unknown error"}`);
+    return;
+  }
+
+  clearPendingDispatch(job.id);
+  closeTelegramCancelModal();
+  loadJobs();
+});
 
 async function loadOntimeDrivers() {
   const res = await fetch(DRIVERS_FUNCTION_URL, {
@@ -1727,6 +2264,256 @@ try {
   ONTIME_DRIVERS = result.drivers || [];
 }
 
+let TELEGRAM_ASSIGN_CONTEXT = null;
+let TELEGRAM_CANCEL_CONTEXT = null;
+let PHOTO_REVIEW_CONTEXT = null;
+
+function getPendingDispatch(jobId) {
+  try {
+    return JSON.parse(localStorage.getItem(`telegram-pending-${jobId}`) || "null");
+  } catch {
+    return null;
+  }
+}
+
+function savePendingDispatch(jobId, data) {
+  localStorage.setItem(`telegram-pending-${jobId}`, JSON.stringify(data));
+}
+
+function clearPendingDispatch(jobId) {
+  localStorage.removeItem(`telegram-pending-${jobId}`);
+}
+
+function openTelegramAssignModal(job, selectedDriver) {
+  TELEGRAM_ASSIGN_CONTEXT = {
+    job,
+    selectedDriver,
+  };
+
+  document.getElementById("telegram-confirm-text").innerHTML =
+    `Are you sure you would like to assign <b>${escapeHtml(selectedDriver.name)}</b> to job <b>${escapeHtml(job.title || job.job_number || job.id)}</b>?`;
+
+  document.getElementById("telegram-driver-notes").value = "";
+  document.getElementById("telegram-confirm-backdrop").classList.add("show");
+}
+
+function closeTelegramAssignModal() {
+  TELEGRAM_ASSIGN_CONTEXT = null;
+  document.getElementById("telegram-confirm-backdrop").classList.remove("show");
+}
+
+function openTelegramCancelModal(job, pendingData) {
+  TELEGRAM_CANCEL_CONTEXT = {
+    job,
+    pendingData,
+  };
+
+  document.getElementById("telegram-cancel-text").innerHTML =
+    `Would you like to cancel the pending driver request for job <b>${escapeHtml(job.title || job.job_number || job.id)}</b>?`;
+
+  document.getElementById("telegram-cancel-backdrop").classList.add("show");
+}
+
+function closeTelegramCancelModal() {
+  TELEGRAM_CANCEL_CONTEXT = null;
+  document.getElementById("telegram-cancel-backdrop").classList.remove("show");
+}
+
+
+
+let PHOTO_ZOOM = 1;
+
+function applyPhotoZoom() {
+  const img = document.getElementById("photo-lightbox-img");
+  img.style.transform = `scale(${PHOTO_ZOOM})`;
+  img.classList.toggle("zoomed", PHOTO_ZOOM > 1);
+}
+
+function openPhotoLightbox(imgUrl) {
+  const backdrop = document.getElementById("photo-lightbox-backdrop");
+  const img = document.getElementById("photo-lightbox-img");
+
+  PHOTO_ZOOM = 1;
+  img.src = imgUrl;
+  applyPhotoZoom();
+  backdrop.classList.add("show");
+}
+
+function closePhotoLightbox() {
+  const backdrop = document.getElementById("photo-lightbox-backdrop");
+  const img = document.getElementById("photo-lightbox-img");
+
+  PHOTO_ZOOM = 1;
+  img.src = "";
+  applyPhotoZoom();
+  backdrop.classList.remove("show");
+}
+
+document.getElementById("photo-lightbox-close")?.addEventListener("click", closePhotoLightbox);
+
+document.getElementById("photo-lightbox-backdrop")?.addEventListener("click", (e) => {
+  if (e.target.id === "photo-lightbox-backdrop") {
+    closePhotoLightbox();
+  }
+});
+
+document.getElementById("photo-zoom-in")?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  PHOTO_ZOOM = Math.min(PHOTO_ZOOM + 0.25, 4);
+  applyPhotoZoom();
+});
+
+document.getElementById("photo-zoom-out")?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  PHOTO_ZOOM = Math.max(PHOTO_ZOOM - 0.25, 1);
+  applyPhotoZoom();
+});
+
+document.getElementById("photo-zoom-reset")?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  PHOTO_ZOOM = 1;
+  applyPhotoZoom();
+});
+
+document.getElementById("photo-lightbox-img")?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  PHOTO_ZOOM = PHOTO_ZOOM === 1 ? 2 : 1;
+  applyPhotoZoom();
+});
+
+
+
+
+function closePhotoReviewModal() {
+  PHOTO_REVIEW_CONTEXT = null;
+  document.getElementById("photo-review-backdrop").classList.remove("show");
+  document.getElementById("photo-review-grid").innerHTML = "";
+}
+
+async function openPhotoReviewModal(job, dispatchRow) {
+  PHOTO_REVIEW_CONTEXT = { job, dispatchRow };
+
+  const isReceiptReview = dispatchRow?.workflow_step === "awaiting_delivery_receipt_review";
+
+  document.getElementById("photo-review-title").textContent =
+    isReceiptReview
+      ? `Review Delivery Receipt for Job #${job.title || dispatchRow.job_number || job.id}`
+      : `Review Photos for Job #${job.title || dispatchRow.job_number || job.id}`;
+
+  document.getElementById("photo-review-accept").textContent =
+    isReceiptReview ? "Confirm Receipt" : "Confirm Photos";
+
+  document.getElementById("photo-review-decline").textContent =
+    isReceiptReview ? "Decline Receipt" : "Decline Photos";
+
+  const grid = document.getElementById("photo-review-grid");
+  grid.innerHTML = `<div class="mini-meta">Loading photos.</div>`;
+
+  document.getElementById("photo-review-backdrop").classList.add("show");
+
+  const { data: photos, error } = await sb
+    .from("telegram_job_photos")
+    .select("id, photo_type, telegram_file_id, created_at")
+    .eq("dispatch_id", dispatchRow.id)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    grid.innerHTML = `<div class="mini-meta">Failed to load photos: ${escapeHtml(error.message)}</div>`;
+    return;
+  }
+
+  let reviewPhotos = photos || [];
+
+  if (isReceiptReview) {
+    reviewPhotos = reviewPhotos.filter(photo => photo.photo_type === "delivery_receipt");
+  } else {
+    reviewPhotos = reviewPhotos.filter(photo => photo.photo_type !== "delivery_receipt");
+  }
+
+  if (!reviewPhotos.length) {
+    grid.innerHTML = `<div class="mini-meta">No photos found for this review.</div>`;
+    return;
+  }
+
+  grid.innerHTML = reviewPhotos.map(photo => {
+    const imgUrl = `${GET_TELEGRAM_PHOTO_FUNCTION_URL}?file_id=${encodeURIComponent(photo.telegram_file_id)}`;
+
+    return `
+      <div class="photo-review-card">
+        <b>${escapeHtml(photo.photo_type || "photo")}</b>
+        <img src="${imgUrl}" alt="${escapeHtml(photo.photo_type || "photo")}" onclick="openPhotoLightbox('${imgUrl}')">
+      </div>
+    `;
+  }).join("");
+}
+
+document.getElementById("photo-review-close")?.addEventListener("click", closePhotoReviewModal);
+async function reviewTelegramPhotos(decision) {
+  if (!PHOTO_REVIEW_CONTEXT?.dispatchRow?.id) return;
+
+  const dispatchRow = PHOTO_REVIEW_CONTEXT.dispatchRow;
+  const isReceiptReview = dispatchRow?.workflow_step === "awaiting_delivery_receipt_review";
+
+  const acceptBtn = document.getElementById("photo-review-accept");
+  const declineBtn = document.getElementById("photo-review-decline");
+
+  const normalAcceptText = isReceiptReview ? "Confirm Receipt" : "Confirm Photos";
+  const normalDeclineText = isReceiptReview ? "Decline Receipt" : "Decline Photos";
+
+  acceptBtn.disabled = true;
+  declineBtn.disabled = true;
+
+  acceptBtn.textContent = decision === "accepted" ? "Confirming..." : normalAcceptText;
+  declineBtn.textContent = decision === "declined" ? "Declining..." : normalDeclineText;
+
+  const res = await fetch(REVIEW_TELEGRAM_PHOTOS_FUNCTION_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "apikey": SUPABASE_ANON_KEY
+    },
+    body: JSON.stringify({
+      dispatch_id: dispatchRow.id,
+      decision
+    })
+  });
+
+  const rawText = await res.text();
+
+  let result = {};
+  try {
+    result = rawText ? JSON.parse(rawText) : {};
+  } catch (e) {
+    acceptBtn.disabled = false;
+    declineBtn.disabled = false;
+    acceptBtn.textContent = normalAcceptText;
+    declineBtn.textContent = normalDeclineText;
+    alert(`Photo review failed. Non-JSON response: ${rawText}`);
+    return;
+  }
+
+  acceptBtn.disabled = false;
+  declineBtn.disabled = false;
+  acceptBtn.textContent = normalAcceptText;
+  declineBtn.textContent = normalDeclineText;
+
+  if (!res.ok || result.error || result.success === false) {
+    alert(`Photo review failed: ${result.error || "Unknown error"}`);
+    return;
+  }
+
+  closePhotoReviewModal();
+  loadJobs();
+}
+
+document.getElementById("photo-review-accept")?.addEventListener("click", () => {
+  reviewTelegramPhotos("accepted");
+});
+
+document.getElementById("photo-review-decline")?.addEventListener("click", () => {
+  reviewTelegramPhotos("declined");
+});
 
 
   function escapeHtml(str = "") {
@@ -2000,196 +2787,7 @@ function shouldShowPickupAwb(job) {
 function shouldShowDeliveryAwb(job) {
   return job.category === 'tenders';
 }
-let CURRENT_STATUS_JOB = null;
-function formatStatusDate(dateValue) {
-  const [year, month, day] = dateValue.split('-');
-  return `${month}/${day}/${year}`;
-}
 
-function formatStatusTime(timeValue) {
-  const [hourText, minute] = timeValue.split(':');
-  let hour = Number(hourText);
-  const ampm = hour >= 12 ? 'PM' : 'AM';
-
-  hour = hour % 12;
-  if (hour === 0) hour = 12;
-
-  return `${hour}:${minute} ${ampm}`;
-}
-function getStatusSteps(job) {
-  if (job.category === 'tenders') {
-    return [
-      'Arrived at pickup location',
-      'Depart from pickup location',
-      'Arrive at cargo facility',
-      'Confirm tender to airline'
-    ];
-  }
-
-  return [
-    'Arrive at cargo facility',
-    'Depart cargo facility',
-    'Arrive at destination',
-    'Confirm final delivery'
-  ];
-}
-
-function getShortStatusLabel(label) {
-  const map = {
-    'Arrived at pickup location': 'Arrived PU',
-    'Depart from pickup location': 'Depart PU',
-    'Arrive at cargo facility': 'Arrive Cargo',
-    'Confirm tender to airline': 'Tendered',
-    'Depart cargo facility': 'Depart Cargo',
-    'Arrive at destination': 'Arrive Dest',
-    'Confirm final delivery': 'Delivered'
-  };
-
-  return map[label] || label;
-}
-
-function renderMiniStatusSteps(job) {
-  const progress = getJobProgress(job.id);
-  const steps = getStatusSteps(job);
-  const statusSteps = progress.statusSteps || [];
-
-  const completedCount = statusSteps.filter(step => step?.confirmed).length;
-
-  if (completedCount >= steps.length) {
-    return `<div class="job-complete-badge">Job Complete</div>`;
-  }
-
-  return `
-    <div class="status-mini-steps">
-      ${steps.map((label, index) => {
-        const isDone = statusSteps[index]?.confirmed;
-        const isCurrent = index === completedCount && !isDone;
-
-        let dotClass = '';
-        if (isDone) dotClass = 'done';
-        else if (isCurrent) dotClass = 'current';
-
-        return `
-          <div class="status-mini-step">
-            <span class="status-mini-dot ${dotClass}"></span>
-            <span>${escapeHtml(getShortStatusLabel(label))}</span>
-          </div>
-        `;
-      }).join('')}
-    </div>
-  `;
-}
-
-function openStatusModal(job) {
-  CURRENT_STATUS_JOB = job;
-
-  const progress = getJobProgress(job.id);
-  const steps = getStatusSteps(job);
-  const statusSteps = progress.statusSteps || [];
-
-let activeIndex = 0;
-
-for (let i = 0; i < steps.length; i++) {
-  if (!statusSteps[i]?.confirmed) {
-    activeIndex = i;
-    break;
-  }
-}
-
-  document.getElementById('status-modal-title').textContent =
-    `Update status for job #${job.title || job.id}`;
-
-  const box = document.getElementById('status-steps-box');
-
-  box.innerHTML = steps.map((label, index) => {
-    const saved = statusSteps[index];
-    const isDone = saved?.confirmed;
-    const isActive = index === activeIndex && !isDone;
-
-    return `
-      <div class="status-step-card ${isDone ? 'done' : ''}">
-        <div class="status-step-title">
-          <span>${isDone ? '✅' : isActive ? '🟢' : '⚪'}</span>
-          <strong>${label}</strong>
-        </div>
-
-        ${isDone ? `
-          <div class="status-saved-time">
-            ${escapeHtml(saved.displayDate || '')} ${escapeHtml(saved.displayTime || '')}
-          </div>
-        ` : ''}
-
-        ${isActive ? `
-          <div class="status-input-row">
-            <div>
-              <label>Date</label>
-              <input type="date" id="status-step-date">
-            </div>
-            <div>
-              <label>Time</label>
-              <input type="time" id="status-step-time">
-            </div>
-          </div>
-
-          <button type="button" id="complete-status-step" class="status-complete-btn" data-index="${index}">
-            Complete
-          </button>
-        ` : ''}
-      </div>
-    `;
-  }).join('');
-
-  document.getElementById('status-modal-backdrop').classList.add('show');
-}
-document.addEventListener('click', (e) => {
-  if (!e.target || e.target.id !== 'complete-status-step') return;
-  if (!CURRENT_STATUS_JOB) return;
-
-  const index = Number(e.target.dataset.index);
-  const dateValue = document.getElementById('status-step-date')?.value;
-  const timeValue = document.getElementById('status-step-time')?.value;
-
-  if (!dateValue || !timeValue) {
-    alert('Enter both date and time.');
-    return;
-  }
-
-  const progress = getJobProgress(CURRENT_STATUS_JOB.id);
-  const steps = getStatusSteps(CURRENT_STATUS_JOB);
-  const statusSteps = progress.statusSteps || [];
-
-  statusSteps[index] = {
-    label: steps[index],
-    confirmed: true,
-    date: dateValue,
-    time: timeValue,
-    displayDate: formatStatusDate(dateValue),
-    displayTime: formatStatusTime(timeValue)
-  };
-
-  const allDone = statusSteps.length === steps.length && statusSteps.every(step => step?.confirmed);
-
-  saveJobProgress(CURRENT_STATUS_JOB.id, {
-    ...progress,
-    pickupConfirmed: statusSteps.some(step => step?.confirmed),
-    deliveryConfirmed: allDone,
-    statusSteps
-  });
-
-  openStatusModal(CURRENT_STATUS_JOB);
-  loadJobs();
-});
-function closeStatusModal() {
-  CURRENT_STATUS_JOB = null;
-  document.getElementById('status-modal-backdrop').classList.remove('show');
-}
-function getJobProgress(jobId) {
-  return JSON.parse(localStorage.getItem(`job-progress-${jobId}`) || '{}');
-}
-
-function saveJobProgress(jobId, data) {
-  localStorage.setItem(`job-progress-${jobId}`, JSON.stringify(data));
-}
 function parseTimeToday(timeText) {
   if (!timeText) return null;
 
@@ -2212,35 +2810,129 @@ function parseTimeToday(timeText) {
 }
 
 function getProgressPercent(job) {
-  const progress = getJobProgress(job.id);
+  const dispatch = getTelegramDispatchForJob(job);
 
-  // Do not start the bar until pickup has been confirmed
-  if (!progress.pickupConfirmed) return 0;
+  if (!dispatch) {
+    return 0;
+  }
 
-  const readyVal = job.ready_time || job.readyTime || job.pickup_time || job.pickupTime || job.ready || null;
-  const ready = new Date(readyVal);
-  const deadline = new Date(job.deadline);
-  const now = new Date();
+  const status = dispatch.status || "";
+  const step = dispatch.workflow_step || "";
+  const photoReview = dispatch.photo_review_status || "";
+  const receiptStatus = dispatch.delivery_receipt_status || "";
 
-  if (isNaN(ready) || isNaN(deadline)) return 0;
-  if (now <= ready) return 0;
-  if (now >= deadline) return 100;
+  if (step === "delivery_complete") return 100;
 
-  const total = deadline - ready;
-  const elapsed = now - ready;
+  const steps = [
+    // 0% = unassigned / assign driver
+    () => status === "pending",                                  // driver request sent
+    () => status === "accepted",                                 // driver accepted
+    () => step === "awaiting_eta" || dispatch.eta_status === "requested",
+    () => dispatch.eta_status === "received" || step === "awaiting_arrival",
+    () => Boolean(dispatch.arrival_confirmed_at) || step === "awaiting_piece_count",
+    () => step === "awaiting_top_photo" || step === "awaiting_sticker_photos" || step === "awaiting_invoice_decision" || step === "awaiting_invoice_photos",
+    () => photoReview === "pending_review",
+    () => photoReview === "accepted" || step === "awaiting_delivery_eta",
+    () => dispatch.delivery_eta_status === "received" || step === "delivering" || step === "awaiting_delivery_arrival",
+    () => Boolean(dispatch.arrived_dropoff_at) || step === "awaiting_delivery_confirmation",
+    () => Boolean(dispatch.delivered_at) || step === "awaiting_delivered_to_name",
+    () => Boolean(dispatch.delivered_to_name) || step === "awaiting_delivery_receipt_decision" || step === "awaiting_delivery_receipt_photo",
+    () => receiptStatus === "pending_review",
+    () => receiptStatus === "accepted" || receiptStatus === "not_applicable" || step === "delivery_complete",
+  ];
 
-  return Math.round((elapsed / total) * 100);
+  let completed = 0;
+
+  for (const isStepReached of steps) {
+    if (isStepReached()) {
+      completed += 1;
+    }
+  }
+
+  return Math.round((completed / steps.length) * 100);
 }
+
 
   function createJobRowElement(job) {
     const row = document.createElement('div');
     row.className = `job-row ${getJobStatusClass(job.deadline)}`;
     row.draggable = false;
     row.dataset.id = job.id;
+    const telegramDispatch = getTelegramDispatchForJob(job);
+const telegramStatus = telegramDispatch?.status || "";
+const hasArrived = Boolean(telegramDispatch?.arrival_confirmed_at);
+const needsPhotoReview = telegramDispatch?.photo_review_status === "pending_review";
+const needsReceiptReview = telegramDispatch?.delivery_receipt_status === "pending_review";
+const isAwaitingDeliveryEta = telegramDispatch?.workflow_step === "awaiting_delivery_eta";
+const isDelivering = telegramDispatch?.workflow_step === "delivering";
+const isAwaitingDeliveryArrival = telegramDispatch?.workflow_step === "awaiting_delivery_arrival";
+const isAtDelivery = telegramDispatch?.workflow_step === "awaiting_delivery_confirmation";
+const isAwaitingDeliveredToName = telegramDispatch?.workflow_step === "awaiting_delivered_to_name";
+const isAwaitingReceipt = telegramDispatch?.workflow_step === "awaiting_delivery_receipt_decision" || telegramDispatch?.workflow_step === "awaiting_delivery_receipt_photo";
+const isDeliveryComplete = telegramDispatch?.workflow_step === "delivery_complete";
 
-    const notesHtml = job.notes
-      ? `<details class="note-toggle"><summary>View Notes</summary><div class="note-text">${escapeHtml(job.notes)}</div></details>`
-      : `<span style="color:#6b7280;">No notes</span>`;
+
+const driverButtonText =
+  needsReceiptReview
+    ? "VERIFY RECEIPT"
+    : needsPhotoReview
+      ? "VERIFY PHOTOS"
+      : isDeliveryComplete
+        ? "COMPLETE"
+        : isAwaitingReceipt
+          ? "RECEIPT"
+          : isAwaitingDeliveredToName
+            ? "NEEDS NAME"
+            : isAtDelivery
+              ? "AT DELIVERY"
+              : isAwaitingDeliveryArrival
+                ? "DELIVERING"
+                : isDelivering
+                  ? "DELIVERING"
+                  : isAwaitingDeliveryEta
+                    ? "WAITING DELIVERY ETA"
+                    : hasArrived
+                      ? "ARRIVED"
+                      : telegramStatus === "accepted"
+                        ? "ACCEPTED"
+                        : telegramStatus === "pending"
+                          ? "PENDING"
+                          : ((!job.driver || job.driver === "Unassigned") ? "ASSIGN DRIVER" : "CHANGE DRIVER");
+
+const driverButtonClass =
+  needsReceiptReview
+    ? "verify-photos"
+    : needsPhotoReview
+      ? "verify-photos"
+      : isDeliveryComplete
+        ? "accepted"
+        : isAwaitingReceipt
+          ? "pending"
+          : isAwaitingDeliveredToName
+            ? "pending"
+            : isAtDelivery
+              ? "arrived"
+              : isAwaitingDeliveryArrival
+                ? "delivery"
+                : isDelivering
+                  ? "delivery"
+                  : isAwaitingDeliveryEta
+                    ? "pending"
+                    : hasArrived
+                      ? "arrived"
+                      : telegramStatus === "accepted"
+                        ? "accepted"
+                        : telegramStatus === "pending"
+                          ? "pending"
+                          : ((!job.driver || job.driver === "Unassigned") ? "assign" : "");
+
+const driverEtaHtml = "";
+const telegramWorkflowLogHtml = renderTelegramWorkflowLog(telegramDispatch);
+
+const notesHtml = job.notes
+  ? `<details class="note-toggle"><summary>View Notes</summary><div class="note-text">${escapeHtml(job.notes)}</div></details>`
+  : `<span style="color:#6b7280;">No notes</span>`;
+
 
     row.innerHTML = `
       <div class="select-cell"><input type="checkbox" class="job-checkbox" data-id="${job.id}"></div>
@@ -2251,9 +2943,12 @@ function getProgressPercent(job) {
       <div class="mini-meta">
         <b>${escapeHtml(job.driver || 'Unassigned')}</b><br>
         1 pcs<br>2 lbs<br>
-        <button type="button" class="driver-change-btn ${(!job.driver || job.driver === 'Unassigned') ? 'assign' : ''}">
-  ${(!job.driver || job.driver === 'Unassigned') ? 'ASSIGN DRIVER' : 'CHANGE DRIVER'}
-</button>
+        <div class="driver-action-line">
+  <button type="button" class="driver-change-btn ${driverButtonClass}">
+    ${driverButtonText}
+  </button>
+  
+</div>
 
 <div class="inline-driver-box" hidden>
   <input class="inline-driver-input" type="text" placeholder="Search driver...">
@@ -2272,16 +2967,12 @@ function getProgressPercent(job) {
 </div>
         <div class="timeline drag-handle">
   <span class="start">🚗</span>
-  <span class="fill ${getJobProgress(job.id).pickupConfirmed && getProgressPercent(job) >= 100 ? 'late' : ''}" 
-    style="width:${getJobProgress(job.id).pickupConfirmed ? Math.min(getProgressPercent(job), 100) : 0}%;">
-  </span>
+  <span class="fill" style="width:${Math.min(getProgressPercent(job), 100)}%;"></span>
   <span class="timeline-text">${escapeHtml(CATEGORY_LABELS[job.category] || '')}</span>
+${telegramWorkflowLogHtml}
   <span class="end">✈️</span>
 
-<div class="status-button-under-bar">
-  <button type="button" class="confirm-btn"></button>
-  ${renderMiniStatusSteps(job)}
-</div>
+
 </div>
 
 
@@ -2375,13 +3066,40 @@ const inlineDriverSave = row.querySelector('.inline-driver-save');
 
 row.querySelector('.driver-change-btn')?.addEventListener('click', (e) => {
   e.stopPropagation();
-  inlineDriverBox.hidden = !inlineDriverBox.hidden;
-  if (!inlineDriverBox.hidden) {
-  inlineDriverInput.value = "";
-  selectedDriverGuid = "";
-  driverSearchResults.hidden = true;
-  inlineDriverInput.focus();
+
+  const telegramDispatch = getTelegramDispatchForJob(job);
+  if (
+  telegramDispatch?.photo_review_status === "pending_review" ||
+  telegramDispatch?.delivery_receipt_status === "pending_review"
+) {
+  openPhotoReviewModal(job, telegramDispatch);
+  return;
 }
+
+  if (telegramDispatch?.status === "accepted") {
+    return;
+  }
+
+  if (telegramDispatch?.status === "pending") {
+    openTelegramCancelModal(job, telegramDispatch);
+    return;
+  }
+
+  const pendingData = getPendingDispatch(job.id);
+
+  if (pendingData) {
+    openTelegramCancelModal(job, pendingData);
+    return;
+  }
+
+  inlineDriverBox.hidden = !inlineDriverBox.hidden;
+
+  if (!inlineDriverBox.hidden) {
+    inlineDriverInput.value = "";
+    selectedDriverGuid = "";
+    driverSearchResults.hidden = true;
+    inlineDriverInput.focus();
+  }
 });
 
 inlineDriverInput?.addEventListener('input', () => {
@@ -2421,60 +3139,87 @@ driverSearchResults?.addEventListener('click', (e) => {
   selectedDriverGuid = option.dataset.id;
   inlineDriverInput.value = option.dataset.name;
   driverSearchResults.hidden = true;
+  inlineDriverBox.hidden = true;
+
+  const selectedDriver = ONTIME_DRIVERS.find(d => d.id === selectedDriverGuid);
+
+  if (!selectedDriver) {
+    alert("Selected driver was not found.");
+    return;
+  }
+
+  openTelegramAssignModal(job, selectedDriver);
 });
 
 async function saveDriverChange(forceLocalOnly = false) {
-inlineDriverSave.disabled = true;
-inlineDriverSave.textContent = "Saving...";
+  inlineDriverSave.disabled = true;
+  inlineDriverSave.textContent = "Sending.";
+
   const selectedDriver = ONTIME_DRIVERS.find(d => d.id === selectedDriverGuid);
   const newDriver = selectedDriver?.name || '';
-  if (!newDriver) return alert('Select a driver first.');
 
-  const res = await fetch(ASSIGN_DRIVER_FUNCTION_URL, {
+  if (!newDriver) {
+    inlineDriverSave.disabled = false;
+    inlineDriverSave.textContent = "Save";
+    alert('Select a driver first.');
+    return;
+  }
+
+  const payload = {
+    job_id: String(job.id || ""),
+    job_number: String(job.title || job.job_number || ""),
+    driver_id: String(selectedDriverGuid || ""),
+    job_type: String(CATEGORY_LABELS[job.category] || job.category || ""),
+    pickup: String(getDisplayPickup(job) || ""),
+    dropoff: String(getDisplayDelivery(job) || ""),
+    ready_time: String(formatReadyTime(job) || ""),
+    due_time: String(formatDeadline(job.deadline) || ""),
+    awb: String(getAwbText(job) || ""),
+    pieces: String(job.pieces || job.piece_count || "1"),
+    weight: String(job.weight || job.total_weight || "2 lbs"),
+    notes: String(job.notes || "")
+  };
+
+  const res = await fetch(SEND_TELEGRAM_JOB_FUNCTION_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
       "apikey": SUPABASE_ANON_KEY
     },
-    body: JSON.stringify({
-      jobId: job.id,
-      jobNumber: job.title,
-      driverName: newDriver,
-      driverGuid: selectedDriverGuid,
-      forceLocalOnly
-    })
+    body: JSON.stringify(payload)
   });
 
-  const result = await res.json();
+  const rawText = await res.text();
 
-  if (!res.ok || result.error) {
-    if (result.error === "MISSING_ONTIME_ORDER_ID") {
-      const continueLocalOnly = confirm(
-        "This job is not linked to OnTime. Updates on this job will NOT sync with OnTime Management Suite. Are you sure you want to continue?"
-      );
-
-      if (!continueLocalOnly) {
-  inlineDriverSave.disabled = false;
-  inlineDriverSave.textContent = "Save";
-  return;
-}
-
-      return saveDriverChange(true);
-    }
+  let result = {};
+  try {
+    result = rawText ? JSON.parse(rawText) : {};
+  } catch (e) {
     inlineDriverSave.disabled = false;
     inlineDriverSave.textContent = "Save";
-    alert(`Driver update failed: ${result.error || 'Unknown error'}`);
+    alert(`Telegram dispatch failed. Non-JSON response: ${rawText}`);
     return;
   }
 
-  alert(result.message || 'Driver updated successfully.');
-  loadJobs();
   inlineDriverSave.disabled = false;
   inlineDriverSave.textContent = "Save";
+
+  if (!res.ok || result.error || result.success === false) {
+    alert(`Telegram dispatch failed: ${result.error || 'Unknown error'}`);
+    return;
+  }
+
+  alert(`Job alert sent to ${result.driver_name || newDriver}. Waiting for driver acceptance.`);
+
+  inlineDriverBox.hidden = true;
 }
 
-inlineDriverSave?.addEventListener('click', () => saveDriverChange(false));
+
+
+
+
+// Old Save button disabled. Driver assignment now goes through Telegram confirmation modal.
 async function saveAwbChange(job, newAwb, saveBtn, forceLocalOnly = false) {
   const res = await fetch(UPDATE_AWB_FUNCTION_URL, {
     method: "POST",
@@ -2528,7 +3273,6 @@ async function saveAwbChange(job, newAwb, saveBtn, forceLocalOnly = false) {
   alert(result.message || "AWB updated successfully.");
   await loadJobs();
 }
-    const confirmBtn = row.querySelector('.confirm-btn');
 
     row.querySelector('.messages-btn')?.addEventListener('click', () => {
   openMessagesModal(job);
@@ -2617,25 +3361,7 @@ deleteBtn.addEventListener('click', async () => {
 
   loadJobs();
 });
-const progress = getJobProgress(job.id);
 
-const steps = getStatusSteps(job);
-const completedSteps = progress.statusSteps?.filter(step => step.confirmed).length || 0;
-
-if (completedSteps >= steps.length) {
-  confirmBtn.textContent = 'Delivery Confirmed';
-  confirmBtn.classList.add('delivery');
-} else {
-  confirmBtn.textContent = steps[completedSteps] || 'Update Status';
-
-  if (completedSteps > 0) {
-    confirmBtn.classList.add('delivery');
-  }
-}
-
-confirmBtn.addEventListener('click', () => {
-  openStatusModal(job);
-});
     row.querySelector('.menu-trigger').addEventListener('click', (e) => {
       e.stopPropagation();
       document.querySelectorAll('.card-menu').forEach(m => { if (m !== menu) m.hidden = true; });
@@ -3389,6 +4115,152 @@ function renderJob(job) {
   activeJobsList.appendChild(createJobRowElement(job));
 }
 
+function getCurrentActiveJobsFromMemory() {
+  const query = (document.getElementById('job-search')?.value || '').trim().toLowerCase();
+  const selectedCategory = document.getElementById('category-filter')?.value || 'all';
+  const selectedClient = document.getElementById('client-filter')?.value || 'all';
+  const selectedDriver = document.getElementById('driver-filter')?.value || 'all';
+  const selectedDeliveryDate = document.getElementById('delivery-date-filter')?.value || 'all';
+
+  return (ALL_JOBS || [])
+    .filter(job => !isArchivedJob(job))
+    .filter(job => jobMatchesSearch(job, query))
+    .filter(job => selectedCategory === 'all' || job.category === selectedCategory)
+    .filter(job => selectedClient === 'all' || getJobClient(job) === selectedClient)
+    .filter(job => selectedDriver === 'all' || job.driver === selectedDriver)
+    .filter(job => {
+      if (!TOP_OTHER_FILTERS.length) return true;
+
+      const jobFilters = getJobFilters(job);
+      return TOP_OTHER_FILTERS.every(filter => jobFilters.includes(filter));
+    })
+    .filter(job => {
+      if (selectedDeliveryDate === 'all') return true;
+
+      const d = new Date(job.deadline);
+      const now = new Date();
+      if (isNaN(d)) return false;
+
+      const sameDay =
+        d.getFullYear() === now.getFullYear() &&
+        d.getMonth() === now.getMonth() &&
+        d.getDate() === now.getDate();
+
+      const tomorrow = new Date(now);
+      tomorrow.setDate(now.getDate() + 1);
+
+      const isTomorrow =
+        d.getFullYear() === tomorrow.getFullYear() &&
+        d.getMonth() === tomorrow.getMonth() &&
+        d.getDate() === tomorrow.getDate();
+
+      if (selectedDeliveryDate === 'today') return sameDay;
+      if (selectedDeliveryDate === 'tomorrow') return isTomorrow;
+      if (selectedDeliveryDate === 'overdue') return d < now;
+
+      return true;
+    })
+    .sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+}
+
+function refreshShipmentCountOnly() {
+  document.getElementById('shipment-count').textContent = getCurrentActiveJobsFromMemory().length;
+}
+
+function upsertActiveJobRow(job) {
+  if (!job?.id) return;
+
+  const existingRow = document.querySelector(`#active-jobs-list .job-row[data-id="${CSS.escape(String(job.id))}"]`);
+  const activeJobs = getCurrentActiveJobsFromMemory();
+  const shouldShow = activeJobs.some(activeJob => String(activeJob.id) === String(job.id));
+
+  if (!shouldShow) {
+    existingRow?.remove();
+    refreshShipmentCountOnly();
+    updateBulkArchiveButton();
+    return;
+  }
+
+  const newRow = createJobRowElement(job);
+
+  if (existingRow) {
+    existingRow.replaceWith(newRow);
+  } else {
+    activeJobsList.appendChild(newRow);
+  }
+
+  const sortedRows = activeJobs
+    .map(activeJob => document.querySelector(`#active-jobs-list .job-row[data-id="${CSS.escape(String(activeJob.id))}"]`))
+    .filter(Boolean);
+
+  sortedRows.forEach(row => activeJobsList.appendChild(row));
+
+  refreshShipmentCountOnly();
+  updateBulkArchiveButton();
+}
+
+function removeActiveJobRow(jobId) {
+  document.querySelector(`#active-jobs-list .job-row[data-id="${CSS.escape(String(jobId))}"]`)?.remove();
+  refreshShipmentCountOnly();
+  updateBulkArchiveButton();
+}
+
+function handleRealtimeJobChange(payload) {
+  const eventType = payload.eventType;
+  const newJob = payload.new;
+  const oldJob = payload.old;
+  const jobId = newJob?.id || oldJob?.id;
+
+  if (!jobId) return;
+
+  if (eventType === "DELETE") {
+    ALL_JOBS = (ALL_JOBS || []).filter(job => String(job.id) !== String(jobId));
+    removeActiveJobRow(jobId);
+    renderArchivedJobs(ALL_JOBS);
+    populateDriverFilter(ALL_JOBS);
+    return;
+  }
+
+  const existingIndex = (ALL_JOBS || []).findIndex(job => String(job.id) === String(jobId));
+
+  if (existingIndex >= 0) {
+    ALL_JOBS[existingIndex] = {
+      ...ALL_JOBS[existingIndex],
+      ...newJob
+    };
+  } else {
+    ALL_JOBS.unshift(newJob);
+  }
+
+  populateDriverFilter(ALL_JOBS);
+  upsertActiveJobRow(ALL_JOBS.find(job => String(job.id) === String(jobId)));
+  renderArchivedJobs(ALL_JOBS);
+}
+
+function handleRealtimeTelegramDispatchChange(payload) {
+  const row = payload.new || payload.old;
+  const jobId = String(row?.job_id || "");
+
+  if (!jobId) return;
+
+  if (payload.eventType === "DELETE") {
+    delete TELEGRAM_DISPATCH_BY_JOB_ID[jobId];
+  } else if (row.status === "accepted" || row.status === "pending") {
+    TELEGRAM_DISPATCH_BY_JOB_ID[jobId] = row;
+
+    if (row.status === "accepted") {
+      clearPendingDispatch(jobId);
+    }
+  } else {
+    delete TELEGRAM_DISPATCH_BY_JOB_ID[jobId];
+  }
+
+  const job = (ALL_JOBS || []).find(j => String(j.id) === jobId);
+  if (!job) return;
+
+  upsertActiveJobRow(job);
+}
+
   function getUrgentJobs(jobs) {
     return (jobs || [])
       .filter(job => job.category !== 'dispatched' && !isArchivedJob(job))
@@ -3515,6 +4387,12 @@ if (autoArchivedIds.length) {
 }
 
 
+try {
+  await loadTelegramDispatchesForJobs(ALL_JOBS);
+} catch (err) {
+  console.error("Telegram status load failed, continuing without Telegram statuses:", err);
+  TELEGRAM_DISPATCH_BY_JOB_ID = {};
+}
 
 populateDriverFilter(ALL_JOBS);
     const query = (document.getElementById('job-search')?.value || '').trim().toLowerCase();
@@ -3780,15 +4658,7 @@ document.getElementById('address-modal-save').addEventListener('click', async ()
   closeAddressModal();
   loadJobs();
 });
-document.getElementById('status-modal-close').addEventListener('click', closeStatusModal);
 
-document.getElementById('status-modal-backdrop').addEventListener('click', (e) => {
-  if (e.target.id === 'status-modal-backdrop') closeStatusModal();
-});
-
-document.getElementById('status-modal-save').addEventListener('click', () => {
-  closeStatusModal();
-});
 document.getElementById('time-modal-close').addEventListener('click', closeTimeModal);
 
 document.getElementById('time-modal-backdrop').addEventListener('click', (e) => {
@@ -3958,8 +4828,20 @@ window.addEventListener('DOMContentLoaded', async () => {
   await loadJobs();
 
   sb.channel('jobs-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'jobs' }, loadJobs)
-    .subscribe();
+  .on(
+    'postgres_changes',
+    { event: '*', schema: 'public', table: 'jobs' },
+    handleRealtimeJobChange
+  )
+  .subscribe();
+
+sb.channel('telegram-dispatch-changes')
+  .on(
+    'postgres_changes',
+    { event: '*', schema: 'public', table: 'telegram_job_dispatches' },
+    handleRealtimeTelegramDispatchChange
+  )
+  .subscribe();
 });
 </script>
 </body>
