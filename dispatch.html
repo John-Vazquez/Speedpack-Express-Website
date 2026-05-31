@@ -153,6 +153,94 @@ nav.hide-on-scroll {
     .reset-link { border: 0; color:#2563eb; text-decoration: underline; justify-content:center; }
 
     .add-panel { margin-bottom: 22px; }
+
+    .active-drivers-panel {
+  margin-bottom: 22px;
+}
+
+.active-drivers-toggle summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 13px 18px;
+  font-size: .95rem;
+  font-weight: 800;
+  border-bottom: 1px solid transparent;
+}
+
+.active-drivers-toggle[open] summary {
+  border-bottom-color: #e5e7eb;
+}
+
+.active-drivers-toggle summary::-webkit-details-marker {
+  display: none;
+}
+
+.active-drivers-toggle summary::after {
+  content: '▾';
+  float: right;
+}
+
+.active-drivers-body {
+  padding: 14px 18px 18px;
+}
+
+.active-drivers-head {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 12px;
+  padding: 8px 10px;
+  background: #1e3a8a;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.active-driver-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 12px;
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+  font-size: 13px;
+  align-items: center;
+}
+
+.active-driver-row:nth-child(odd) {
+  background: #fbfbfd;
+}
+
+.active-driver-name {
+  font-weight: 900;
+  color: #111827;
+}
+
+.active-driver-status {
+  color: #16a34a;
+  font-weight: 900;
+}
+
+.active-driver-empty {
+  padding: 16px;
+  color: #6b7280;
+  font-size: 13px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+}
+
+.active-driver-refresh {
+  border: 0;
+  background: #1e3a8a;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 7px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  float: right;
+}
+
     .add-job-toggle summary {
       list-style: none;
       cursor: pointer;
@@ -1779,6 +1867,25 @@ nav.hide-on-scroll {
 </form>
     </details>
 
+    <details class="filters-card active-drivers-panel active-drivers-toggle" aria-label="Active Telegram Drivers">
+      <summary>
+        Active Drivers Online
+        <button type="button" id="active-drivers-refresh" class="active-driver-refresh">Refresh</button>
+      </summary>
+
+      <div class="active-drivers-body">
+        <div class="active-drivers-head">
+          <div>Driver</div>
+          <div>Status</div>
+          <div>Last Location</div>
+        </div>
+
+        <div id="active-drivers-list">
+          <div class="active-driver-empty">Loading active drivers...</div>
+        </div>
+      </div>
+    </details>
+
     <section class="shipments-card" aria-label="Dispatch Board">
       <div class="shipments-head">
   <input type="checkbox" id="select-all-jobs">
@@ -1989,6 +2096,7 @@ nav.hide-on-scroll {
   let ALL_ONTIME_LOCATIONS = [];
   let ONTIME_LOCATION_QUERY_CACHE = {};
   let ONTIME_DRIVERS = [];
+  let ACTIVE_TELEGRAM_DRIVERS = [];
 
   const CATEGORIES = ["mia","fll","tenders","deliveries","dispatched","bullshit"];
   const CATEGORY_LABELS = { mia:"MIA Recovery", fll:"FLL Recovery", tenders:"Tenders", deliveries:"Deliveries", dispatched:"Dispatched", bullshit:"Bullshit Pile" };
@@ -2049,6 +2157,121 @@ function getTelegramDispatchForJob(job) {
 
   return dispatchRow;
 }
+
+
+
+
+function isDriverLiveNow(driver) {
+  if (!driver.telegram_online) return false;
+  if (!driver.telegram_live_location_active) return false;
+
+  const expiresAt = driver.telegram_live_location_expires_at
+    ? new Date(driver.telegram_live_location_expires_at)
+    : null;
+
+  if (expiresAt && !isNaN(expiresAt) && expiresAt < new Date()) {
+    return false;
+  }
+
+  return true;
+}
+
+function formatActiveDriverLastLocation(driver) {
+  if (!driver.last_location_at) return "No location yet";
+
+  const d = new Date(driver.last_location_at);
+  if (isNaN(d)) return "Unknown";
+
+  const now = new Date();
+  const diffMinutes = Math.floor((now - d) / (1000 * 60));
+
+  if (diffMinutes < 1) return "Just now";
+  if (diffMinutes === 1) return "1 min ago";
+  if (diffMinutes < 60) return `${diffMinutes} mins ago`;
+
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours === 1) return "1 hour ago";
+  return `${diffHours} hours ago`;
+}
+
+function renderActiveTelegramDrivers() {
+  const list = document.getElementById("active-drivers-list");
+  if (!list) return;
+
+  const activeDrivers = (ACTIVE_TELEGRAM_DRIVERS || [])
+    .filter(isDriverLiveNow)
+    .sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
+
+  if (!activeDrivers.length) {
+    list.innerHTML = `<div class="active-driver-empty">No drivers are currently online with live location active.</div>`;
+    return;
+  }
+
+  list.innerHTML = activeDrivers.map(driver => `
+    <div class="active-driver-row">
+      <div class="active-driver-name">${escapeHtml(driver.name || "Unknown Driver")}</div>
+      <div class="active-driver-status">Online</div>
+      <div>${escapeHtml(formatActiveDriverLastLocation(driver))}</div>
+    </div>
+  `).join("");
+}
+
+async function loadActiveTelegramDrivers() {
+  const list = document.getElementById("active-drivers-list");
+
+  if (list) {
+    list.innerHTML = `<div class="active-driver-empty">Loading active drivers...</div>`;
+  }
+
+  const { data, error } = await sb
+    .from("driver_cache")
+    .select("id, name, telegram_online, telegram_live_location_active, telegram_live_location_expires_at, last_location_at")
+    .eq("telegram_online", true)
+    .eq("telegram_live_location_active", true)
+    .order("name", { ascending: true });
+
+  if (error) {
+    console.error("Failed to load active Telegram drivers:", error);
+
+    if (list) {
+      list.innerHTML = `<div class="active-driver-empty">Failed to load active drivers.</div>`;
+    }
+
+    return;
+  }
+
+  ACTIVE_TELEGRAM_DRIVERS = data || [];
+  renderActiveTelegramDrivers();
+}
+
+function handleRealtimeDriverCacheChange(payload) {
+  const row = payload.new || payload.old;
+  if (!row?.id) return;
+
+  if (payload.eventType === "DELETE") {
+    ACTIVE_TELEGRAM_DRIVERS = ACTIVE_TELEGRAM_DRIVERS.filter(driver => String(driver.id) !== String(row.id));
+    renderActiveTelegramDrivers();
+    return;
+  }
+
+  const existingIndex = ACTIVE_TELEGRAM_DRIVERS.findIndex(driver => String(driver.id) === String(row.id));
+
+  if (existingIndex >= 0) {
+    ACTIVE_TELEGRAM_DRIVERS[existingIndex] = {
+      ...ACTIVE_TELEGRAM_DRIVERS[existingIndex],
+      ...row
+    };
+  } else {
+    ACTIVE_TELEGRAM_DRIVERS.push(row);
+  }
+
+  renderActiveTelegramDrivers();
+}
+
+
+
+
+
 function formatTelegramTime(value) {
   const d = new Date(value);
   if (isNaN(d)) return "";
@@ -2114,6 +2337,13 @@ function renderTelegramWorkflowLog(dispatchRow) {
   setTimeout(updateTopOtherFilterLabel, 0);
 
 const activeJobsList = document.getElementById('active-jobs-list');
+document.getElementById("active-drivers-refresh")?.addEventListener("click", async (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  await loadActiveTelegramDrivers();
+});
+
+
 
 document.getElementById("telegram-confirm-cancel")?.addEventListener("click", () => {
   closeTelegramAssignModal();
@@ -4825,6 +5055,7 @@ window.addEventListener('scroll', () => {
 window.addEventListener('DOMContentLoaded', async () => {
   await loadOntimeDrivers();
   setupAddJobDriverSearch();
+  await loadActiveTelegramDrivers();
   await loadJobs();
 
   sb.channel('jobs-changes')
@@ -4842,6 +5073,15 @@ sb.channel('telegram-dispatch-changes')
     handleRealtimeTelegramDispatchChange
   )
   .subscribe();
+
+  sb.channel('driver-cache-changes')
+  .on(
+    'postgres_changes',
+    { event: '*', schema: 'public', table: 'driver_cache' },
+    handleRealtimeDriverCacheChange
+  )
+  .subscribe();
+  
 });
 </script>
 </body>
