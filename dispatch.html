@@ -240,6 +240,129 @@ nav.hide-on-scroll {
   border-radius: 3px;
   float: right;
 }
+.needs-attention-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.needs-attention-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.needs-attention-alert {
+  display: none;
+  color: #dc2626;
+  font-size: 26px;
+  font-weight: 1000;
+  line-height: 1;
+  animation: attentionPulse .8s infinite alternate;
+}
+
+.needs-attention-alert.show {
+  display: inline-block;
+}
+
+@keyframes attentionPulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.25);
+  }
+}
+.needs-attention-panel {
+  margin-bottom: 22px;
+}
+
+.needs-attention-head {
+  display: grid;
+  grid-template-columns: 120px 180px 1fr;
+  gap: 12px;
+  padding: 8px 10px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.needs-attention-row {
+  display: grid;
+  grid-template-columns: 120px 180px 1fr;
+  gap: 12px;
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+  font-size: 13px;
+  align-items: center;
+}
+
+.needs-attention-row:nth-child(odd) {
+  background: #fff7f7;
+}
+
+.needs-attention-row.photo-review {
+  background: #faf5ff;
+  border-left: 5px solid #7c3aed;
+}
+
+.needs-attention-row.photo-review:nth-child(odd) {
+  background: #f3e8ff;
+}
+
+.needs-attention-row.photo-review .needs-attention-problem {
+  color: #6d28d9;
+}
+
+.needs-attention-type {
+  display: inline-block;
+  margin-right: 7px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  background: #dc2626;
+  color: #fff;
+}
+
+.needs-attention-type.photo-review {
+  background: #7c3aed;
+}
+
+.needs-attention-job {
+  font-weight: 900;
+  color: #0097ff;
+}
+
+.needs-attention-driver {
+  font-weight: 900;
+  color: #111827;
+}
+
+.needs-attention-problem {
+  color: #991b1b;
+  font-weight: 800;
+}
+
+.needs-attention-empty {
+  padding: 16px;
+  color: #6b7280;
+  font-size: 13px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+}
 
     .add-job-toggle summary {
       list-style: none;
@@ -1866,7 +1989,27 @@ nav.hide-on-scroll {
   </div>
 </form>
     </details>
+<details id="needs-attention-toggle" class="filters-card needs-attention-panel active-drivers-toggle" aria-label="Needs Attention">
+  <summary>
+  <span class="needs-attention-summary">
+    <span>Needs Attention</span>
+    <span id="needs-attention-count" class="needs-attention-count">0</span>
+    <span id="needs-attention-alert" class="needs-attention-alert">!</span>
+  </span>
+</summary>
 
+  <div class="active-drivers-body">
+    <div class="needs-attention-head">
+      <div>Job #</div>
+      <div>Driver</div>
+      <div>Problem</div>
+    </div>
+
+    <div id="needs-attention-list">
+      <div class="needs-attention-empty">No issues need attention.</div>
+    </div>
+  </div>
+</details>
     <details class="filters-card active-drivers-panel active-drivers-toggle" aria-label="Active Telegram Drivers">
       <summary>
         Active Drivers Online
@@ -2097,7 +2240,32 @@ nav.hide-on-scroll {
   let ONTIME_LOCATION_QUERY_CACHE = {};
   let ONTIME_DRIVERS = [];
   let ACTIVE_TELEGRAM_DRIVERS = [];
+  let NEEDS_ATTENTION_ITEMS = [];
 
+function getSeenNeedsAttentionIds() {
+  try {
+    return JSON.parse(localStorage.getItem("seen-needs-attention-ids") || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function saveSeenNeedsAttentionIds(ids) {
+  localStorage.setItem("seen-needs-attention-ids", JSON.stringify(ids));
+}
+
+function markNeedsAttentionChecked() {
+  const ids = NEEDS_ATTENTION_ITEMS
+    .map(item => String(item.id || ""))
+    .filter(Boolean);
+
+  saveSeenNeedsAttentionIds(ids);
+
+  const alertIcon = document.getElementById("needs-attention-alert");
+  if (alertIcon) {
+    alertIcon.classList.remove("show");
+  }
+}
   const CATEGORIES = ["mia","fll","tenders","deliveries","dispatched","bullshit"];
   const CATEGORY_LABELS = { mia:"MIA Recovery", fll:"FLL Recovery", tenders:"Tenders", deliveries:"Deliveries", dispatched:"Dispatched", bullshit:"Bullshit Pile" };
   let ALL_JOBS = [];
@@ -2192,6 +2360,135 @@ function formatActiveDriverLastLocation(driver) {
   const diffHours = Math.floor(diffMinutes / 60);
   if (diffHours === 1) return "1 hour ago";
   return `${diffHours} hours ago`;
+}
+
+
+
+function normalizePieceCountForAttention(value) {
+  const match = String(value || "").trim().match(/\d+/);
+  if (!match) return "";
+  return String(Number(match[0]));
+}
+
+function renderNeedsAttention() {
+  const list = document.getElementById("needs-attention-list");
+  const countEl = document.getElementById("needs-attention-count");
+  const alertIcon = document.getElementById("needs-attention-alert");
+
+  if (countEl) {
+    countEl.textContent = String(NEEDS_ATTENTION_ITEMS.length);
+  }
+
+  const seenIds = getSeenNeedsAttentionIds();
+  const hasNewUnseen = NEEDS_ATTENTION_ITEMS.some(item =>
+    item.id && !seenIds.includes(String(item.id))
+  );
+
+  if (alertIcon) {
+    alertIcon.classList.toggle("show", hasNewUnseen);
+  }
+
+  if (!list) return;
+
+  if (!NEEDS_ATTENTION_ITEMS.length) {
+    list.innerHTML = `<div class="needs-attention-empty">No issues need attention.</div>`;
+    return;
+  }
+
+  list.innerHTML = NEEDS_ATTENTION_ITEMS.map(item => `
+    <div class="needs-attention-row ${item.type === "photo_review" ? "photo-review" : ""}">
+      <div class="needs-attention-job">${escapeHtml(item.job_number || "Unknown")}</div>
+      <div class="needs-attention-driver">${escapeHtml(item.driver_name || "Unknown Driver")}</div>
+      <div class="needs-attention-problem">
+        <span class="needs-attention-type ${item.type === "photo_review" ? "photo-review" : ""}">
+          ${item.type === "photo_review" ? "PHOTOS" : "ERROR"}
+        </span>
+        ${escapeHtml(item.problem || "")}
+      </div>
+    </div>
+  `).join("");
+}
+
+
+
+
+async function loadNeedsAttention() {
+  const list = document.getElementById("needs-attention-list");
+
+  if (list) {
+    list.innerHTML = `<div class="needs-attention-empty">Loading issues...</div>`;
+  }
+
+  const { data, error } = await sb
+    .from("telegram_job_dispatches")
+    .select("id, job_id, job_number, driver_name, pieces, pieces_confirmed_text, status, workflow_step, photo_review_status, photos_submitted_at, delivery_receipt_status, delivery_receipt_submitted_at, updated_at, created_at")
+    .not("pieces_confirmed_text", "is", null)
+    .order("updated_at", { ascending: false })
+    .limit(200);
+
+  if (error) {
+    console.error("Failed to load needs attention:", error);
+
+    if (list) {
+      list.innerHTML = `<div class="needs-attention-empty">Failed to load issues.</div>`;
+    }
+
+    return;
+  }
+
+    const attentionItems = [];
+
+  (data || []).forEach(row => {
+    if (row.status === "cancelled") return;
+
+    const expectedPieces = normalizePieceCountForAttention(row.pieces);
+    const actualPieces = normalizePieceCountForAttention(row.pieces_confirmed_text);
+
+    if (expectedPieces && actualPieces && expectedPieces !== actualPieces) {
+      attentionItems.push({
+        id: `pieces-${row.id}`,
+        dispatch_id: row.id,
+        job_id: row.job_id,
+        job_number: row.job_number,
+        driver_name: row.driver_name,
+        type: "piece_mismatch",
+        updated_at: row.updated_at || row.created_at,
+        problem: `Driver confirmed ${actualPieces} pcs, but the job says ${expectedPieces} pcs. Please confirm with driver before they leave the site.`
+      });
+    }
+
+    if (row.photo_review_status === "pending_review") {
+      attentionItems.push({
+        id: `photos-${row.id}`,
+        dispatch_id: row.id,
+        job_id: row.job_id,
+        job_number: row.job_number,
+        driver_name: row.driver_name,
+        type: "photo_review",
+        updated_at: row.photos_submitted_at || row.updated_at || row.created_at,
+        problem: `Photos are waiting for dispatch verification. Please review them as soon as possible.`
+      });
+    }
+
+    if (row.delivery_receipt_status === "pending_review") {
+      attentionItems.push({
+        id: `receipt-${row.id}`,
+        dispatch_id: row.id,
+        job_id: row.job_id,
+        job_number: row.job_number,
+        driver_name: row.driver_name,
+        type: "photo_review",
+        updated_at: row.delivery_receipt_submitted_at || row.updated_at || row.created_at,
+        problem: `Delivery receipt is waiting for dispatch verification. Please review it as soon as possible.`
+      });
+    }
+  });
+
+  NEEDS_ATTENTION_ITEMS = attentionItems.sort((a, b) =>
+    new Date(b.updated_at || 0) - new Date(a.updated_at || 0)
+  );
+
+  renderNeedsAttention();
 }
 
 function renderActiveTelegramDrivers() {
@@ -2337,6 +2634,14 @@ function renderTelegramWorkflowLog(dispatchRow) {
   setTimeout(updateTopOtherFilterLabel, 0);
 
 const activeJobsList = document.getElementById('active-jobs-list');
+
+
+document.getElementById("needs-attention-toggle")?.addEventListener("toggle", (e) => {
+  if (e.target.open) {
+    markNeedsAttentionChecked();
+  }
+});
+
 document.getElementById("active-drivers-refresh")?.addEventListener("click", async (e) => {
   e.preventDefault();
   e.stopPropagation();
@@ -4468,6 +4773,8 @@ function handleRealtimeJobChange(payload) {
 }
 
 function handleRealtimeTelegramDispatchChange(payload) {
+  loadNeedsAttention();
+console.log("REALTIME TELEGRAM DISPATCH PAYLOAD:", payload);
   const row = payload.new || payload.old;
   const jobId = String(row?.job_id || "");
 
@@ -5057,6 +5364,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   setupAddJobDriverSearch();
   await loadActiveTelegramDrivers();
   await loadJobs();
+  await loadNeedsAttention();
 
   sb.channel('jobs-changes')
   .on(
