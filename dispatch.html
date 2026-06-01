@@ -641,6 +641,7 @@ nav.hide-on-scroll {
   margin-top: 6px;
   display: flex;
   gap: 4px;
+  position: relative;
 }
 
 .inline-driver-box[hidden] {
@@ -666,12 +667,14 @@ nav.hide-on-scroll {
 
 .driver-search-results {
   position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
   background: #fff;
   border: 1px solid #cbd5e1;
   width: 190px;
   max-height: 180px;
   overflow-y: auto;
-  z-index: 50;
+  z-index: 9999;
   box-shadow: 0 6px 18px rgba(0,0,0,.18);
 }
 
@@ -1400,7 +1403,7 @@ nav.hide-on-scroll {
     minmax(180px, 1.2fr);
   gap: clamp(6px, .7vw, 12px);
   padding: 10px clamp(8px, 1vw, 16px);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .route-cell {
@@ -1620,7 +1623,7 @@ nav.hide-on-scroll {
   background: #16a34a;
   color: #fff;
   border-color: #16a34a;
-  cursor: default;
+  cursor: pointer;
 }
 
 .driver-eta-badge {
@@ -2268,6 +2271,7 @@ function markNeedsAttentionChecked() {
 }
   const CATEGORIES = ["mia","fll","tenders","deliveries","dispatched","bullshit"];
   const CATEGORY_LABELS = { mia:"MIA Recovery", fll:"FLL Recovery", tenders:"Tenders", deliveries:"Deliveries", dispatched:"Dispatched", bullshit:"Bullshit Pile" };
+  let LOAD_JOBS_RUN_ID = 0;
   let ALL_JOBS = [];
 
   let TELEGRAM_DISPATCH_BY_JOB_ID = {};
@@ -2732,7 +2736,7 @@ document.getElementById("telegram-cancel-yes")?.addEventListener("click", async 
   const cancelBtn = document.getElementById("telegram-cancel-yes");
 
   cancelBtn.disabled = true;
-  cancelBtn.textContent = "Cancelling...";
+  cancelBtn.textContent = "Processing...";
 
   const res = await fetch(CANCEL_TELEGRAM_JOB_FUNCTION_URL, {
     method: "POST",
@@ -2742,7 +2746,7 @@ document.getElementById("telegram-cancel-yes")?.addEventListener("click", async 
       "apikey": SUPABASE_ANON_KEY
     },
     body: JSON.stringify({
-      dispatch_id: pendingData.dispatch_id
+      dispatch_id: pendingData.dispatch_id || pendingData.id
     })
   });
 
@@ -2753,13 +2757,13 @@ document.getElementById("telegram-cancel-yes")?.addEventListener("click", async 
     result = rawText ? JSON.parse(rawText) : {};
   } catch (e) {
     cancelBtn.disabled = false;
-    cancelBtn.textContent = "Yes, cancel this job";
+    cancelBtn.textContent = "Yes, unassign driver";
     alert(`Cancel failed. Non-JSON response: ${rawText}`);
     return;
   }
 
   cancelBtn.disabled = false;
-  cancelBtn.textContent = "Yes, cancel this job";
+  cancelBtn.textContent = "Yes, unassign driver";
 
   if (!res.ok || result.error || result.success === false) {
     alert(`Cancel failed: ${result.error || "Unknown error"}`);
@@ -2767,8 +2771,9 @@ document.getElementById("telegram-cancel-yes")?.addEventListener("click", async 
   }
 
   clearPendingDispatch(job.id);
+  delete TELEGRAM_DISPATCH_BY_JOB_ID[String(job.id)];
   closeTelegramCancelModal();
-  loadJobs();
+  await loadJobs();
 });
 
 async function loadOntimeDrivers() {
@@ -2843,8 +2848,18 @@ function openTelegramCancelModal(job, pendingData) {
     pendingData,
   };
 
+  const isAccepted = pendingData?.status === "accepted";
+
+  document.querySelector("#telegram-cancel-backdrop h3").textContent =
+    isAccepted ? "Unassign Driver" : "Cancel Pending Driver Request";
+
   document.getElementById("telegram-cancel-text").innerHTML =
-    `Would you like to cancel the pending driver request for job <b>${escapeHtml(job.title || job.job_number || job.id)}</b>?`;
+    isAccepted
+      ? `Would you like to unassign the driver from job <b>${escapeHtml(job.title || job.job_number || job.id)}</b>?`
+      : `Would you like to cancel the pending driver request for job <b>${escapeHtml(job.title || job.job_number || job.id)}</b>?`;
+
+  document.getElementById("telegram-cancel-yes").textContent =
+    isAccepted ? "Yes, unassign driver" : "Yes, cancel this request";
 
   document.getElementById("telegram-cancel-backdrop").classList.add("show");
 }
@@ -3612,6 +3627,7 @@ row.querySelector('.driver-change-btn')?.addEventListener('click', (e) => {
 }
 
   if (telegramDispatch?.status === "accepted") {
+    openTelegramCancelModal(job, telegramDispatch);
     return;
   }
 
@@ -3623,8 +3639,14 @@ row.querySelector('.driver-change-btn')?.addEventListener('click', (e) => {
   const pendingData = getPendingDispatch(job.id);
 
   if (pendingData) {
-    openTelegramCancelModal(job, pendingData);
-    return;
+    const liveDispatch = getTelegramDispatchForJob(job);
+
+    if (liveDispatch?.status === "pending") {
+      openTelegramCancelModal(job, liveDispatch);
+      return;
+    }
+
+    clearPendingDispatch(job.id);
   }
 
   inlineDriverBox.hidden = !inlineDriverBox.hidden;
@@ -4036,7 +4058,7 @@ if (dragHandle) {
 
   function clearBoard() { Object.values(cols).forEach(c => c.innerHTML = ''); }
   function clearBoard() {
-  activeJobsList.innerHTML = '';
+  activeJobsList.replaceChildren();
 }
 let CURRENT_MESSAGES_JOB = null;
 
@@ -4705,7 +4727,11 @@ function refreshShipmentCountOnly() {
 function upsertActiveJobRow(job) {
   if (!job?.id) return;
 
-  const existingRow = document.querySelector(`#active-jobs-list .job-row[data-id="${CSS.escape(String(job.id))}"]`);
+  const existingRows = document.querySelectorAll(`#active-jobs-list .job-row[data-id="${CSS.escape(String(job.id))}"]`);
+const existingRow = existingRows[0] || null;
+existingRows.forEach((row, index) => {
+  if (index > 0) row.remove();
+});
   const activeJobs = getCurrentActiveJobsFromMemory();
   const shouldShow = activeJobs.some(activeJob => String(activeJob.id) === String(job.id));
 
@@ -4908,8 +4934,13 @@ async function autoArchiveOldJobs(jobs) {
 
 
 async function loadJobs() {
+    const runId = ++LOAD_JOBS_RUN_ID;
+
     clearBoard();
+
     const { data, error } = await sb.from('jobs').select('*').order('created_at', { ascending: false });
+
+    if (runId !== LOAD_JOBS_RUN_ID) return;
     if (error) { console.error(error); alert('Failed to load jobs.'); return; }
 ALL_JOBS = data || [];
 
@@ -4977,6 +5008,10 @@ const activeJobs = ALL_JOBS
 
   return true;
 });
+
+if (runId !== LOAD_JOBS_RUN_ID) return;
+
+clearBoard();
     document.getElementById('shipment-count').textContent = activeJobs.length;
     activeJobs
    .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
