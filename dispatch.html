@@ -2137,9 +2137,10 @@ nav.hide-on-scroll {
 </details>
     <details class="filters-card active-drivers-panel active-drivers-toggle" aria-label="Active Telegram Drivers">
       <summary>
-        Active Drivers Online
-        <button type="button" id="active-drivers-refresh" class="active-driver-refresh">Refresh</button>
-      </summary>
+  Active Drivers Online
+  <button type="button" id="active-drivers-map" class="active-driver-refresh">Map</button>
+  <button type="button" id="active-drivers-refresh" class="active-driver-refresh">Refresh</button>
+</summary>
 
       <div class="active-drivers-body">
         <div class="active-drivers-head">
@@ -2907,7 +2908,11 @@ document.getElementById("needs-attention-toggle")?.addEventListener("toggle", (e
     markNeedsAttentionChecked();
   }
 });
-
+document.getElementById("active-drivers-map")?.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  window.open("active-driver-map.html", "_blank");
+});
 document.getElementById("active-drivers-refresh")?.addEventListener("click", async (e) => {
   e.preventDefault();
   e.stopPropagation();

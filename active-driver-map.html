@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Active Driver Map - Speedpack Express</title>
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      background: #111827;
+    }
+
+    .map-shell {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .map-header {
+      height: 58px;
+      background: #1e3a8a;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      box-sizing: border-box;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+      z-index: 500;
+    }
+
+    .map-header h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .map-header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .map-btn {
+      border: 0;
+      background: white;
+      color: #1e3a8a;
+      font-weight: 900;
+      padding: 8px 11px;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    .map-btn:hover {
+      background: #eff6ff;
+    }
+
+    #map {
+      flex: 1;
+      width: 100%;
+    }
+
+    .driver-popup {
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .driver-popup b {
+      color: #1e3a8a;
+      font-size: 14px;
+    }
+
+    .driver-status-pill {
+      display: inline-block;
+      margin-top: 5px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #16a34a;
+      color: white;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .map-status {
+      font-size: 13px;
+      opacity: .92;
+      font-weight: 800;
+    }
+
+    .driver-label {
+      background: white;
+      border: 1px solid #1e3a8a;
+      color: #1e3a8a;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 2px 5px;
+      border-radius: 999px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.25);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="map-shell">
+    <div class="map-header">
+      <h1>Active Driver Map</h1>
+
+      <div class="map-header-actions">
+        <span id="map-status" class="map-status">Loading drivers...</span>
+        <button type="button" id="fit-map-btn" class="map-btn">Fit Drivers</button>
+        <button type="button" id="refresh-map-btn" class="map-btn">Refresh</button>
+        <a href="dispatch.html" class="map-btn">Back to Dispatch</a>
+      </div>
+    </div>
+
+    <div id="map"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    const SUPABASE_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRicGN1aW1ieGRxbGtucXZwbWJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NjAxNjIsImV4cCI6MjA3MDQzNjE2Mn0.5O_hoeXuR4tLPMBWwveUTHUCQ9WbJTsiAZr4iwPcdMg";
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const map = L.map("map").setView([26.0, -80.2], 10);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(map);
+
+    const driverMarkers = new Map();
+
+    function escapeHtml(str = "") {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatLastLocation(value) {
+      if (!value) return "No location time";
+
+      const d = new Date(value);
+      if (isNaN(d)) return "Unknown";
+
+      const now = new Date();
+      const diffMinutes = Math.floor((now - d) / (1000 * 60));
+
+      if (diffMinutes < 1) return "Just now";
+      if (diffMinutes === 1) return "1 min ago";
+      if (diffMinutes < 60) return `${diffMinutes} mins ago`;
+
+      const diffHours = Math.floor(diffMinutes / 60);
+      if (diffHours === 1) return "1 hour ago";
+      return `${diffHours} hours ago`;
+    }
+
+    function driverIsActive(driver) {
+      if (!driver.telegram_online) return false;
+      if (!driver.telegram_live_location_active) return false;
+      if (!driver.last_latitude || !driver.last_longitude) return false;
+
+      const lastLocationAt = driver.last_location_at
+        ? new Date(driver.last_location_at).getTime()
+        : 0;
+
+      if (!lastLocationAt) return false;
+
+      const fiveMinutes = 5 * 60 * 1000;
+      return Date.now() - lastLocationAt <= fiveMinutes;
+    }
+
+    function makeDriverIcon(driver) {
+      const name = String(driver.name || "Driver").trim();
+      const shortName = name.length > 18 ? name.slice(0, 18) + "..." : name;
+
+      return L.divIcon({
+        className: "",
+        html: `<div class="driver-label">🟢 ${escapeHtml(shortName)}</div>`,
+        iconSize: [120, 24],
+        iconAnchor: [60, 12],
+        popupAnchor: [0, -10]
+      });
+    }
+
+    function popupHtml(driver) {
+      const lat = Number(driver.last_latitude);
+      const lng = Number(driver.last_longitude);
+
+      return `
+        <div class="driver-popup">
+          <b>${escapeHtml(driver.name || "Unknown Driver")}</b><br>
+          Last location: ${escapeHtml(formatLastLocation(driver.last_location_at))}<br>
+          Latitude: ${escapeHtml(lat.toFixed(6))}<br>
+          Longitude: ${escapeHtml(lng.toFixed(6))}<br>
+          <span class="driver-status-pill">Online</span>
+          <br><br>
+          <a
+            href="https://www.google.com/maps?q=${encodeURIComponent(lat + "," + lng)}"
+            target="_blank"
+          >Open in Google Maps</a>
+        </div>
+      `;
+    }
+
+    function upsertDriverMarker(driver) {
+      if (!driverIsActive(driver)) {
+        removeDriverMarker(driver.id);
+        return;
+      }
+
+      const lat = Number(driver.last_latitude);
+      const lng = Number(driver.last_longitude);
+
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        removeDriverMarker(driver.id);
+        return;
+      }
+
+      const id = String(driver.id);
+
+      if (driverMarkers.has(id)) {
+        const marker = driverMarkers.get(id);
+        marker.setLatLng([lat, lng]);
+        marker.setIcon(makeDriverIcon(driver));
+        marker.setPopupContent(popupHtml(driver));
+        return;
+      }
+
+      const marker = L.marker([lat, lng], {
+        icon: makeDriverIcon(driver)
+      })
+        .addTo(map)
+        .bindPopup(popupHtml(driver));
+
+      driverMarkers.set(id, marker);
+    }
+
+    function removeDriverMarker(driverId) {
+      const id = String(driverId || "");
+      if (!id || !driverMarkers.has(id)) return;
+
+      const marker = driverMarkers.get(id);
+      map.removeLayer(marker);
+      driverMarkers.delete(id);
+    }
+
+    function fitMapToDrivers() {
+      const markers = Array.from(driverMarkers.values());
+
+      if (!markers.length) {
+        map.setView([26.0, -80.2], 10);
+        return;
+      }
+
+      const group = L.featureGroup(markers);
+      map.fitBounds(group.getBounds().pad(0.25));
+    }
+
+    async function loadDrivers({ fit = false } = {}) {
+      const status = document.getElementById("map-status");
+      status.textContent = "Loading drivers...";
+
+      const { data, error } = await sb
+        .from("driver_cache")
+        .select("id, name, telegram_online, telegram_live_location_active, telegram_live_location_expires_at, last_latitude, last_longitude, last_location_at")
+        .eq("telegram_online", true)
+        .eq("telegram_live_location_active", true)
+        .order("name", { ascending: true });
+
+      if (error) {
+        console.error(error);
+        status.textContent = "Failed to load drivers";
+        return;
+      }
+
+      const activeDrivers = (data || []).filter(driverIsActive);
+      const activeIds = new Set(activeDrivers.map(driver => String(driver.id)));
+
+      Array.from(driverMarkers.keys()).forEach(existingId => {
+        if (!activeIds.has(existingId)) {
+          removeDriverMarker(existingId);
+        }
+      });
+
+      activeDrivers.forEach(upsertDriverMarker);
+
+      status.textContent = `${activeDrivers.length} active driver${activeDrivers.length === 1 ? "" : "s"}`;
+
+      if (fit) {
+        fitMapToDrivers();
+      }
+    }
+
+    function handleRealtimeDriverCacheChange(payload) {
+      const row = payload.new || payload.old;
+      if (!row?.id) return;
+
+      if (payload.eventType === "DELETE") {
+        removeDriverMarker(row.id);
+        return;
+      }
+
+      upsertDriverMarker(row);
+
+      document.getElementById("map-status").textContent =
+        `${driverMarkers.size} active driver${driverMarkers.size === 1 ? "" : "s"}`;
+    }
+
+    document.getElementById("refresh-map-btn").addEventListener("click", () => {
+      loadDrivers({ fit: true });
+    });
+
+    document.getElementById("fit-map-btn").addEventListener("click", () => {
+      fitMapToDrivers();
+    });
+
+    sb.channel("driver-map-cache-changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "driver_cache" },
+        handleRealtimeDriverCacheChange
+      )
+      .subscribe((status) => {
+        console.log("DRIVER MAP REALTIME STATUS:", status);
+      });
+
+    loadDrivers({ fit: true });
+
+    setInterval(() => {
+      loadDrivers({ fit: false });
+    }, 30000);
+  </script>
+</body>
+</html>
