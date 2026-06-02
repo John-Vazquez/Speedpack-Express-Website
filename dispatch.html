@@ -1220,6 +1220,67 @@ nav.hide-on-scroll {
   font-size: 12px;
 }
 
+
+
+.message-chat-row {
+  display: flex;
+  margin-bottom: 9px;
+}
+
+.message-chat-row.dispatch {
+  justify-content: flex-end;
+}
+
+.message-chat-row.driver {
+  justify-content: flex-start;
+}
+
+.message-chat-row.system {
+  justify-content: center;
+}
+
+.message-chat-bubble {
+  max-width: 76%;
+  padding: 9px 11px;
+  border-radius: 13px;
+  font-size: 12px;
+  line-height: 1.35;
+  box-shadow: 0 1px 4px rgba(15,23,42,.12);
+}
+
+.message-chat-row.dispatch .message-chat-bubble {
+  background: #1e3a8a;
+  color: #fff;
+  border-bottom-right-radius: 3px;
+}
+
+.message-chat-row.driver .message-chat-bubble {
+  background: #fff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+  border-bottom-left-radius: 3px;
+}
+
+.message-chat-row.system .message-chat-bubble {
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 999px;
+}
+
+.message-chat-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+  font-size: 10px;
+  opacity: .85;
+}
+
+.message-chat-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .message-item strong {
   color: #1e3a8a;
 }
@@ -2234,6 +2295,7 @@ nav.hide-on-scroll {
   const CANCEL_TELEGRAM_JOB_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/cancel-telegram-job";
   const GET_TELEGRAM_PHOTO_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/get-telegram-photo";
   const REVIEW_TELEGRAM_PHOTOS_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/review-telegram-photos";
+  const SEND_DISPATCH_JOB_MESSAGE_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/send-dispatch-job-message";
   const DRIVERS_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/drivers";
   const SYNC_ONTIME_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/sync-ontime-jobs";
   const UPDATE_AWB_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/update-awb";
@@ -2330,6 +2392,10 @@ function getTelegramDispatchForJob(job) {
   return dispatchRow;
 }
 
+
+function getLatestTelegramDispatchForJobId(jobId) {
+  return TELEGRAM_DISPATCH_BY_JOB_ID[String(jobId || "")] || null;
+}
 
 
 
@@ -4079,23 +4145,49 @@ async function loadJobMessages(jobId) {
     return;
   }
 
-  if (!data || !data.length) {
+  renderJobMessages(data || []);
+}
+
+function renderJobMessages(messages) {
+  const list = document.getElementById('messages-list');
+  if (!list) return;
+
+  if (!messages || !messages.length) {
     list.innerHTML = `<div style="padding:10px;color:#6b7280;">No messages yet.</div>`;
     return;
   }
 
-  list.innerHTML = data.map(msg => `
-    <div class="message-item">
-      <div>
-        <strong>${escapeHtml(msg.sender_name || 'Office')}</strong>
-        <span class="message-time">${escapeHtml(formatDeadline(msg.created_at))}</span>
+  list.innerHTML = messages.map(msg => {
+    const type = String(msg.sender_type || msg.message_type || "").toLowerCase();
+    const isDispatch = type.includes("dispatch") || type.includes("office");
+    const isDriver = type.includes("driver");
+    const bubbleClass = isDispatch ? "dispatch" : isDriver ? "driver" : "system";
+
+    return `
+      <div class="message-chat-row ${bubbleClass}">
+        <div class="message-chat-bubble">
+          <div class="message-chat-meta">
+            <strong>${escapeHtml(msg.sender_name || (isDispatch ? "Dispatch" : "Driver"))}</strong>
+            <span>${escapeHtml(formatDeadline(msg.created_at))}</span>
+          </div>
+          <div class="message-chat-text">${escapeHtml(msg.message || '')}</div>
+        </div>
       </div>
-      <div>${escapeHtml(msg.message || '')}</div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
   list.scrollTop = list.scrollHeight;
 }
+
+async function appendJobMessageLive(messageRow) {
+  if (!CURRENT_MESSAGES_JOB) return;
+  if (String(messageRow.job_id || "") !== String(CURRENT_MESSAGES_JOB.id || "")) return;
+
+  await loadJobMessages(CURRENT_MESSAGES_JOB.id);
+}
+
+
+
 
 async function openMessagesModal(job) {
   CURRENT_MESSAGES_JOB = job;
@@ -4123,7 +4215,7 @@ function closeMessagesModal() {
 async function sendJobMessage() {
   if (!CURRENT_MESSAGES_JOB) return;
 
-  const senderName = document.getElementById('message-sender').value.trim() || 'Office';
+  const senderName = document.getElementById('message-sender').value.trim() || 'Dispatch';
   const messageText = document.getElementById('message-text').value.trim();
 
   if (!messageText) {
@@ -4135,29 +4227,53 @@ async function sendJobMessage() {
   sendBtn.disabled = true;
   sendBtn.textContent = 'Sending...';
 
-  const { error } = await sb
-    .from('job_messages')
-    .insert({
-      job_id: CURRENT_MESSAGES_JOB.id,
+  const liveDispatch = getLatestTelegramDispatchForJobId(CURRENT_MESSAGES_JOB.id);
+
+  const res = await fetch(SEND_DISPATCH_JOB_MESSAGE_FUNCTION_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "apikey": SUPABASE_ANON_KEY
+    },
+    body: JSON.stringify({
+      job_id: String(CURRENT_MESSAGES_JOB.id || ""),
+      dispatch_id: liveDispatch?.id || null,
       sender_name: senderName,
-      message: messageText,
-      message_type: 'office'
-    });
+      message: messageText
+    })
+  });
+
+  const rawText = await res.text();
+
+  let result = {};
+  try {
+    result = rawText ? JSON.parse(rawText) : {};
+  } catch (e) {
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Send';
+    alert(`Message failed. Non-JSON response: ${rawText}`);
+    return;
+  }
 
   sendBtn.disabled = false;
   sendBtn.textContent = 'Send';
 
-  if (error) {
-    console.error(error);
-    alert('Failed to send message.');
+  if (!res.ok || result.error || result.success === false) {
+    alert(`Message failed: ${result.error || "Unknown error"}`);
     return;
   }
 
   document.getElementById('message-text').value = '';
+
+  // Realtime should add it, but this guarantees instant local refresh too.
   await loadJobMessages(CURRENT_MESSAGES_JOB.id);
 }
-let CURRENT_DOCS_JOB = null;
 
+
+
+
+let CURRENT_DOCS_JOB = null;
 async function loadJobDocuments(jobId) {
   const { data, error } = await sb
     .from('job_documents')
@@ -4798,6 +4914,17 @@ function handleRealtimeJobChange(payload) {
   renderArchivedJobs(ALL_JOBS);
 }
 
+
+function handleRealtimeJobMessageChange(payload) {
+  if (payload.eventType !== "INSERT") return;
+
+  const row = payload.new;
+  if (!row?.job_id) return;
+
+  appendJobMessageLive(row);
+}
+
+
 function handleRealtimeTelegramDispatchChange(payload) {
   loadNeedsAttention();
 console.log("REALTIME TELEGRAM DISPATCH PAYLOAD:", payload);
@@ -5424,7 +5551,13 @@ sb.channel('telegram-dispatch-changes')
     handleRealtimeDriverCacheChange
   )
   .subscribe();
-  
+    sb.channel('job-messages-changes')
+  .on(
+    'postgres_changes',
+    { event: 'INSERT', schema: 'public', table: 'job_messages' },
+    handleRealtimeJobMessageChange
+  )
+  .subscribe();
 });
 </script>
 </body>
