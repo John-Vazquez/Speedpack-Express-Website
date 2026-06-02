@@ -313,6 +313,24 @@ nav.hide-on-scroll {
   background: #fff7f7;
 }
 
+
+.needs-attention-row.driver-message {
+  background: #eff6ff;
+  border-left: 5px solid #2563eb;
+}
+
+.needs-attention-row.driver-message:nth-child(odd) {
+  background: #dbeafe;
+}
+
+.needs-attention-row.driver-message .needs-attention-problem {
+  color: #1e3a8a;
+}
+
+.needs-attention-type.driver-message {
+  background: #2563eb;
+}
+
 .needs-attention-row.photo-review {
   background: #faf5ff;
   border-left: 5px solid #7c3aed;
@@ -893,6 +911,49 @@ nav.hide-on-scroll {
 .airspace-action-btn:hover {
   color: #1e3a8a;
 }
+
+.flag-job-btn.flagged {
+  color: #f97316;
+  text-shadow: 0 0 6px rgba(249, 115, 22, .35);
+}
+
+.flag-job-btn.flagged:hover {
+  color: #ea580c;
+}
+
+.message-btn-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.message-btn-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.message-always-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 1000;
+  line-height: 16px;
+  text-align: center;
+  box-shadow: 0 1px 5px rgba(0,0,0,.45);
+  z-index: 999;
+  pointer-events: none;
+}
+
+.message-always-badge[hidden] {
+  display: none;
+}
+
+
     .card-menu {
   position: fixed;
   z-index: 99999;
@@ -2338,6 +2399,141 @@ function markNeedsAttentionChecked() {
 
   let TELEGRAM_DISPATCH_BY_JOB_ID = {};
 
+
+  function getMessageAlertJobs() {
+  try {
+    return JSON.parse(localStorage.getItem("job-message-alerts") || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveMessageAlertJobs(alerts) {
+  localStorage.setItem("job-message-alerts", JSON.stringify(alerts || {}));
+}
+
+function hasMessageAlert(jobId) {
+  const alerts = getMessageAlertJobs();
+  return alerts[String(jobId || "")] === true;
+}
+
+function showMessageAlert(jobId) {
+  const key = String(jobId || "");
+  if (!key) return;
+
+  const alerts = getMessageAlertJobs();
+  alerts[key] = true;
+  saveMessageAlertJobs(alerts);
+
+  document
+    .querySelectorAll(`[data-message-alert-job-id="${CSS.escape(key)}"]`)
+    .forEach(badge => {
+      badge.hidden = false;
+    });
+}
+
+function hideMessageAlert(jobId) {
+  const key = String(jobId || "");
+  if (!key) return;
+
+  const alerts = getMessageAlertJobs();
+  delete alerts[key];
+  saveMessageAlertJobs(alerts);
+
+  document
+    .querySelectorAll(`[data-message-alert-job-id="${CSS.escape(key)}"]`)
+    .forEach(badge => {
+      badge.hidden = true;
+    });
+}
+
+function repaintMessageAlerts() {
+  document
+    .querySelectorAll("[data-message-alert-job-id]")
+    .forEach(badge => {
+      const jobId = badge.dataset.messageAlertJobId;
+      badge.hidden = !hasMessageAlert(jobId);
+    });
+}
+
+
+function getClearedDriverAssistanceMessageIds() {
+  try {
+    return JSON.parse(localStorage.getItem("cleared-driver-assistance-message-ids") || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function saveClearedDriverAssistanceMessageIds(ids) {
+  localStorage.setItem("cleared-driver-assistance-message-ids", JSON.stringify(ids || []));
+}
+
+function isDriverAssistanceMessageCleared(messageId) {
+  return getClearedDriverAssistanceMessageIds().includes(String(messageId || ""));
+}
+
+function clearDriverAssistanceForJob(jobId) {
+  const key = String(jobId || "");
+  if (!key) return;
+
+  const messageIdsToClear = NEEDS_ATTENTION_ITEMS
+    .filter(item => item.type === "driver_message" && String(item.job_id || "") === key)
+    .map(item => String(item.message_id || item.raw_message_id || ""))
+    .filter(Boolean);
+
+  if (messageIdsToClear.length) {
+    const current = getClearedDriverAssistanceMessageIds();
+    saveClearedDriverAssistanceMessageIds([...new Set([...current, ...messageIdsToClear])]);
+  }
+
+  NEEDS_ATTENTION_ITEMS = NEEDS_ATTENTION_ITEMS.filter(item => {
+    return !(item.type === "driver_message" && String(item.job_id || "") === key);
+  });
+
+  renderNeedsAttention();
+}
+
+function addDriverMessageNeedsAttention(messageRow) {
+  if (!messageRow?.id || !messageRow?.job_id) return;
+  if (isDriverAssistanceMessageCleared(messageRow.id)) return;
+
+  const jobId = String(messageRow.job_id || "");
+  const job = (ALL_JOBS || []).find(j => String(j.id || "") === jobId);
+  const dispatch = getLatestTelegramDispatchForJobId(jobId);
+
+  const jobNumber =
+    dispatch?.job_number ||
+    job?.title ||
+    job?.job_number ||
+    "Unknown";
+
+  const driverName =
+    messageRow.sender_name ||
+    dispatch?.driver_name ||
+    job?.driver ||
+    "Driver";
+
+  const item = {
+    id: `driver-message-${messageRow.id}`,
+    raw_message_id: messageRow.id,
+    message_id: messageRow.id,
+    dispatch_id: messageRow.dispatch_id || dispatch?.id || null,
+    job_id: jobId,
+    job_number: jobNumber,
+    driver_name: driverName,
+    type: "driver_message",
+    updated_at: messageRow.created_at || new Date().toISOString(),
+    problem: `Driver on job #${jobNumber} needs assistance.`
+  };
+
+  NEEDS_ATTENTION_ITEMS = NEEDS_ATTENTION_ITEMS.filter(existing => existing.id !== item.id);
+  NEEDS_ATTENTION_ITEMS.unshift(item);
+
+  renderNeedsAttention();
+}
+
+
 async function loadTelegramDispatchesForJobs(jobs) {
   TELEGRAM_DISPATCH_BY_JOB_ID = {};
 
@@ -2466,12 +2662,12 @@ function renderNeedsAttention() {
   }
 
   list.innerHTML = NEEDS_ATTENTION_ITEMS.map(item => `
-    <div class="needs-attention-row ${item.type === "photo_review" ? "photo-review" : ""}">
+    <div class="needs-attention-row ${item.type === "photo_review" ? "photo-review" : item.type === "driver_message" ? "driver-message" : ""}">
       <div class="needs-attention-job">${escapeHtml(item.job_number || "Unknown")}</div>
       <div class="needs-attention-driver">${escapeHtml(item.driver_name || "Unknown Driver")}</div>
       <div class="needs-attention-problem">
-        <span class="needs-attention-type ${item.type === "photo_review" ? "photo-review" : ""}">
-          ${item.type === "photo_review" ? "PHOTOS" : "ERROR"}
+        <span class="needs-attention-type ${item.type === "photo_review" ? "photo-review" : item.type === "driver_message" ? "driver-message" : ""}">
+          ${item.type === "photo_review" ? "PHOTOS" : item.type === "driver_message" ? "MESSAGE" : "ERROR"}
         </span>
         ${escapeHtml(item.problem || "")}
       </div>
@@ -3610,9 +3806,20 @@ ${telegramWorkflowLogHtml}
       
     <div class="actions-cell">
 <button type="button" class="airspace-action-btn time-edit-btn" title="Update pickup / delivery times">🕒</button>
-<button type="button" class="airspace-action-btn messages-btn" title="Messages">💬</button>
+<span class="message-btn-wrap">
+  <button type="button" class="airspace-action-btn messages-btn" title="Messages">💬</button>
+  <span
+    class="message-always-badge"
+    data-message-alert-job-id="${escapeHtml(job.id)}"
+    ${hasMessageAlert(job.id) ? "" : "hidden"}
+  >!</span>
+</span>
 <button type="button" class="airspace-action-btn docs-btn" title="Documents">📄</button>
-<button type="button" class="airspace-action-btn" title="Flag for review">⚑</button>
+<button
+  type="button"
+  class="airspace-action-btn flag-job-btn ${job.is_flagged ? 'flagged' : ''}"
+  title="${job.is_flagged ? 'Unflag priority job' : 'Flag priority job'}"
+>⚑</button>
 
 
 
@@ -3897,6 +4104,42 @@ async function saveAwbChange(job, newAwb, saveBtn, forceLocalOnly = false) {
   await loadJobs();
 }
 
+
+row.querySelector('.flag-job-btn')?.addEventListener('click', async (e) => {
+  e.stopPropagation();
+
+  const nextFlagged = !job.is_flagged;
+
+  const { error } = await sb
+    .from('jobs')
+    .update({
+      is_flagged: nextFlagged,
+      flagged_at: nextFlagged ? new Date().toISOString() : null
+    })
+    .eq('id', job.id);
+
+  if (error) {
+    alert('Flag update failed.');
+    console.error(error);
+    return;
+  }
+
+  const existingIndex = ALL_JOBS.findIndex(j => String(j.id) === String(job.id));
+  const updatedJob = {
+    ...job,
+    is_flagged: nextFlagged,
+    flagged_at: nextFlagged ? new Date().toISOString() : null
+  };
+
+  if (existingIndex >= 0) {
+    ALL_JOBS[existingIndex] = {
+      ...ALL_JOBS[existingIndex],
+      ...updatedJob
+    };
+  }
+
+  upsertActiveJobRow(updatedJob);
+});
     row.querySelector('.messages-btn')?.addEventListener('click', () => {
   openMessagesModal(job);
 });
@@ -4128,6 +4371,68 @@ if (dragHandle) {
 }
 let CURRENT_MESSAGES_JOB = null;
 
+
+function getUnreadMessageCounts() {
+  try {
+    return JSON.parse(localStorage.getItem("job-message-unread-counts") || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveUnreadMessageCounts(counts) {
+  localStorage.setItem("job-message-unread-counts", JSON.stringify(counts || {}));
+}
+
+function getUnreadMessageCount(jobId) {
+  const counts = getUnreadMessageCounts();
+  return Number(counts[String(jobId || "")] || 0);
+}
+
+function incrementUnreadMessageCount(jobId) {
+  const key = String(jobId || "");
+  if (!key) return;
+
+  const counts = getUnreadMessageCounts();
+  counts[key] = Math.min(10, Number(counts[key] || 0) + 1);
+  saveUnreadMessageCounts(counts);
+}
+
+function clearUnreadMessageCount(jobId) {
+  const key = String(jobId || "");
+  if (!key) return;
+
+  const counts = getUnreadMessageCounts();
+  delete counts[key];
+  saveUnreadMessageCounts(counts);
+}
+
+function updateUnreadMessageBadge(jobId) {
+  const key = String(jobId || "");
+  const count = getUnreadMessageCount(key);
+
+  document
+    .querySelectorAll(`[data-message-badge-job-id="${CSS.escape(key)}"]`)
+    .forEach(badge => {
+      if (!count) {
+        badge.hidden = true;
+        badge.textContent = "";
+        return;
+      }
+
+      badge.hidden = false;
+      badge.textContent = count > 9 ? "!" : String(count);
+    });
+}
+
+function updateAllUnreadMessageBadges() {
+  document
+    .querySelectorAll("[data-message-badge-job-id]")
+    .forEach(badge => {
+      updateUnreadMessageBadge(badge.dataset.messageBadgeJobId);
+    });
+}
+
 async function loadJobMessages(jobId) {
   const list = document.getElementById('messages-list');
 
@@ -4191,6 +4496,12 @@ async function appendJobMessageLive(messageRow) {
 
 async function openMessagesModal(job) {
   CURRENT_MESSAGES_JOB = job;
+
+  hideMessageAlert(job.id);
+  clearDriverAssistanceForJob(job.id);
+
+  clearUnreadMessageCount(job.id);
+updateUnreadMessageBadge(job.id);
 
   document.getElementById('messages-modal-title').textContent =
     `Messages for Job #${job.title || job.id}`;
@@ -4833,7 +5144,19 @@ function getCurrentActiveJobsFromMemory() {
 
       return true;
     })
-    .sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+    .sort((a, b) => {
+      const aFlagged = a.is_flagged === true;
+      const bFlagged = b.is_flagged === true;
+
+      if (aFlagged && bFlagged) {
+        return new Date(b.flagged_at || 0) - new Date(a.flagged_at || 0);
+      }
+
+      if (aFlagged) return -1;
+      if (bFlagged) return 1;
+
+      return new Date(a.deadline) - new Date(b.deadline);
+    });
 }
 
 function refreshShipmentCountOnly() {
@@ -4867,11 +5190,24 @@ existingRows.forEach((row, index) => {
   }
 
   const sortedRows = activeJobs
+    .sort((a, b) => {
+      const aFlagged = a.is_flagged === true;
+      const bFlagged = b.is_flagged === true;
+
+      if (aFlagged && bFlagged) {
+        return new Date(b.flagged_at || 0) - new Date(a.flagged_at || 0);
+      }
+
+      if (aFlagged) return -1;
+      if (bFlagged) return 1;
+
+      return new Date(a.deadline) - new Date(b.deadline);
+    })
     .map(activeJob => document.querySelector(`#active-jobs-list .job-row[data-id="${CSS.escape(String(activeJob.id))}"]`))
     .filter(Boolean);
 
   sortedRows.forEach(row => activeJobsList.appendChild(row));
-
+  updateAllUnreadMessageBadges();
   refreshShipmentCountOnly();
   updateBulkArchiveButton();
 }
@@ -4919,9 +5255,26 @@ function handleRealtimeJobMessageChange(payload) {
   if (payload.eventType !== "INSERT") return;
 
   const row = payload.new;
+  console.log("JOB MESSAGE INSERT ROW:", row);
+
   if (!row?.job_id) return;
 
+  const jobId = String(row.job_id || "");
+  const senderType = String(row.sender_type || row.message_type || "").toLowerCase();
+  const isDriverMessage = senderType.includes("driver");
+
   appendJobMessageLive(row);
+
+  if (!isDriverMessage) return;
+
+  showMessageAlert(jobId);
+  addDriverMessageNeedsAttention(row);
+
+  const job = (ALL_JOBS || []).find(j => String(j.id) === jobId);
+  if (job) {
+    upsertActiveJobRow(job);
+    showMessageAlert(jobId);
+  }
 }
 
 
@@ -5009,6 +5362,14 @@ async function autoArchiveOldJobs(jobs) {
   const oldJobIds = (jobs || [])
     .filter(job => !isArchivedJob(job))
     .filter(job => {
+      if (job.is_flagged) {
+        console.log('Skipping auto archive because job is flagged:', {
+          job: job.title,
+          flagged_at: job.flagged_at
+        });
+        return false;
+      }
+
       const jobFilters = getJobFilters(job);
 
       const hasProtectedFilter = jobFilters.some(filter =>
@@ -5141,8 +5502,21 @@ if (runId !== LOAD_JOBS_RUN_ID) return;
 clearBoard();
     document.getElementById('shipment-count').textContent = activeJobs.length;
     activeJobs
-   .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
+   .sort((a, b) => {
+      const aFlagged = a.is_flagged === true;
+      const bFlagged = b.is_flagged === true;
+
+      if (aFlagged && bFlagged) {
+        return new Date(b.flagged_at || 0) - new Date(a.flagged_at || 0);
+      }
+
+      if (aFlagged) return -1;
+      if (bFlagged) return 1;
+
+      return new Date(a.deadline) - new Date(b.deadline);
+    })
     .forEach(renderJob);
+    repaintMessageAlerts();
     renderArchivedJobs(ALL_JOBS);
   }
 
@@ -5527,6 +5901,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   await loadActiveTelegramDrivers();
   await loadJobs();
   await loadNeedsAttention();
+  updateAllUnreadMessageBadges();
 
   sb.channel('jobs-changes')
   .on(
@@ -5551,13 +5926,19 @@ sb.channel('telegram-dispatch-changes')
     handleRealtimeDriverCacheChange
   )
   .subscribe();
+
     sb.channel('job-messages-changes')
   .on(
     'postgres_changes',
     { event: 'INSERT', schema: 'public', table: 'job_messages' },
-    handleRealtimeJobMessageChange
+    (payload) => {
+      console.log("REALTIME JOB MESSAGE PAYLOAD:", payload);
+      handleRealtimeJobMessageChange(payload);
+    }
   )
-  .subscribe();
+  .subscribe((status) => {
+    console.log("JOB MESSAGES REALTIME STATUS:", status);
+  });
 });
 </script>
 </body>
