@@ -1747,7 +1747,16 @@ nav.hide-on-scroll {
   border-color: #16a34a;
   cursor: pointer;
 }
+.driver-change-btn.upload-ontime {
+  background: #1e3a8a;
+  color: #fff;
+  border-color: #1e3a8a;
+  cursor: pointer;
+}
 
+.driver-change-btn.upload-ontime:hover {
+  background: #132b68;
+}
 .driver-eta-badge {
   display: inline-block;
   color: #1e3a8a;
@@ -2357,6 +2366,7 @@ nav.hide-on-scroll {
   const CANCEL_TELEGRAM_JOB_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/cancel-telegram-job";
   const GET_TELEGRAM_PHOTO_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/get-telegram-photo";
   const REVIEW_TELEGRAM_PHOTOS_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/review-telegram-photos";
+  const UPLOAD_COMPLETED_JOB_TO_ONTIME_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/upload-completed-job-to-ontime";
   const SEND_DISPATCH_JOB_MESSAGE_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/send-dispatch-job-message";
   const DRIVERS_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/drivers";
   const SYNC_ONTIME_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/sync-ontime-jobs";
@@ -3687,6 +3697,8 @@ const isAtDelivery = telegramDispatch?.workflow_step === "awaiting_delivery_conf
 const isAwaitingDeliveredToName = telegramDispatch?.workflow_step === "awaiting_delivered_to_name";
 const isAwaitingReceipt = telegramDispatch?.workflow_step === "awaiting_delivery_receipt_decision" || telegramDispatch?.workflow_step === "awaiting_delivery_receipt_photo";
 const isDeliveryComplete = telegramDispatch?.workflow_step === "delivery_complete";
+const isOntimeUploaded = job.ontime_completion_upload_status === "uploaded";
+const needsOntimeUpload = isDeliveryComplete && !isOntimeUploaded;
 
 
 const driverButtonText =
@@ -3695,7 +3707,7 @@ const driverButtonText =
     : needsPhotoReview
       ? "VERIFY PHOTOS"
       : isDeliveryComplete
-        ? "COMPLETE"
+        ? (needsOntimeUpload ? "UPLOAD TO ONTIME" : "COMPLETE")
         : isAwaitingReceipt
           ? "RECEIPT"
           : isAwaitingDeliveredToName
@@ -3722,7 +3734,7 @@ const driverButtonClass =
     : needsPhotoReview
       ? "verify-photos"
       : isDeliveryComplete
-        ? "accepted"
+        ? (needsOntimeUpload ? "upload-ontime" : "accepted")
         : isAwaitingReceipt
           ? "pending"
           : isAwaitingDeliveredToName
@@ -3892,7 +3904,7 @@ const driverSearchResults = row.querySelector('.driver-search-results');
 let selectedDriverGuid = "";
 const inlineDriverSave = row.querySelector('.inline-driver-save');
 
-row.querySelector('.driver-change-btn')?.addEventListener('click', (e) => {
+row.querySelector('.driver-change-btn')?.addEventListener('click', async (e) => {
   e.stopPropagation();
 
   const telegramDispatch = getTelegramDispatchForJob(job);
@@ -3903,6 +3915,15 @@ row.querySelector('.driver-change-btn')?.addEventListener('click', (e) => {
   openPhotoReviewModal(job, telegramDispatch);
   return;
 }
+
+  if (telegramDispatch?.workflow_step === "delivery_complete") {
+    if (job.ontime_completion_upload_status === "uploaded") {
+      return;
+    }
+
+    await uploadCompletedJobToOntime(job, telegramDispatch, e.currentTarget);
+    return;
+  }
 
   if (telegramDispatch?.status === "accepted") {
     openTelegramCancelModal(job, telegramDispatch);
@@ -4051,7 +4072,54 @@ async function saveDriverChange(forceLocalOnly = false) {
 }
 
 
+async function uploadCompletedJobToOntime(job, dispatchRow, buttonEl) {
+  const jobNumber = job.title || job.job_number || dispatchRow?.job_number || job.id;
 
+  const confirmed = confirm(
+    `Are you sure you would like to upload job #${jobNumber} to OnTime?`
+  );
+
+  if (!confirmed) return;
+
+  buttonEl.disabled = true;
+  buttonEl.textContent = "UPLOADING...";
+
+  const res = await fetch(UPLOAD_COMPLETED_JOB_TO_ONTIME_FUNCTION_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "apikey": SUPABASE_ANON_KEY
+    },
+    body: JSON.stringify({
+      job_id: String(job.id || ""),
+      dispatch_id: dispatchRow?.id || null,
+      title: String(job.title || job.job_number || "")
+    })
+  });
+
+  const rawText = await res.text();
+
+  let result = {};
+  try {
+    result = rawText ? JSON.parse(rawText) : {};
+  } catch (e) {
+    buttonEl.disabled = false;
+    buttonEl.textContent = "UPLOAD TO ONTIME";
+    alert(`OnTime upload failed. Non-JSON response: ${rawText}`);
+    return;
+  }
+
+  if (!res.ok || result.error || result.success === false) {
+    buttonEl.disabled = false;
+    buttonEl.textContent = "UPLOAD TO ONTIME";
+    alert(`OnTime upload failed: ${result.error || result.message || "Unknown error"}`);
+    return;
+  }
+
+  alert(`Job #${jobNumber} uploaded to OnTime successfully.`);
+  await loadJobs();
+}
 
 
 // Old Save button disabled. Driver assignment now goes through Telegram confirmation modal.
