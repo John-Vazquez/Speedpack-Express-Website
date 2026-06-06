@@ -2188,6 +2188,21 @@ nav.hide-on-scroll {
     </section>
   </div>
 </main>
+
+
+<div id="dispatch-method-backdrop" class="telegram-confirm-backdrop">
+  <div class="telegram-confirm-modal">
+    <h3>Choose Dispatch Method</h3>
+    <p id="dispatch-method-text"></p>
+
+    <div class="telegram-confirm-actions">
+      <button type="button" id="dispatch-method-cancel" class="telegram-modal-cancel">Cancel</button>
+      <button type="button" id="dispatch-method-telegram" class="telegram-modal-confirm" style="background:#16a34a;">Send via Telegram</button>
+      <button type="button" id="dispatch-method-ontime" class="telegram-modal-confirm" style="background:#1e3a8a;">Send via OnTime360 Mobile</button>
+    </div>
+  </div>
+</div>
+
 <div id="telegram-confirm-backdrop" class="telegram-confirm-backdrop">
   <div class="telegram-confirm-modal">
     <h3 id="telegram-confirm-title">Confirm Driver Assignment</h3>
@@ -2929,7 +2944,22 @@ document.getElementById("active-drivers-refresh")?.addEventListener("click", asy
   await loadActiveTelegramDrivers();
 });
 
+document.getElementById("dispatch-method-cancel")?.addEventListener("click", () => {
+  closeDispatchMethodModal();
+});
 
+document.getElementById("dispatch-method-telegram")?.addEventListener("click", () => {
+  if (!DISPATCH_METHOD_CONTEXT) return;
+
+  const { job, selectedDriver } = DISPATCH_METHOD_CONTEXT;
+
+  closeDispatchMethodModal();
+  openTelegramAssignModal(job, selectedDriver);
+});
+
+document.getElementById("dispatch-method-ontime")?.addEventListener("click", async () => {
+  await sendJobToOntimeMobile();
+});
 
 document.getElementById("telegram-confirm-cancel")?.addEventListener("click", () => {
   closeTelegramAssignModal();
@@ -3084,6 +3114,7 @@ try {
 let TELEGRAM_ASSIGN_CONTEXT = null;
 let TELEGRAM_CANCEL_CONTEXT = null;
 let PHOTO_REVIEW_CONTEXT = null;
+let DISPATCH_METHOD_CONTEXT = null;
 
 function getPendingDispatch(jobId) {
   try {
@@ -3100,6 +3131,81 @@ function savePendingDispatch(jobId, data) {
 function clearPendingDispatch(jobId) {
   localStorage.removeItem(`telegram-pending-${jobId}`);
 }
+
+
+
+function openDispatchMethodModal(job, selectedDriver) {
+  DISPATCH_METHOD_CONTEXT = {
+    job,
+    selectedDriver,
+  };
+
+  document.getElementById("dispatch-method-text").innerHTML =
+    `How would you like to send job <b>${escapeHtml(job.title || job.job_number || job.id)}</b> to <b>${escapeHtml(selectedDriver.name)}</b>?`;
+
+  document.getElementById("dispatch-method-backdrop").classList.add("show");
+}
+
+function closeDispatchMethodModal() {
+  DISPATCH_METHOD_CONTEXT = null;
+  document.getElementById("dispatch-method-backdrop").classList.remove("show");
+}
+
+async function sendJobToOntimeMobile() {
+  if (!DISPATCH_METHOD_CONTEXT) return;
+
+  const { job, selectedDriver } = DISPATCH_METHOD_CONTEXT;
+  const btn = document.getElementById("dispatch-method-ontime");
+
+  btn.disabled = true;
+  btn.textContent = "Sending...";
+
+  const res = await fetch(ASSIGN_DRIVER_FUNCTION_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "apikey": SUPABASE_ANON_KEY
+    },
+    body: JSON.stringify({
+      jobId: String(job.id || ""),
+      jobNumber: String(job.title || job.job_number || ""),
+      driverName: String(selectedDriver.name || ""),
+      driverGuid: String(selectedDriver.id || "")
+    })
+  });
+
+  const rawText = await res.text();
+
+  let result = {};
+  try {
+    result = rawText ? JSON.parse(rawText) : {};
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = "Send via OnTime360 Mobile";
+    alert(`OnTime dispatch failed. Non-JSON response: ${rawText}`);
+    return;
+  }
+
+  btn.disabled = false;
+  btn.textContent = "Send via OnTime360 Mobile";
+
+  if (!res.ok || result.error || result.success === false) {
+    if (result.error === "MISSING_ONTIME_ORDER_ID") {
+      alert("This job is not linked to OnTime yet. Sync it from OnTime first, then try sending to the mobile app.");
+      return;
+    }
+
+    alert(`OnTime dispatch failed: ${result.error || result.message || "Unknown error"}`);
+    return;
+  }
+
+  alert(result.message || `Job sent to ${selectedDriver.name} in OnTime360 Mobile.`);
+  closeDispatchMethodModal();
+  await loadJobs();
+}
+
+
 
 function openTelegramAssignModal(job, selectedDriver) {
   TELEGRAM_ASSIGN_CONTEXT = {
@@ -4004,7 +4110,7 @@ driverSearchResults?.addEventListener('click', (e) => {
     return;
   }
 
-  openTelegramAssignModal(job, selectedDriver);
+  openDispatchMethodModal(job, selectedDriver);
 });
 
 async function saveDriverChange(forceLocalOnly = false) {
