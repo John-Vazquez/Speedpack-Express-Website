@@ -2075,67 +2075,97 @@ nav.hide-on-scroll {
 </div>
     </section>
 
-    <details class="add-panel add-job-toggle" aria-label="Add Job">
-      <summary>Add a Job</summary>
-    <form id="job-form">
-  <div class="form-row">
-    <div class="form-group">
-      <label for="jobTitle">Job Number</label>
-      <input id="jobTitle" name="jobTitle" type="text" placeholder="Job #" required />
+<details class="add-panel add-job-toggle" aria-label="Add Job">
+  <summary>Add a Job</summary>
+
+  <div style="padding:16px 18px 18px;">
+    <div style="display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
+      <button type="button" id="show-pull-ontime-panel" class="btn" style="background:#1e3a8a;">
+        Pull Job Ticket From OnTime
+      </button>
+
+      <button type="button" id="show-manual-job-panel" class="btn" style="background:#16a34a;">
+        Add Manual Job
+      </button>
+
+      <button type="button" id="upload-new-ontime-disabled" class="btn" style="background:#9ca3af; cursor:not-allowed;">
+        Upload New Job To OnTime Coming Soon
+      </button>
     </div>
 
-    <div class="form-group" style="position:relative;">
-      <label for="driver">Driver</label>
-      <input id="driver" name="driver" type="text" placeholder="Unassigned" autocomplete="off" />
-      <div id="add-driver-search-results" class="driver-search-results" hidden></div>
+    <div id="pull-ontime-panel" hidden>
+      <div class="form-row" style="grid-template-columns: 1fr auto;">
+        <div class="form-group">
+          <label for="pullOntimeTrackingNumber">Exact OnTime Tracking / Reference Number</label>
+          <input id="pullOntimeTrackingNumber" type="text" placeholder="Example: 3754725" />
+        </div>
+
+        <button type="button" id="pull-ontime-job-btn" class="btn" style="background:#1e3a8a;">
+          Pull From OnTime
+        </button>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label for="readyTime">Ready Time</label>
-      <input id="readyTime" name="readyTime" type="datetime-local" />
-    </div>
+    <form id="job-form" hidden>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="jobTitle">Job Number</label>
+          <input id="jobTitle" name="jobTitle" type="text" placeholder="Job #" required />
+        </div>
 
-    <div class="form-group">
-      <label for="deadline">Deadline</label>
-      <input id="deadline" name="deadline" type="datetime-local" />
-    </div>
+        <div class="form-group" style="position:relative;">
+          <label for="driver">Driver</label>
+          <input id="driver" name="driver" type="text" placeholder="Unassigned" autocomplete="off" />
+          <div id="add-driver-search-results" class="driver-search-results" hidden></div>
+        </div>
 
-    <div class="form-group">
-      <label for="jobCategory">Category</label>
-      <select id="jobCategory" name="jobCategory">
-        <option value="bullshit" selected>Other</option>
-        <option value="mia">MIA Recovery</option>
-        <option value="fll">FLL Recovery</option>
-        <option value="tenders">Tenders</option>
-        <option value="deliveries">Deliveries</option>
-        <option value="dispatched">Dispatched</option>
-      </select>
-    </div>
+        <div class="form-group">
+          <label for="readyTime">Ready Time</label>
+          <input id="readyTime" name="readyTime" type="datetime-local" />
+        </div>
 
-    <div class="form-group">
-      <label for="awbNumber">AWB Number</label>
-      <input id="awbNumber" name="awbNumber" type="text" placeholder="None" />
-    </div>
+        <div class="form-group">
+          <label for="deadline">Deadline</label>
+          <input id="deadline" name="deadline" type="datetime-local" />
+        </div>
 
-    <div class="form-group">
-      <label for="pickupLocation">Pickup Location</label>
-      <textarea id="pickupLocation" name="pickupLocation" placeholder="None"></textarea>
-    </div>
+        <div class="form-group">
+          <label for="jobCategory">Category</label>
+          <select id="jobCategory" name="jobCategory">
+            <option value="bullshit" selected>Other</option>
+            <option value="mia">MIA Recovery</option>
+            <option value="fll">FLL Recovery</option>
+            <option value="tenders">Tenders</option>
+            <option value="deliveries">Deliveries</option>
+            <option value="dispatched">Dispatched</option>
+          </select>
+        </div>
 
-    <div class="form-group">
-      <label for="deliveryLocation">Delivery Location</label>
-      <textarea id="deliveryLocation" name="deliveryLocation" placeholder="None"></textarea>
-    </div>
+        <div class="form-group">
+          <label for="awbNumber">AWB Number</label>
+          <input id="awbNumber" name="awbNumber" type="text" placeholder="None" />
+        </div>
 
-    <div class="form-group">
-      <label for="jobNotes">Notes</label>
-      <textarea id="jobNotes" name="jobNotes" placeholder="None"></textarea>
-    </div>
+        <div class="form-group">
+          <label for="pickupLocation">Pickup Location</label>
+          <textarea id="pickupLocation" name="pickupLocation" placeholder="None"></textarea>
+        </div>
 
-    <button type="submit" class="btn">Add to Board</button>
+        <div class="form-group">
+          <label for="deliveryLocation">Delivery Location</label>
+          <textarea id="deliveryLocation" name="deliveryLocation" placeholder="None"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="jobNotes">Notes</label>
+          <textarea id="jobNotes" name="jobNotes" placeholder="None"></textarea>
+        </div>
+
+        <button type="submit" class="btn">Add to Board</button>
+      </div>
+    </form>
   </div>
-</form>
-    </details>
+</details>
 <details id="needs-attention-toggle" class="filters-card needs-attention-panel active-drivers-toggle" aria-label="Needs Attention">
   <summary>
   <span class="needs-attention-summary">
@@ -2398,6 +2428,7 @@ nav.hide-on-scroll {
   const SEND_DISPATCH_JOB_MESSAGE_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/send-dispatch-job-message";
   const DRIVERS_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/drivers";
   const SYNC_ONTIME_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/sync-ontime-jobs";
+  const PULL_ONTIME_JOB_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/pull-ontime-job";
   const UPDATE_AWB_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/update-awb";
   const ONTIME_LOCATIONS_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/ontime-locations";
   let ONTIME_LOCATION_RESULTS = [];
@@ -6095,7 +6126,78 @@ document.getElementById('job-search').addEventListener('input', loadJobs);
   document.getElementById(id)?.addEventListener('change', loadJobs);
 });
   document.getElementById('reset-search').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('job-search').value=''; loadJobs(); });
+document.getElementById('show-pull-ontime-panel')?.addEventListener('click', () => {
+  document.getElementById('pull-ontime-panel').hidden = false;
+  document.getElementById('job-form').hidden = true;
+  document.getElementById('pullOntimeTrackingNumber').focus();
+});
 
+document.getElementById('show-manual-job-panel')?.addEventListener('click', () => {
+  document.getElementById('pull-ontime-panel').hidden = true;
+  document.getElementById('job-form').hidden = false;
+});
+
+document.getElementById('upload-new-ontime-disabled')?.addEventListener('click', () => {
+  alert('Upload New Job To OnTime is coming next. For now use Pull Job Ticket From OnTime.');
+});
+
+document.getElementById('pullOntimeTrackingNumber')?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('pull-ontime-job-btn')?.click();
+  }
+});
+
+document.getElementById('pull-ontime-job-btn')?.addEventListener('click', async () => {
+  const input = document.getElementById('pullOntimeTrackingNumber');
+  const btn = document.getElementById('pull-ontime-job-btn');
+  const trackingNumber = input.value.trim();
+
+  if (!trackingNumber) {
+    alert('Enter the exact OnTime tracking / reference number.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Pulling...';
+
+  const res = await fetch(PULL_ONTIME_JOB_FUNCTION_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "apikey": SUPABASE_ANON_KEY
+    },
+    body: JSON.stringify({
+      trackingNumber
+    })
+  });
+
+  const rawText = await res.text();
+
+  let result = {};
+  try {
+    result = rawText ? JSON.parse(rawText) : {};
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = 'Pull From OnTime';
+    alert(`Pull failed. Non-JSON response: ${rawText}`);
+    return;
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Pull From OnTime';
+
+  if (!res.ok || result.error || result.success === false) {
+    alert(`Pull failed: ${result.error || result.message || 'Unknown error'}`);
+    console.error('Pull OnTime job failed:', result);
+    return;
+  }
+
+  alert(result.message || `Pulled job ${trackingNumber} from OnTime.`);
+  input.value = '';
+  await loadJobs();
+});
   document.getElementById('job-form').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -6194,27 +6296,24 @@ sb.channel('telegram-dispatch-changes')
     handleRealtimeDriverCacheChange
   )
   .subscribe();
-<<<<<<< Updated upstream
+  sb.channel('job-messages-changes')
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'job_messages' },
+      (payload) => {
+        console.log("REALTIME JOB MESSAGE PAYLOAD:", payload);
+        handleRealtimeJobMessageChange(payload);
+      }
+    )
+    .subscribe((status) => {
+      console.log("JOB MESSAGES REALTIME STATUS:", status);
+    });
 
-    sb.channel('job-messages-changes')
-  .on(
-    'postgres_changes',
-    { event: 'INSERT', schema: 'public', table: 'job_messages' },
-    (payload) => {
-      console.log("REALTIME JOB MESSAGE PAYLOAD:", payload);
-      handleRealtimeJobMessageChange(payload);
-    }
-  )
-  .subscribe((status) => {
-    console.log("JOB MESSAGES REALTIME STATUS:", status);
-  });
-=======
-    updateWaitTimers();
+  updateWaitTimers();
 
   setInterval(() => {
     updateWaitTimers();
   }, 1000);
->>>>>>> Stashed changes
 });
 </script>
 </body>
