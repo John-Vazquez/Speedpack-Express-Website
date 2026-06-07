@@ -330,7 +330,23 @@ nav.hide-on-scroll {
 .needs-attention-type.driver-message {
   background: #2563eb;
 }
+.needs-attention-row.ontime-pending {
+  background: #fffbeb;
+  border-left: 5px solid #f59e0b;
+}
 
+.needs-attention-row.ontime-pending:nth-child(odd) {
+  background: #fef3c7;
+}
+
+.needs-attention-row.ontime-pending .needs-attention-problem {
+  color: #92400e;
+}
+
+.needs-attention-type.ontime-pending {
+  background: #f59e0b;
+  color: #111827;
+}
 .needs-attention-row.photo-review {
   background: #faf5ff;
   border-left: 5px solid #7c3aed;
@@ -996,6 +1012,17 @@ nav.hide-on-scroll {
   cursor: pointer;
 }
     .menu-delete { margin-top:9px; width:100%; padding:8px; border:0; background:#1e3a8a; color:#fff; font-weight:800; cursor:pointer; }
+.menu-reset-driver {
+  margin-top: 9px;
+  width: 100%;
+  padding: 8px;
+  border: 0;
+  background: #f59e0b;
+  color: #111827;
+  font-weight: 900;
+  cursor: pointer;
+}
+
 
     .drop-target { outline: 2px solid #2563eb; outline-offset: -2px; background:#eff6ff; }
 
@@ -2245,7 +2272,176 @@ nav.hide-on-scroll {
     </div>
   </div>
 </div>
+<div id="ontime-accept-backdrop" class="telegram-confirm-backdrop">
+  <div class="telegram-confirm-modal">
+    <h3>Confirm Driver Acceptance</h3>
+    <p id="ontime-accept-text"></p>
 
+    <div class="telegram-confirm-actions">
+      <button type="button" id="ontime-accept-cancel" class="telegram-modal-cancel">Cancel</button>
+      <button type="button" id="ontime-accept-no" class="telegram-modal-confirm" style="background:#dc2626;">
+        NO, driver did NOT accept
+      </button>
+      <button type="button" id="ontime-accept-yes" class="telegram-modal-confirm" style="background:#16a34a;">
+        YES, driver DID accept
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="ontime-eta-backdrop" class="telegram-confirm-backdrop">
+  <div class="telegram-confirm-modal">
+    <h3>Enter Driver ETA</h3>
+    <p id="ontime-eta-text"></p>
+
+    <label for="ontime-eta-input">ETA to Pickup</label>
+    <input
+      id="ontime-eta-input"
+      type="text"
+      inputmode="numeric"
+      maxlength="4"
+      placeholder="Example: 0423"
+      style="width:100%; box-sizing:border-box; border:1px solid #cbd5e1; padding:9px; font-size:16px;"
+    >
+
+    <p style="font-size:12px; color:#6b7280; margin-top:7px;">
+      Enter military time only. Example: 0423, 0930, 1445, 2359.
+    </p>
+
+    <div class="telegram-confirm-actions">
+      <button type="button" id="ontime-eta-cancel" class="telegram-modal-cancel">Cancel</button>
+      <button type="button" id="ontime-eta-save" class="telegram-modal-confirm" style="background:#16a34a;">
+        Save ETA
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="ontime-arrival-backdrop" class="telegram-confirm-backdrop">
+  <div class="telegram-confirm-modal">
+    <h3>Confirm Driver Arrival</h3>
+    <p id="ontime-arrival-text"></p>
+
+    <label for="ontime-arrival-date-input">Arrival Date</label>
+    <input
+      id="ontime-arrival-date-input"
+      type="text"
+      placeholder="Example: 1/1/26"
+      style="width:100%; box-sizing:border-box; border:1px solid #cbd5e1; padding:9px; font-size:16px;"
+    >
+
+    <label for="ontime-arrival-time-input">Arrival Time</label>
+    <input
+      id="ontime-arrival-time-input"
+      type="text"
+      inputmode="numeric"
+      maxlength="4"
+      placeholder="Example: 0423"
+      style="width:100%; box-sizing:border-box; border:1px solid #cbd5e1; padding:9px; font-size:16px;"
+    >
+
+    <p style="font-size:12px; color:#6b7280; margin-top:7px;">
+      Date can be 1/1/26 or 01/01/2026. Time must be military time like 0423, 0930, 1445.
+    </p>
+
+    <div class="telegram-confirm-actions">
+      <button type="button" id="ontime-arrival-cancel" class="telegram-modal-cancel">Cancel</button>
+      <button type="button" id="ontime-arrival-save" class="telegram-modal-confirm" style="background:#16a34a;">
+        Confirm Arrival
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="ontime-arrival-backdrop" class="telegram-confirm-backdrop">
+  <div class="telegram-confirm-modal">
+    <h3>Confirm Driver Arrival</h3>
+    <p id="ontime-arrival-text"></p>
+
+    <label for="ontime-arrival-date-input">Arrival Date</label>
+    <input
+      id="ontime-arrival-date-input"
+      type="text"
+      placeholder="Example: 1/1/26"
+      style="width:100%; box-sizing:border-box; border:1px solid #cbd5e1; padding:9px; font-size:16px;"
+    >
+
+    <label for="ontime-arrival-time-input">Arrival Time</label>
+    <input
+      id="ontime-arrival-time-input"
+      type="text"
+      inputmode="numeric"
+      maxlength="4"
+      placeholder="Example: 0423"
+      style="width:100%; box-sizing:border-box; border:1px solid #cbd5e1; padding:9px; font-size:16px;"
+    >
+
+    <p style="font-size:12px; color:#6b7280; margin-top:7px;">
+      Date can be 1/1/26 or 01/01/2026. Time must be military time like 0423, 0930, 1445.
+    </p>
+
+    <div class="telegram-confirm-actions">
+      <button type="button" id="ontime-arrival-cancel" class="telegram-modal-cancel">Cancel</button>
+      <button type="button" id="ontime-arrival-save" class="telegram-modal-confirm" style="background:#16a34a;">
+        Confirm Arrival
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="ontime-box-photos-backdrop" class="telegram-confirm-backdrop">
+  <div class="telegram-confirm-modal" style="width:760px; max-width:92vw;">
+    <h3 id="ontime-box-photos-title">Box, Label and Invoice Photos</h3>
+    <p>
+      Upload at least one photo to continue. Click a slot or drag and drop an image from your computer.
+    </p>
+
+    <div id="ontime-box-photos-grid" class="docs-grid"></div>
+
+    <div class="telegram-confirm-actions">
+      <button type="button" id="ontime-box-photos-cancel" class="telegram-modal-cancel">Cancel</button>
+      <button type="button" id="ontime-box-photos-finished" class="telegram-modal-confirm" style="background:#16a34a;">
+        Finished
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="ontime-delivery-confirm-backdrop" class="telegram-confirm-backdrop">
+  <div class="telegram-confirm-modal">
+    <h3>Confirm Delivery</h3>
+    <p id="ontime-delivery-confirm-text"></p>
+
+    <div class="telegram-confirm-actions">
+      <button type="button" id="ontime-delivery-confirm-no" class="telegram-modal-cancel">No, go back</button>
+      <button type="button" id="ontime-delivery-confirm-yes" class="telegram-modal-confirm" style="background:#16a34a;">
+        Yes, delivered
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="ontime-delivered-to-backdrop" class="telegram-confirm-backdrop">
+  <div class="telegram-confirm-modal">
+    <h3>Delivered To</h3>
+    <p id="ontime-delivered-to-text"></p>
+
+    <label for="ontime-delivered-to-input">Delivered To Name</label>
+    <input
+      id="ontime-delivered-to-input"
+      type="text"
+      placeholder="Enter name"
+      style="width:100%; box-sizing:border-box; border:1px solid #cbd5e1; padding:9px; font-size:16px;"
+    >
+
+    <div class="telegram-confirm-actions">
+      <button type="button" id="ontime-delivered-to-cancel" class="telegram-modal-cancel">Cancel</button>
+      <button type="button" id="ontime-delivered-to-save" class="telegram-modal-confirm" style="background:#16a34a;">
+        Save Name
+      </button>
+    </div>
+  </div>
+</div>
 <div id="telegram-confirm-backdrop" class="telegram-confirm-backdrop">
   <div class="telegram-confirm-modal">
     <h3 id="telegram-confirm-title">Confirm Driver Assignment</h3>
@@ -2731,18 +2927,38 @@ function renderNeedsAttention() {
     return;
   }
 
-  list.innerHTML = NEEDS_ATTENTION_ITEMS.map(item => `
-    <div class="needs-attention-row ${item.type === "photo_review" ? "photo-review" : item.type === "driver_message" ? "driver-message" : ""}">
-      <div class="needs-attention-job">${escapeHtml(item.job_number || "Unknown")}</div>
-      <div class="needs-attention-driver">${escapeHtml(item.driver_name || "Unknown Driver")}</div>
-      <div class="needs-attention-problem">
-        <span class="needs-attention-type ${item.type === "photo_review" ? "photo-review" : item.type === "driver_message" ? "driver-message" : ""}">
-          ${item.type === "photo_review" ? "PHOTOS" : item.type === "driver_message" ? "MESSAGE" : "ERROR"}
-        </span>
-        ${escapeHtml(item.problem || "")}
+  list.innerHTML = NEEDS_ATTENTION_ITEMS.map(item => {
+    const rowClass =
+      item.type === "photo_review"
+        ? "photo-review"
+        : item.type === "driver_message"
+          ? "driver-message"
+          : item.type === "ontime_pending"
+            ? "ontime-pending"
+            : "";
+
+    const typeLabel =
+      item.type === "photo_review"
+        ? "PHOTOS"
+        : item.type === "driver_message"
+          ? "MESSAGE"
+          : item.type === "ontime_pending"
+            ? "PENDING"
+            : "ERROR";
+
+    return `
+      <div class="needs-attention-row ${rowClass}">
+        <div class="needs-attention-job">${escapeHtml(item.job_number || "Unknown")}</div>
+        <div class="needs-attention-driver">${escapeHtml(item.driver_name || "Unknown Driver")}</div>
+        <div class="needs-attention-problem">
+          <span class="needs-attention-type ${rowClass}">
+            ${typeLabel}
+          </span>
+          ${escapeHtml(item.problem || "")}
+        </div>
       </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 }
 
 
@@ -2819,6 +3035,24 @@ async function loadNeedsAttention() {
       });
     }
   });
+      const { data: ontimeWorkflowJobs, error: ontimeWorkflowError } = await sb
+    .from("jobs")
+    .select("*")
+    .eq("dispatch_method", "ontime_mobile")
+    .eq("is_archived", false)
+    .limit(300);
+
+  if (ontimeWorkflowError) {
+    console.error("Failed to load OnTime workflow attention items:", ontimeWorkflowError);
+  } else {
+    (ontimeWorkflowJobs || []).forEach(job => {
+      const attentionItem = getOntimeMobileAttentionItem(job);
+
+      if (attentionItem) {
+        attentionItems.push(attentionItem);
+      }
+    });
+  }
 
   NEEDS_ATTENTION_ITEMS = attentionItems.sort((a, b) =>
     new Date(b.updated_at || 0) - new Date(a.updated_at || 0)
@@ -3041,6 +3275,327 @@ function renderTelegramWorkflowLog(dispatchRow) {
   `;
 }
 
+function normalizeOntimeEtaDisplay(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+
+  if (!/^(?:[01]\d|2[0-3])[0-5]\d$/.test(digits)) {
+    return "";
+  }
+
+  return `${digits.slice(0, 2)}:${digits.slice(2)}`;
+}
+
+function parseOntimeArrivalDateParts(value) {
+  const clean = String(value || "")
+    .trim()
+    .replaceAll("-", "/")
+    .replaceAll(".", "/");
+
+  const match = clean.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/);
+
+  if (!match) return null;
+
+  const month = Number(match[1]);
+  const day = Number(match[2]);
+  let year = Number(match[3]);
+
+  if (year < 100) {
+    year += 2000;
+  }
+
+  const testDate = new Date(year, month - 1, day);
+
+  if (
+    testDate.getFullYear() !== year ||
+    testDate.getMonth() !== month - 1 ||
+    testDate.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return { month, day, year };
+}
+
+function normalizeOntimeArrivalDateInput(value) {
+  const parts = parseOntimeArrivalDateParts(value);
+
+  if (!parts) return "";
+
+  return `${pad(parts.month)}/${pad(parts.day)}/${parts.year}`;
+}
+
+function makeOntimeArrivalIso(dateText, timeText) {
+  const dateParts = parseOntimeArrivalDateParts(dateText);
+  const timeDisplay = normalizeOntimeEtaDisplay(timeText);
+
+  if (!dateParts || !timeDisplay) return null;
+
+  const [hours, minutes] = timeDisplay.split(":").map(Number);
+
+  return new Date(
+    dateParts.year,
+    dateParts.month - 1,
+    dateParts.day,
+    hours,
+    minutes,
+    0,
+    0
+  ).toISOString();
+}
+
+function formatOntimeArrivalDisplay(value) {
+  const d = new Date(value);
+
+  if (isNaN(d)) return "";
+
+  return `${pad(d.getMonth() + 1)}/${pad(d.getDate())}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function getOntimeMobileStep(job) {
+  if (job.dispatch_method !== "ontime_mobile") return "";
+
+  const step = String(job.ontime_dispatch_step || "").trim();
+
+  if (step) return step;
+
+  if (String(job.ontime_dispatch_status || "") === "pending") {
+    return "pending_acceptance";
+  }
+
+  if (String(job.ontime_dispatch_status || "") === "accepted") {
+    if (!normalizeOntimeEtaDisplay(job.ontime_dispatch_eta_text)) return "awaiting_pickup_eta";
+    if (!job.ontime_dispatch_arrival_at) return "awaiting_arrival";
+    if (!job.ontime_dispatch_box_photos_uploaded_at) return "awaiting_box_photos";
+    if (!normalizeOntimeEtaDisplay(job.ontime_dispatch_delivery_eta_text)) return "awaiting_delivery_eta";
+    if (!job.ontime_dispatch_delivered_at) return "awaiting_delivery_confirmation";
+    if (!job.ontime_dispatch_delivered_to_name) return "awaiting_delivered_to";
+    return "completed";
+  }
+
+  return "";
+}
+
+function getOntimeMobileButtonState(job, fallback) {
+  if (job.dispatch_method !== "ontime_mobile") {
+    return fallback;
+  }
+
+  const step = getOntimeMobileStep(job);
+
+  switch (step) {
+    case "pending_acceptance":
+      return { text: "PENDING", className: "pending" };
+
+    case "awaiting_pickup_eta":
+      return { text: "DRIVER ETA?", className: "accepted" };
+
+    case "awaiting_arrival":
+      return { text: "CONFIRM ARRIVAL?", className: "pending" };
+
+    case "awaiting_box_photos":
+      return { text: "ADD BOX PHOTOS?", className: "verify-photos" };
+
+    case "awaiting_delivery_eta":
+      return { text: "ETA TO DELIVERY?", className: "accepted" };
+
+    case "awaiting_delivery_confirmation":
+      return { text: "CONFIRM DELIVERY?", className: "pending" };
+
+    case "awaiting_delivered_to":
+      return { text: "DELIVERED TO?", className: "pending" };
+
+    case "completed":
+      return { text: "COMPLETE", className: "accepted" };
+
+    default:
+      return fallback;
+  }
+}
+
+function getOntimeMobileAttentionItem(job) {
+  if (job.dispatch_method !== "ontime_mobile") return null;
+  if (job.is_archived === true) return null;
+
+  const step = getOntimeMobileStep(job);
+
+  const base = {
+    id: `ontime-${step}-${job.id}`,
+    job_id: job.id,
+    job_number: job.title || "Unknown",
+    driver_name: job.driver || "Unknown Driver",
+    type: "ontime_pending",
+    updated_at:
+      job.ontime_dispatch_sent_at ||
+      job.ontime_dispatch_accepted_at ||
+      job.ontime_dispatch_eta_entered_at ||
+      job.ontime_dispatch_arrival_at ||
+      job.ontime_dispatch_box_photos_uploaded_at ||
+      job.ontime_dispatch_delivery_eta_entered_at ||
+      job.ontime_dispatch_delivered_at ||
+      job.created_at ||
+      new Date().toISOString()
+  };
+
+  switch (step) {
+    case "pending_acceptance":
+      return {
+        ...base,
+        problem: "Please confirm if the driver has accepted the job."
+      };
+
+    case "awaiting_box_photos":
+      return {
+        ...base,
+        problem: "Photos from the driver must be uploaded to continue."
+      };
+
+    case "awaiting_delivery_eta":
+      return {
+        ...base,
+        problem: "Please enter ETA to delivery."
+      };
+
+    case "awaiting_delivery_confirmation":
+      return {
+        ...base,
+        problem: "Please confirm the delivery."
+      };
+
+    case "awaiting_delivered_to":
+      return {
+        ...base,
+        problem: "Please enter who the job was delivered to."
+      };
+
+    default:
+      return null;
+  }
+}
+
+function parseOntimeArrivalDateParts(value) {
+  const clean = String(value || "")
+    .trim()
+    .replaceAll("-", "/")
+    .replaceAll(".", "/");
+
+  const match = clean.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/);
+
+  if (!match) return null;
+
+  const month = Number(match[1]);
+  const day = Number(match[2]);
+  let year = Number(match[3]);
+
+  if (year < 100) year += 2000;
+
+  const testDate = new Date(year, month - 1, day);
+
+  if (
+    testDate.getFullYear() !== year ||
+    testDate.getMonth() !== month - 1 ||
+    testDate.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return { month, day, year };
+}
+
+function normalizeOntimeArrivalDateInput(value) {
+  const parts = parseOntimeArrivalDateParts(value);
+  if (!parts) return "";
+
+  return `${pad(parts.month)}/${pad(parts.day)}/${parts.year}`;
+}
+
+function makeOntimeDateTimeIso(dateText, timeText) {
+  const dateParts = parseOntimeArrivalDateParts(dateText);
+  const timeDisplay = normalizeOntimeEtaDisplay(timeText);
+
+  if (!dateParts || !timeDisplay) return null;
+
+  const [hours, minutes] = timeDisplay.split(":").map(Number);
+
+  return new Date(
+    dateParts.year,
+    dateParts.month - 1,
+    dateParts.day,
+    hours,
+    minutes,
+    0,
+    0
+  ).toISOString();
+}
+
+function formatOntimeDateTimeDisplay(value) {
+  const d = new Date(value);
+  if (isNaN(d)) return "";
+
+  return `${pad(d.getMonth() + 1)}/${pad(d.getDate())}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function renderOntimeMobileWorkflowLog(job) {
+  if (job.dispatch_method !== "ontime_mobile") return "";
+
+  const lines = [];
+
+  const pickupEta = normalizeOntimeEtaDisplay(job.ontime_dispatch_eta_text);
+
+  if (pickupEta) {
+    lines.push(`ETA to Pickup: ${pickupEta}`);
+  } else if (getOntimeMobileStep(job) === "awaiting_pickup_eta") {
+    lines.push("ETA to Pickup: Waiting on dispatch entry");
+  }
+
+  if (job.ontime_dispatch_arrival_at) {
+    lines.push({
+      className: "arrival-time",
+      html: `Arrival Time: ${escapeHtml(formatOntimeDateTimeDisplay(job.ontime_dispatch_arrival_at))}`
+    });
+
+    const waitEnd = job.ontime_dispatch_box_photos_uploaded_at || job.ontime_dispatch_delivered_at || "";
+
+    lines.push({
+      className: "wait-timer-line",
+      html: `Wait Time: <span class="wait-timer" data-start="${escapeHtml(job.ontime_dispatch_arrival_at)}" data-end="${escapeHtml(waitEnd)}">00:00:00</span>`
+    });
+  }
+
+  if (job.ontime_dispatch_box_photos_uploaded_at) {
+    lines.push("Box Photos: Uploaded");
+  }
+
+  const deliveryEta = normalizeOntimeEtaDisplay(job.ontime_dispatch_delivery_eta_text);
+
+  if (deliveryEta) {
+    lines.push(`ETA to Delivery: ${deliveryEta}`);
+  } else if (getOntimeMobileStep(job) === "awaiting_delivery_eta") {
+    lines.push("ETA to Delivery: Waiting on dispatch entry");
+  }
+
+  if (job.ontime_dispatch_delivered_at) {
+    lines.push(`Delivered: ${formatOntimeDateTimeDisplay(job.ontime_dispatch_delivered_at)}`);
+  }
+
+  if (job.ontime_dispatch_delivered_to_name) {
+    lines.push(`Delivered To: ${job.ontime_dispatch_delivered_to_name}`);
+  }
+
+  if (!lines.length) return "";
+
+  return `
+    <div class="telegram-workflow-log">
+      ${lines.map(line => {
+        if (typeof line === "string") {
+          return `<span class="telegram-workflow-line">${escapeHtml(line)}</span>`;
+        }
+
+        return `<span class="telegram-workflow-line ${line.className || ""}">${line.html}</span>`;
+      }).join("")}
+    </div>
+  `;
+}
+
   let TOP_OTHER_FILTERS = [];
   setTimeout(updateTopOtherFilterLabel, 0);
 
@@ -3079,7 +3634,119 @@ document.getElementById("dispatch-method-telegram")?.addEventListener("click", (
 document.getElementById("dispatch-method-ontime")?.addEventListener("click", async () => {
   await sendJobToOntimeMobile();
 });
+document.getElementById("ontime-accept-cancel")?.addEventListener("click", () => {
+  closeOntimeAcceptModal();
+});
 
+document.getElementById("ontime-eta-cancel")?.addEventListener("click", () => {
+  closeOntimeEtaModal();
+});
+
+document.getElementById("ontime-eta-save")?.addEventListener("click", async () => {
+  await saveOntimeEta();
+});
+
+document.getElementById("ontime-eta-input")?.addEventListener("input", (e) => {
+  e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
+});
+
+document.getElementById("ontime-eta-input")?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    document.getElementById("ontime-eta-save")?.click();
+  }
+});
+document.getElementById("ontime-arrival-cancel")?.addEventListener("click", () => {
+  closeOntimeArrivalModal();
+});
+
+document.getElementById("ontime-arrival-save")?.addEventListener("click", async () => {
+  await saveOntimeArrival();
+});
+
+document.getElementById("ontime-arrival-date-input")?.addEventListener("blur", (e) => {
+  const normalizedDate = normalizeOntimeArrivalDateInput(e.target.value);
+
+  if (normalizedDate) {
+    e.target.value = normalizedDate;
+  }
+});
+
+document.getElementById("ontime-arrival-time-input")?.addEventListener("input", (e) => {
+  e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
+});
+
+document.getElementById("ontime-arrival-time-input")?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    document.getElementById("ontime-arrival-save")?.click();
+  }
+});
+
+document.getElementById("ontime-arrival-cancel")?.addEventListener("click", () => {
+  closeOntimeArrivalModal();
+});
+
+document.getElementById("ontime-arrival-save")?.addEventListener("click", async () => {
+  await saveOntimeArrival();
+});
+
+document.getElementById("ontime-arrival-date-input")?.addEventListener("blur", (e) => {
+  const normalizedDate = normalizeOntimeArrivalDateInput(e.target.value);
+
+  if (normalizedDate) {
+    e.target.value = normalizedDate;
+  }
+});
+
+document.getElementById("ontime-arrival-time-input")?.addEventListener("input", (e) => {
+  e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
+});
+
+document.getElementById("ontime-arrival-time-input")?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    document.getElementById("ontime-arrival-save")?.click();
+  }
+});
+
+document.getElementById("ontime-box-photos-cancel")?.addEventListener("click", () => {
+  closeOntimeBoxPhotosModal();
+});
+
+document.getElementById("ontime-box-photos-finished")?.addEventListener("click", async () => {
+  await finishOntimeBoxPhotos();
+});
+
+document.getElementById("ontime-delivery-confirm-no")?.addEventListener("click", () => {
+  closeOntimeDeliveryConfirmModal();
+});
+
+document.getElementById("ontime-delivery-confirm-yes")?.addEventListener("click", async () => {
+  await confirmOntimeDelivery();
+});
+
+document.getElementById("ontime-delivered-to-cancel")?.addEventListener("click", () => {
+  closeOntimeDeliveredToModal();
+});
+
+document.getElementById("ontime-delivered-to-save")?.addEventListener("click", async () => {
+  await saveOntimeDeliveredTo();
+});
+
+document.getElementById("ontime-delivered-to-input")?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    document.getElementById("ontime-delivered-to-save")?.click();
+  }
+});
+document.getElementById("ontime-accept-yes")?.addEventListener("click", async () => {
+  await confirmOntimeDriverAccepted();
+});
+
+document.getElementById("ontime-accept-no")?.addEventListener("click", async () => {
+  await rejectOntimeDriverAccepted();
+});
 document.getElementById("telegram-confirm-cancel")?.addEventListener("click", () => {
   closeTelegramAssignModal();
 });
@@ -3234,7 +3901,13 @@ let TELEGRAM_ASSIGN_CONTEXT = null;
 let TELEGRAM_CANCEL_CONTEXT = null;
 let PHOTO_REVIEW_CONTEXT = null;
 let DISPATCH_METHOD_CONTEXT = null;
-
+let ONTIME_ACCEPT_CONTEXT = null;
+let ONTIME_ETA_CONTEXT = null;
+let ONTIME_ETA_MODE = "pickup";
+let ONTIME_BOX_PHOTOS_CONTEXT = null;
+let ONTIME_DELIVERY_CONFIRM_CONTEXT = null;
+let ONTIME_DELIVERED_TO_CONTEXT = null;
+let ONTIME_ARRIVAL_CONTEXT = null;
 function getPendingDispatch(jobId) {
   try {
     return JSON.parse(localStorage.getItem(`telegram-pending-${jobId}`) || "null");
@@ -3321,11 +3994,770 @@ async function sendJobToOntimeMobile() {
 
   alert(result.message || `Job sent to ${selectedDriver.name} in OnTime360 Mobile.`);
   closeDispatchMethodModal();
-  await loadJobs();
+await loadJobs();
+await loadNeedsAttention();
 }
 
 
+function openOntimeAcceptModal(job) {
+  ONTIME_ACCEPT_CONTEXT = { job };
 
+  document.getElementById("ontime-accept-text").innerHTML =
+    `Has <b>${escapeHtml(job.driver || "the driver")}</b> accepted job <b>${escapeHtml(job.title || job.job_number || job.id)}</b>?`;
+
+  document.getElementById("ontime-accept-backdrop").classList.add("show");
+}
+
+function closeOntimeAcceptModal() {
+  ONTIME_ACCEPT_CONTEXT = null;
+  document.getElementById("ontime-accept-backdrop").classList.remove("show");
+}
+
+async function confirmOntimeDriverAccepted() {
+  if (!ONTIME_ACCEPT_CONTEXT?.job?.id) return;
+
+  const job = ONTIME_ACCEPT_CONTEXT.job;
+  const yesBtn = document.getElementById("ontime-accept-yes");
+
+  yesBtn.disabled = true;
+  yesBtn.textContent = "Confirming...";
+
+  const { data: updatedJob, error } = await sb
+  .from("jobs")
+  .update({
+  ontime_dispatch_status: "accepted",
+  ontime_dispatch_step: "awaiting_pickup_eta",
+  ontime_dispatch_accepted_at: new Date().toISOString(),
+  ontime_dispatch_cancelled_at: null,
+  ontime_dispatch_eta_text: null,
+  ontime_dispatch_eta_entered_at: null,
+  ontime_dispatch_arrival_date_text: null,
+  ontime_dispatch_arrival_time_text: null,
+  ontime_dispatch_arrival_at: null,
+  ontime_dispatch_box_photos_uploaded_at: null,
+  ontime_dispatch_delivery_eta_text: null,
+  ontime_dispatch_delivery_eta_entered_at: null,
+  ontime_dispatch_delivered_at: null,
+  ontime_dispatch_delivered_to_name: null,
+  ontime_dispatch_completed_at: null
+})
+  .eq("id", job.id)
+  .select("*")
+  .single();
+
+  yesBtn.disabled = false;
+  yesBtn.textContent = "YES, driver DID accept";
+
+  if (error) {
+    alert(`Failed to confirm driver acceptance: ${error.message}`);
+    return;
+  }
+
+  closeOntimeAcceptModal();
+
+if (updatedJob) {
+  const existingIndex = ALL_JOBS.findIndex(j => String(j.id) === String(updatedJob.id));
+
+  if (existingIndex >= 0) {
+    ALL_JOBS[existingIndex] = {
+      ...ALL_JOBS[existingIndex],
+      ...updatedJob
+    };
+  } else {
+    ALL_JOBS.unshift(updatedJob);
+  }
+
+  upsertActiveJobRow(updatedJob);
+  renderArchivedJobs(ALL_JOBS);
+  populateDriverFilter(ALL_JOBS);
+}
+
+await loadNeedsAttention();
+}
+
+async function rejectOntimeDriverAccepted() {
+
+  if (!ONTIME_ACCEPT_CONTEXT?.job?.id) return;
+
+  const job = ONTIME_ACCEPT_CONTEXT.job;
+  const noBtn = document.getElementById("ontime-accept-no");
+
+  noBtn.disabled = true;
+  noBtn.textContent = "Removing...";
+
+  const { error } = await sb
+    .from("jobs")
+    .update({
+  driver: "Unassigned",
+  driver_guid: null,
+  dispatch_method: null,
+  ontime_dispatch_status: null,
+  ontime_dispatch_step: null,
+  ontime_dispatch_driver_name: null,
+  ontime_dispatch_driver_guid: null,
+  ontime_dispatch_sent_at: null,
+  ontime_dispatch_accepted_at: null,
+  ontime_dispatch_eta_text: null,
+  ontime_dispatch_eta_entered_at: null,
+  ontime_dispatch_arrival_date_text: null,
+  ontime_dispatch_arrival_time_text: null,
+  ontime_dispatch_arrival_at: null,
+  ontime_dispatch_box_photos_uploaded_at: null,
+  ontime_dispatch_delivery_eta_text: null,
+  ontime_dispatch_delivery_eta_entered_at: null,
+  ontime_dispatch_delivered_at: null,
+  ontime_dispatch_delivered_to_name: null,
+  ontime_dispatch_completed_at: null,
+  ontime_dispatch_cancelled_at: new Date().toISOString()
+})
+    .eq("id", job.id);
+
+  noBtn.disabled = false;
+  noBtn.textContent = "NO, driver did NOT accept";
+
+  if (error) {
+    alert(`Failed to remove driver: ${error.message}`);
+    return;
+  }
+
+  closeOntimeAcceptModal();
+  await loadJobs();
+}
+
+function openOntimeEtaModal(job, mode = "pickup") {
+  ONTIME_ETA_CONTEXT = { job };
+  ONTIME_ETA_MODE = mode;
+
+  const isDelivery = mode === "delivery";
+  const currentEta = normalizeOntimeEtaDisplay(
+    isDelivery ? job.ontime_dispatch_delivery_eta_text : job.ontime_dispatch_eta_text
+  );
+
+  document.querySelector("#ontime-eta-backdrop h3").textContent =
+    isDelivery ? "Enter Delivery ETA" : "Enter Driver ETA";
+
+  document.getElementById("ontime-eta-text").innerHTML =
+    isDelivery
+      ? `Enter ETA to delivery for job <b>${escapeHtml(job.title || job.job_number || job.id)}</b>.`
+      : `Enter ETA to pickup for job <b>${escapeHtml(job.title || job.job_number || job.id)}</b>.`;
+
+  document.getElementById("ontime-eta-input").value = currentEta
+    ? currentEta.replace(":", "")
+    : "";
+
+  document.getElementById("ontime-eta-backdrop").classList.add("show");
+
+  setTimeout(() => {
+    document.getElementById("ontime-eta-input")?.focus();
+  }, 0);
+}
+
+function closeOntimeEtaModal() {
+  ONTIME_ETA_CONTEXT = null;
+  ONTIME_ETA_MODE = "pickup";
+  document.getElementById("ontime-eta-backdrop").classList.remove("show");
+}
+
+async function saveOntimeEta() {
+  if (!ONTIME_ETA_CONTEXT?.job?.id) return;
+
+  const job = ONTIME_ETA_CONTEXT.job;
+  const input = document.getElementById("ontime-eta-input");
+  const saveBtn = document.getElementById("ontime-eta-save");
+
+  const etaDisplay = normalizeOntimeEtaDisplay(input.value);
+
+  if (!etaDisplay) {
+    alert("Invalid ETA. Enter a valid 24-hour time like 0423, 0930, 1445, or 2359.");
+    return;
+  }
+
+  const isDelivery = ONTIME_ETA_MODE === "delivery";
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = "Saving...";
+
+  const updatePayload = isDelivery
+    ? {
+        ontime_dispatch_step: "awaiting_delivery_confirmation",
+        ontime_dispatch_delivery_eta_text: etaDisplay,
+        ontime_dispatch_delivery_eta_entered_at: new Date().toISOString(),
+        ontime_dispatch_delivered_at: null,
+        ontime_dispatch_delivered_to_name: null,
+        ontime_dispatch_completed_at: null
+      }
+    : {
+        ontime_dispatch_step: "awaiting_arrival",
+        ontime_dispatch_eta_text: etaDisplay,
+        ontime_dispatch_eta_entered_at: new Date().toISOString(),
+        ontime_dispatch_arrival_date_text: null,
+        ontime_dispatch_arrival_time_text: null,
+        ontime_dispatch_arrival_at: null,
+        ontime_dispatch_box_photos_uploaded_at: null,
+        ontime_dispatch_delivery_eta_text: null,
+        ontime_dispatch_delivery_eta_entered_at: null,
+        ontime_dispatch_delivered_at: null,
+        ontime_dispatch_delivered_to_name: null,
+        ontime_dispatch_completed_at: null
+      };
+
+  const { data: updatedJob, error } = await sb
+    .from("jobs")
+    .update(updatePayload)
+    .eq("id", job.id)
+    .select("*")
+    .single();
+
+  saveBtn.disabled = false;
+  saveBtn.textContent = "Save ETA";
+
+  if (error) {
+    alert(`Failed to save ETA: ${error.message}`);
+    return;
+  }
+
+  closeOntimeEtaModal();
+
+  if (updatedJob) {
+    const existingIndex = ALL_JOBS.findIndex(j => String(j.id) === String(updatedJob.id));
+
+    if (existingIndex >= 0) {
+      ALL_JOBS[existingIndex] = {
+        ...ALL_JOBS[existingIndex],
+        ...updatedJob
+      };
+    } else {
+      ALL_JOBS.unshift(updatedJob);
+    }
+
+    upsertActiveJobRow(updatedJob);
+    renderArchivedJobs(ALL_JOBS);
+    populateDriverFilter(ALL_JOBS);
+  }
+
+  updateWaitTimers();
+  await loadNeedsAttention();
+}
+
+function openOntimeArrivalModal(job) {
+  ONTIME_ARRIVAL_CONTEXT = { job };
+
+  document.getElementById("ontime-arrival-text").innerHTML =
+    `Enter arrival time for job <b>${escapeHtml(job.title || job.job_number || job.id)}</b>.`;
+
+  document.getElementById("ontime-arrival-date-input").value =
+    job.ontime_dispatch_arrival_date_text || "";
+
+  document.getElementById("ontime-arrival-time-input").value =
+    job.ontime_dispatch_arrival_time_text
+      ? String(job.ontime_dispatch_arrival_time_text).replace(/\D/g, "").slice(0, 4)
+      : "";
+
+  document.getElementById("ontime-arrival-backdrop").classList.add("show");
+
+  setTimeout(() => {
+    document.getElementById("ontime-arrival-date-input")?.focus();
+  }, 0);
+}
+
+function closeOntimeArrivalModal() {
+  ONTIME_ARRIVAL_CONTEXT = null;
+  document.getElementById("ontime-arrival-backdrop").classList.remove("show");
+}
+
+async function saveOntimeArrival() {
+  if (!ONTIME_ARRIVAL_CONTEXT?.job?.id) return;
+
+  const job = ONTIME_ARRIVAL_CONTEXT.job;
+  const dateInput = document.getElementById("ontime-arrival-date-input");
+  const timeInput = document.getElementById("ontime-arrival-time-input");
+  const saveBtn = document.getElementById("ontime-arrival-save");
+
+  const normalizedDate = normalizeOntimeArrivalDateInput(dateInput.value);
+  const normalizedTime = normalizeOntimeEtaDisplay(timeInput.value);
+  const arrivalIso = makeOntimeDateTimeIso(dateInput.value, timeInput.value);
+
+  if (!normalizedDate) {
+    alert("Invalid arrival date. Enter a date like 1/1/26 or 01/01/2026.");
+    return;
+  }
+
+  if (!normalizedTime) {
+    alert("Invalid arrival time. Enter a valid 24-hour time like 0423, 0930, 1445, or 2359.");
+    return;
+  }
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = "Saving...";
+
+  const { data: updatedJob, error } = await sb
+    .from("jobs")
+    .update({
+      ontime_dispatch_step: "awaiting_box_photos",
+      ontime_dispatch_arrival_date_text: normalizedDate,
+      ontime_dispatch_arrival_time_text: normalizedTime,
+      ontime_dispatch_arrival_at: arrivalIso,
+      ontime_dispatch_box_photos_uploaded_at: null,
+      ontime_dispatch_delivery_eta_text: null,
+      ontime_dispatch_delivery_eta_entered_at: null,
+      ontime_dispatch_delivered_at: null,
+      ontime_dispatch_delivered_to_name: null,
+      ontime_dispatch_completed_at: null
+    })
+    .eq("id", job.id)
+    .select("*")
+    .single();
+
+  saveBtn.disabled = false;
+  saveBtn.textContent = "Confirm Arrival";
+
+  if (error) {
+    alert(`Failed to save arrival time: ${error.message}`);
+    return;
+  }
+
+  closeOntimeArrivalModal();
+
+  if (updatedJob) {
+    const existingIndex = ALL_JOBS.findIndex(j => String(j.id) === String(updatedJob.id));
+
+    if (existingIndex >= 0) {
+      ALL_JOBS[existingIndex] = {
+        ...ALL_JOBS[existingIndex],
+        ...updatedJob
+      };
+    } else {
+      ALL_JOBS.unshift(updatedJob);
+    }
+
+    upsertActiveJobRow(updatedJob);
+    renderArchivedJobs(ALL_JOBS);
+    populateDriverFilter(ALL_JOBS);
+  }
+
+  updateWaitTimers();
+  await loadNeedsAttention();
+}
+
+async function loadOntimeBoxPhotos(jobId) {
+  const { data, error } = await sb
+    .from("ontime_mobile_job_photos")
+    .select("*")
+    .eq("job_id", jobId)
+    .order("slot_number", { ascending: true });
+
+  if (error) {
+    console.error("Failed to load OnTime box photos:", error);
+    return [];
+  }
+
+  return data || [];
+}
+
+function openOntimeBoxPhotosModal(job) {
+  ONTIME_BOX_PHOTOS_CONTEXT = { job };
+
+  document.getElementById("ontime-box-photos-title").textContent =
+    `Box, Label and Invoice Photos for Job ${job.title || job.id}`;
+
+  document.getElementById("ontime-box-photos-backdrop").classList.add("show");
+
+  renderOntimeBoxPhotosGrid();
+}
+
+function closeOntimeBoxPhotosModal() {
+  ONTIME_BOX_PHOTOS_CONTEXT = null;
+  document.getElementById("ontime-box-photos-backdrop").classList.remove("show");
+  document.getElementById("ontime-box-photos-grid").innerHTML = "";
+}
+
+async function deleteOntimeBoxPhoto(jobId, slotNumber, filePath) {
+  const confirmDelete = confirm("Delete this photo?");
+  if (!confirmDelete) return;
+
+  await sb.storage
+    .from("ontime-mobile-job-photos")
+    .remove([filePath]);
+
+  await sb
+    .from("ontime_mobile_job_photos")
+    .delete()
+    .eq("job_id", jobId)
+    .eq("slot_number", slotNumber);
+
+  await renderOntimeBoxPhotosGrid();
+}
+
+async function renderOntimeBoxPhotosGrid() {
+  if (!ONTIME_BOX_PHOTOS_CONTEXT?.job?.id) return;
+
+  const job = ONTIME_BOX_PHOTOS_CONTEXT.job;
+  const photos = await loadOntimeBoxPhotos(job.id);
+  const grid = document.getElementById("ontime-box-photos-grid");
+
+  grid.innerHTML = "";
+
+  for (let i = 1; i <= 10; i++) {
+    const existing = photos.find(photo => Number(photo.slot_number) === i);
+
+    const slot = document.createElement("div");
+    slot.className = `doc-slot ${existing ? "has-doc" : ""}`;
+
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.className = "doc-file-input";
+    fileInput.accept = "image/png,image/jpeg,image/webp";
+
+    slot.innerHTML = existing
+      ? `
+        <span class="doc-remove">×</span>
+        <div>
+          🖼️<br>
+          ${escapeHtml(existing.file_name)}
+        </div>
+      `
+      : `
+        <div>
+          Slot ${i}<br>
+          Click or Drop Image
+        </div>
+      `;
+
+    async function uploadPhotoToSlot(file) {
+      if (!file) return;
+
+      const allowed = [
+        "image/png",
+        "image/jpeg",
+        "image/webp"
+      ];
+
+      if (!allowed.includes(file.type)) {
+        alert("Only PNG, JPG, JPEG, or WEBP images are allowed.");
+        return;
+      }
+
+      slot.innerHTML = `<div>Uploading...</div>`;
+
+      const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const path = `${job.id}/slot-${i}-${Date.now()}-${cleanName}`;
+
+      const { error: uploadError } = await sb.storage
+        .from("ontime-mobile-job-photos")
+        .upload(path, file, {
+          upsert: true
+        });
+
+      if (uploadError) {
+        console.error(uploadError);
+        alert(`Upload failed: ${uploadError.message}`);
+        await renderOntimeBoxPhotosGrid();
+        return;
+      }
+
+      const { error: saveError } = await sb
+        .from("ontime_mobile_job_photos")
+        .upsert({
+          job_id: job.id,
+          slot_number: i,
+          file_name: file.name,
+          file_path: path,
+          file_type: file.type
+        }, {
+          onConflict: "job_id,slot_number"
+        });
+
+      if (saveError) {
+        console.error(saveError);
+        alert(`Database save failed: ${saveError.message}`);
+        await renderOntimeBoxPhotosGrid();
+        return;
+      }
+
+      await renderOntimeBoxPhotosGrid();
+    }
+
+    fileInput.addEventListener("change", () => {
+      uploadPhotoToSlot(fileInput.files[0]);
+    });
+
+    slot.addEventListener("click", (e) => {
+      if (e.target.classList.contains("doc-remove")) {
+        e.stopPropagation();
+        if (!existing) return;
+        deleteOntimeBoxPhoto(job.id, i, existing.file_path);
+        return;
+      }
+
+      fileInput.click();
+    });
+
+    slot.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      slot.classList.add("drag-over");
+    });
+
+    slot.addEventListener("dragleave", () => {
+      slot.classList.remove("drag-over");
+    });
+
+    slot.addEventListener("drop", async (e) => {
+      e.preventDefault();
+      slot.classList.remove("drag-over");
+
+      const file = e.dataTransfer.files[0];
+      await uploadPhotoToSlot(file);
+    });
+
+    slot.appendChild(fileInput);
+    grid.appendChild(slot);
+  }
+}
+
+async function finishOntimeBoxPhotos() {
+  if (!ONTIME_BOX_PHOTOS_CONTEXT?.job?.id) return;
+
+  const job = ONTIME_BOX_PHOTOS_CONTEXT.job;
+  const photos = await loadOntimeBoxPhotos(job.id);
+
+  if (!photos.length) {
+    alert("Upload at least one photo before continuing.");
+    return;
+  }
+
+  const finishBtn = document.getElementById("ontime-box-photos-finished");
+  finishBtn.disabled = true;
+  finishBtn.textContent = "Finishing...";
+
+  const { data: updatedJob, error } = await sb
+    .from("jobs")
+    .update({
+      ontime_dispatch_step: "awaiting_delivery_eta",
+      ontime_dispatch_box_photos_uploaded_at: new Date().toISOString(),
+      ontime_dispatch_delivery_eta_text: null,
+      ontime_dispatch_delivery_eta_entered_at: null,
+      ontime_dispatch_delivered_at: null,
+      ontime_dispatch_delivered_to_name: null,
+      ontime_dispatch_completed_at: null
+    })
+    .eq("id", job.id)
+    .select("*")
+    .single();
+
+  finishBtn.disabled = false;
+  finishBtn.textContent = "Finished";
+
+  if (error) {
+    alert(`Failed to finish photos: ${error.message}`);
+    return;
+  }
+
+  closeOntimeBoxPhotosModal();
+
+  if (updatedJob) {
+    const existingIndex = ALL_JOBS.findIndex(j => String(j.id) === String(updatedJob.id));
+
+    if (existingIndex >= 0) {
+      ALL_JOBS[existingIndex] = {
+        ...ALL_JOBS[existingIndex],
+        ...updatedJob
+      };
+    } else {
+      ALL_JOBS.unshift(updatedJob);
+    }
+
+    upsertActiveJobRow(updatedJob);
+    renderArchivedJobs(ALL_JOBS);
+    populateDriverFilter(ALL_JOBS);
+  }
+
+  await loadNeedsAttention();
+}
+
+function openOntimeDeliveryConfirmModal(job) {
+  ONTIME_DELIVERY_CONFIRM_CONTEXT = { job };
+
+  document.getElementById("ontime-delivery-confirm-text").innerHTML =
+    `Confirm delivery for job <b>${escapeHtml(job.title || job.job_number || job.id)}</b>?`;
+
+  document.getElementById("ontime-delivery-confirm-backdrop").classList.add("show");
+}
+
+function closeOntimeDeliveryConfirmModal() {
+  ONTIME_DELIVERY_CONFIRM_CONTEXT = null;
+  document.getElementById("ontime-delivery-confirm-backdrop").classList.remove("show");
+}
+
+async function confirmOntimeDelivery() {
+  if (!ONTIME_DELIVERY_CONFIRM_CONTEXT?.job?.id) return;
+
+  const job = ONTIME_DELIVERY_CONFIRM_CONTEXT.job;
+  const yesBtn = document.getElementById("ontime-delivery-confirm-yes");
+
+  yesBtn.disabled = true;
+  yesBtn.textContent = "Confirming...";
+
+  const { data: updatedJob, error } = await sb
+    .from("jobs")
+    .update({
+      ontime_dispatch_step: "awaiting_delivered_to",
+      ontime_dispatch_delivered_at: new Date().toISOString(),
+      ontime_dispatch_delivered_to_name: null,
+      ontime_dispatch_completed_at: null
+    })
+    .eq("id", job.id)
+    .select("*")
+    .single();
+
+  yesBtn.disabled = false;
+  yesBtn.textContent = "Yes, delivered";
+
+  if (error) {
+    alert(`Failed to confirm delivery: ${error.message}`);
+    return;
+  }
+
+  closeOntimeDeliveryConfirmModal();
+
+  if (updatedJob) {
+    const existingIndex = ALL_JOBS.findIndex(j => String(j.id) === String(updatedJob.id));
+
+    if (existingIndex >= 0) {
+      ALL_JOBS[existingIndex] = {
+        ...ALL_JOBS[existingIndex],
+        ...updatedJob
+      };
+    } else {
+      ALL_JOBS.unshift(updatedJob);
+    }
+
+    upsertActiveJobRow(updatedJob);
+    renderArchivedJobs(ALL_JOBS);
+    populateDriverFilter(ALL_JOBS);
+  }
+
+  updateWaitTimers();
+  await loadNeedsAttention();
+}
+
+function openOntimeDeliveredToModal(job) {
+  ONTIME_DELIVERED_TO_CONTEXT = { job };
+
+  document.getElementById("ontime-delivered-to-text").innerHTML =
+    `Who was job <b>${escapeHtml(job.title || job.job_number || job.id)}</b> delivered to?`;
+
+  document.getElementById("ontime-delivered-to-input").value =
+    job.ontime_dispatch_delivered_to_name || "";
+
+  document.getElementById("ontime-delivered-to-backdrop").classList.add("show");
+
+  setTimeout(() => {
+    document.getElementById("ontime-delivered-to-input")?.focus();
+  }, 0);
+}
+
+function closeOntimeDeliveredToModal() {
+  ONTIME_DELIVERED_TO_CONTEXT = null;
+  document.getElementById("ontime-delivered-to-backdrop").classList.remove("show");
+}
+
+async function saveOntimeDeliveredTo() {
+  if (!ONTIME_DELIVERED_TO_CONTEXT?.job?.id) return;
+
+  const job = ONTIME_DELIVERED_TO_CONTEXT.job;
+  const input = document.getElementById("ontime-delivered-to-input");
+  const saveBtn = document.getElementById("ontime-delivered-to-save");
+  const deliveredToName = input.value.trim();
+
+  if (!deliveredToName) {
+    alert("Enter who the job was delivered to.");
+    return;
+  }
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = "Saving...";
+
+  const { data: updatedJob, error } = await sb
+    .from("jobs")
+    .update({
+      ontime_dispatch_step: "completed",
+      ontime_dispatch_status: "completed",
+      ontime_dispatch_delivered_to_name: deliveredToName,
+      ontime_dispatch_completed_at: new Date().toISOString()
+    })
+    .eq("id", job.id)
+    .select("*")
+    .single();
+
+  saveBtn.disabled = false;
+  saveBtn.textContent = "Save Name";
+
+  if (error) {
+    alert(`Failed to save delivered-to name: ${error.message}`);
+    return;
+  }
+
+  closeOntimeDeliveredToModal();
+
+  if (updatedJob) {
+    const existingIndex = ALL_JOBS.findIndex(j => String(j.id) === String(updatedJob.id));
+
+    if (existingIndex >= 0) {
+      ALL_JOBS[existingIndex] = {
+        ...ALL_JOBS[existingIndex],
+        ...updatedJob
+      };
+    } else {
+      ALL_JOBS.unshift(updatedJob);
+    }
+
+    upsertActiveJobRow(updatedJob);
+    renderArchivedJobs(ALL_JOBS);
+    populateDriverFilter(ALL_JOBS);
+  }
+
+  await loadNeedsAttention();
+}
+
+function handleOntimeMobileButtonClick(job) {
+  const step = getOntimeMobileStep(job);
+
+  switch (step) {
+    case "pending_acceptance":
+      openOntimeAcceptModal(job);
+      return;
+
+    case "awaiting_pickup_eta":
+      openOntimeEtaModal(job, "pickup");
+      return;
+
+    case "awaiting_arrival":
+      openOntimeArrivalModal(job);
+      return;
+
+    case "awaiting_box_photos":
+      openOntimeBoxPhotosModal(job);
+      return;
+
+    case "awaiting_delivery_eta":
+      openOntimeEtaModal(job, "delivery");
+      return;
+
+    case "awaiting_delivery_confirmation":
+      openOntimeDeliveryConfirmModal(job);
+      return;
+
+    case "awaiting_delivered_to":
+      openOntimeDeliveredToModal(job);
+      return;
+
+    case "completed":
+      return;
+
+    default:
+      return;
+  }
+}
 function openTelegramAssignModal(job, selectedDriver) {
   TELEGRAM_ASSIGN_CONTEXT = {
     job,
@@ -3981,7 +5413,29 @@ const driverButtonClass =
                           : ((!job.driver || job.driver === "Unassigned") ? "assign" : "");
 
 const driverEtaHtml = "";
+const isOntimeMobileDispatch = job.dispatch_method === "ontime_mobile";
+const ontimeDispatchStatus = String(job.ontime_dispatch_status || "");
+
+const isOntimePending = isOntimeMobileDispatch && ontimeDispatchStatus === "pending";
+const isOntimeAccepted = isOntimeMobileDispatch && ontimeDispatchStatus === "accepted";
+const hasOntimeEta = isOntimeAccepted && Boolean(normalizeOntimeEtaDisplay(job.ontime_dispatch_eta_text));
+const hasOntimeArrival = isOntimeAccepted && Boolean(job.ontime_dispatch_arrival_at);
+
+const ontimeButtonState = getOntimeMobileButtonState(job, {
+  text: driverButtonText,
+  className: driverButtonClass
+});
+
+const finalDriverButtonText = ontimeButtonState.text;
+const finalDriverButtonClass = ontimeButtonState.className;
+
+
+
+
+
 const telegramWorkflowLogHtml = renderTelegramWorkflowLog(telegramDispatch);
+const ontimeWorkflowLogHtml = renderOntimeMobileWorkflowLog(job);
+const workflowLogHtml = isOntimeMobileDispatch ? ontimeWorkflowLogHtml : telegramWorkflowLogHtml;
 
 const notesHtml = job.notes
   ? `<details class="note-toggle"><summary>View Notes</summary><div class="note-text">${escapeHtml(job.notes)}</div></details>`
@@ -3998,8 +5452,8 @@ const notesHtml = job.notes
         <b>${escapeHtml(job.driver || 'Unassigned')}</b><br>
         1 pcs<br>2 lbs<br>
         <div class="driver-action-line">
-  <button type="button" class="driver-change-btn ${driverButtonClass}">
-    ${driverButtonText}
+  <button type="button" class="driver-change-btn ${finalDriverButtonClass}">
+    ${finalDriverButtonText}
   </button>
   
 </div>
@@ -4023,7 +5477,7 @@ const notesHtml = job.notes
   <span class="start">🚗</span>
   <span class="fill" style="width:${Math.min(getProgressPercent(job), 100)}%;"></span>
   <span class="timeline-text">${escapeHtml(CATEGORY_LABELS[job.category] || '')}</span>
-${telegramWorkflowLogHtml}
+${workflowLogHtml}
   <span class="end">✈️</span>
 
 
@@ -4119,7 +5573,8 @@ ${telegramWorkflowLogHtml}
   <button type="button" class="menu-filter-btn">Apply / Remove Filters</button>
 </div>
       </div>
-      <button type="button" class="menu-delete">Archive Job</button>
+      <button type="button" class="menu-reset-driver">Reset Driver / Workflow</button>
+<button type="button" class="menu-delete">Archive Job</button>
     `;
     row.querySelector('.actions-cell').appendChild(menu);
 
@@ -4131,6 +5586,11 @@ const inlineDriverSave = row.querySelector('.inline-driver-save');
 
 row.querySelector('.driver-change-btn')?.addEventListener('click', async (e) => {
   e.stopPropagation();
+
+  if (isOntimeMobileDispatch) {
+    handleOntimeMobileButtonClick(job);
+    return;
+  }
 
   const telegramDispatch = getTelegramDispatchForJob(job);
   if (
@@ -4635,7 +6095,51 @@ menu.querySelector('.menu-filter-btn').addEventListener('click', async () => {
       if (error) alert('Move failed.');
       loadJobs();
     });
+menu.querySelector('.menu-reset-driver')?.addEventListener('click', async () => {
+  const confirmReset = confirm(
+    `Reset driver/workflow for job #${job.title || job.id}?\n\nThis will keep the job data, but clear the assigned driver and restart the dashboard button back to ASSIGN DRIVER.`
+  );
 
+  if (!confirmReset) return;
+
+  const { error } = await sb
+    .from('jobs')
+    .update({
+  driver: 'Unassigned',
+  driver_guid: null,
+  dispatch_method: null,
+  ontime_dispatch_status: null,
+  ontime_dispatch_step: null,
+  ontime_dispatch_driver_name: null,
+  ontime_dispatch_driver_guid: null,
+  ontime_dispatch_sent_at: null,
+  ontime_dispatch_accepted_at: null,
+  ontime_dispatch_eta_text: null,
+  ontime_dispatch_eta_entered_at: null,
+  ontime_dispatch_arrival_date_text: null,
+  ontime_dispatch_arrival_time_text: null,
+  ontime_dispatch_arrival_at: null,
+  ontime_dispatch_box_photos_uploaded_at: null,
+  ontime_dispatch_delivery_eta_text: null,
+  ontime_dispatch_delivery_eta_entered_at: null,
+  ontime_dispatch_delivered_at: null,
+  ontime_dispatch_delivered_to_name: null,
+  ontime_dispatch_completed_at: null,
+  ontime_dispatch_cancelled_at: null
+})
+    .eq('id', job.id);
+
+  if (error) {
+    alert(`Reset failed: ${error.message}`);
+    return;
+  }
+
+  clearPendingDispatch(job.id);
+  delete TELEGRAM_DISPATCH_BY_JOB_ID[String(job.id)];
+
+  menu.hidden = true;
+  await loadJobs();
+});
     menu.querySelector('.menu-delete').addEventListener('click', async () => {
       const oldDate = new Date();
       oldDate.setDate(oldDate.getDate() - 6);
@@ -5546,6 +7050,7 @@ function handleRealtimeJobChange(payload) {
   populateDriverFilter(ALL_JOBS);
   upsertActiveJobRow(ALL_JOBS.find(job => String(job.id) === String(jobId)));
   renderArchivedJobs(ALL_JOBS);
+loadNeedsAttention();
 }
 
 
