@@ -831,6 +831,19 @@ nav.hide-on-scroll {
   line-height: 1.25;
   white-space: nowrap;
 }
+
+.telegram-workflow-line.arrival-time {
+  color: #2563eb;
+}
+
+.telegram-workflow-line.wait-timer-line {
+  color: #dc2626;
+  font-size: 11px;
+}
+
+.telegram-workflow-line.billable-wait-line {
+  color: #7c3aed;
+}
     .deadline-cell { text-align:right; font-size:12px; line-height:1.35; }
     .deadline-cell b { color:#111827; }
 .category-badge {
@@ -2859,6 +2872,57 @@ function handleRealtimeDriverCacheChange(payload) {
 
 
 
+function formatWaitDuration(ms) {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+}
+
+function formatBillableWait(ms) {
+  const billableMs = Math.max(0, ms - (15 * 60 * 1000));
+  const totalMinutes = Math.ceil(billableMs / (60 * 1000));
+
+  if (totalMinutes <= 0) return "0m";
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (hours > 0 && minutes > 0) return `${hours}h ${minutes}m`;
+  if (hours > 0) return `${hours}h`;
+  return `${minutes}m`;
+}
+
+function getPickupWaitEnd(dispatchRow) {
+  return (
+    dispatchRow?.photos_submitted_at ||
+    dispatchRow?.waiting_time_ended_at ||
+    null
+  );
+}
+
+function updateWaitTimers() {
+  document.querySelectorAll(".wait-timer").forEach(el => {
+    const startRaw = el.dataset.start;
+    const endRaw = el.dataset.end;
+
+    if (!startRaw) return;
+
+    const start = new Date(startRaw);
+    if (isNaN(start)) return;
+
+    const end = endRaw ? new Date(endRaw) : new Date();
+    if (isNaN(end)) return;
+
+    const elapsedMs = end - start;
+
+    el.textContent = formatWaitDuration(elapsedMs);
+  });
+}
+
 
 
 function formatTelegramTime(value) {
@@ -2887,14 +2951,34 @@ function renderTelegramWorkflowLog(dispatchRow) {
     lines.push("ETA to Pickup: Waiting on driver response");
   }
 
-  const waitStart = dispatchRow.waiting_time_started_at || dispatchRow.arrival_confirmed_at;
-  if (waitStart) {
-    lines.push(`Wait Time Start: ${formatTelegramTime(waitStart)}`);
-  }
+  const arrivalTime = dispatchRow.arrival_confirmed_at;
 
-  const waitEnd = dispatchRow.waiting_time_ended_at || dispatchRow.delivery_eta_received_at;
-  if (waitEnd) {
-    lines.push(`Wait Time End: ${formatTelegramTime(waitEnd)}`);
+  if (arrivalTime) {
+    lines.push({
+      className: "arrival-time",
+      html: `Arrival Time: ${escapeHtml(formatTelegramTime(arrivalTime))}`
+    });
+
+    const waitEnd = getPickupWaitEnd(dispatchRow);
+    const startDate = new Date(arrivalTime);
+    const endDate = waitEnd ? new Date(waitEnd) : null;
+
+    const billableText =
+      waitEnd && !isNaN(startDate) && endDate && !isNaN(endDate)
+        ? formatBillableWait(endDate - startDate)
+        : null;
+
+    lines.push({
+      className: "wait-timer-line",
+      html: `Wait Time: <span class="wait-timer" data-start="${escapeHtml(arrivalTime)}" data-end="${escapeHtml(waitEnd || "")}">00:00:00</span>`
+    });
+
+    if (billableText !== null) {
+      lines.push({
+        className: "billable-wait-line",
+        html: `Billable Wait: ${escapeHtml(billableText)}`
+      });
+    }
   }
 
   if (dispatchRow.workflow_step === "awaiting_delivery_eta") {
@@ -2915,12 +2999,16 @@ function renderTelegramWorkflowLog(dispatchRow) {
 
   return `
     <div class="telegram-workflow-log">
-      ${lines.map(line => `<span class="telegram-workflow-line">${escapeHtml(line)}</span>`).join("")}
+      ${lines.map(line => {
+        if (typeof line === "string") {
+          return `<span class="telegram-workflow-line">${escapeHtml(line)}</span>`;
+        }
+
+        return `<span class="telegram-workflow-line ${line.className || ""}">${line.html}</span>`;
+      }).join("")}
     </div>
   `;
 }
-
-
 
   let TOP_OTHER_FILTERS = [];
   setTimeout(updateTopOtherFilterLabel, 0);
@@ -5481,6 +5569,7 @@ console.log("REALTIME TELEGRAM DISPATCH PAYLOAD:", payload);
   if (!job) return;
 
   upsertActiveJobRow(job);
+    updateWaitTimers();
 }
 
   function getUrgentJobs(jobs) {
@@ -6105,6 +6194,7 @@ sb.channel('telegram-dispatch-changes')
     handleRealtimeDriverCacheChange
   )
   .subscribe();
+<<<<<<< Updated upstream
 
     sb.channel('job-messages-changes')
   .on(
@@ -6118,6 +6208,13 @@ sb.channel('telegram-dispatch-changes')
   .subscribe((status) => {
     console.log("JOB MESSAGES REALTIME STATUS:", status);
   });
+=======
+    updateWaitTimers();
+
+  setInterval(() => {
+    updateWaitTimers();
+  }, 1000);
+>>>>>>> Stashed changes
 });
 </script>
 </body>
