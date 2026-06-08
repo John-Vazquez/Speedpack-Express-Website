@@ -2618,6 +2618,7 @@ nav.hide-on-scroll {
   const ASSIGN_DRIVER_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/assign-driver";
   const SEND_TELEGRAM_JOB_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/send-telegram-job";
   const CANCEL_TELEGRAM_JOB_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/cancel-telegram-job";
+  const RESET_TELEGRAM_WORKFLOW_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/reset-telegram-workflow";
   const GET_TELEGRAM_PHOTO_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/get-telegram-photo";
   const REVIEW_TELEGRAM_PHOTOS_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/review-telegram-photos";
   const UPLOAD_COMPLETED_JOB_TO_ONTIME_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/upload-completed-job-to-ontime";
@@ -2824,19 +2825,28 @@ async function loadTelegramDispatchesForJobs(jobs) {
     }
 
     (data || []).forEach(row => {
-      const jobId = String(row.job_id || "");
-      if (!jobId || !jobIdSet.has(jobId)) return;
+  const jobId = String(row.job_id || "");
+  if (!jobId || !jobIdSet.has(jobId)) return;
 
-      if (row.status === "accepted") {
-        TELEGRAM_DISPATCH_BY_JOB_ID[jobId] = row;
-        clearPendingDispatch(jobId);
-        return;
-      }
+  const status = String(row.status || "");
+  const step = String(row.workflow_step || "");
 
-      if (!TELEGRAM_DISPATCH_BY_JOB_ID[jobId] && row.status === "pending") {
-        TELEGRAM_DISPATCH_BY_JOB_ID[jobId] = row;
-      }
-    });
+  const shouldShowTelegramWorkflow =
+    status === "pending" ||
+    status === "accepted" ||
+    status === "completed" ||
+    step === "delivery_complete";
+
+  if (!shouldShowTelegramWorkflow) return;
+
+  if (!TELEGRAM_DISPATCH_BY_JOB_ID[jobId]) {
+    TELEGRAM_DISPATCH_BY_JOB_ID[jobId] = row;
+
+    if (status !== "pending") {
+      clearPendingDispatch(jobId);
+    }
+  }
+});
   } catch (err) {
     console.error("Telegram dispatch status lookup crashed:", err);
   }
@@ -3807,15 +3817,48 @@ document.getElementById("telegram-confirm-send")?.addEventListener("click", asyn
     return;
   }
 
-  savePendingDispatch(job.id, {
-    dispatch_id: result.dispatch_id,
-    driver_name: result.driver_name || selectedDriver.name,
-    job_number: payload.job_number,
-    sent_at: new Date().toISOString()
-  });
+  const pendingDispatch = {
+  id: result.dispatch_id,
+  dispatch_id: result.dispatch_id,
+  job_id: String(job.id || ""),
+  job_number: payload.job_number,
+  driver_id: String(selectedDriver.id || ""),
+  driver_name: result.driver_name || selectedDriver.name,
+  status: "pending",
+  workflow_step: null,
+  eta_status: "not_requested",
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString()
+};
 
-  closeTelegramAssignModal();
-  loadJobs();
+savePendingDispatch(job.id, {
+  dispatch_id: result.dispatch_id,
+  driver_name: result.driver_name || selectedDriver.name,
+  job_number: payload.job_number,
+  sent_at: new Date().toISOString()
+});
+
+TELEGRAM_DISPATCH_BY_JOB_ID[String(job.id)] = pendingDispatch;
+
+const updatedJob = {
+  ...job,
+  driver: result.driver_name || selectedDriver.name,
+  driver_guid: selectedDriver.id || job.driver_guid || null,
+  dispatch_method: "telegram"
+};
+
+const existingIndex = ALL_JOBS.findIndex(j => String(j.id) === String(job.id));
+
+if (existingIndex >= 0) {
+  ALL_JOBS[existingIndex] = {
+    ...ALL_JOBS[existingIndex],
+    ...updatedJob
+  };
+}
+
+closeTelegramAssignModal();
+upsertActiveJobRow(updatedJob);
+populateDriverFilter(ALL_JOBS);
 });
 
 document.getElementById("telegram-cancel-no")?.addEventListener("click", () => {
@@ -5056,6 +5099,13 @@ function isArchivedJob(job) {
   return job.is_archived === true;
 }
 
+function isOnTimeCompletionUploaded(job) {
+  return (
+    String(job.ontime_completion_upload_status || "").toLowerCase() === "uploaded" &&
+    Boolean(job.ontime_completion_uploaded_at)
+  );
+}
+
 
 function getJobClient(job) {
   const clientText = [
@@ -5354,7 +5404,7 @@ const isAtDelivery = telegramDispatch?.workflow_step === "awaiting_delivery_conf
 const isAwaitingDeliveredToName = telegramDispatch?.workflow_step === "awaiting_delivered_to_name";
 const isAwaitingReceipt = telegramDispatch?.workflow_step === "awaiting_delivery_receipt_decision" || telegramDispatch?.workflow_step === "awaiting_delivery_receipt_photo";
 const isDeliveryComplete = telegramDispatch?.workflow_step === "delivery_complete";
-const isOntimeUploaded = job.ontime_completion_upload_status === "uploaded";
+const isOntimeUploaded = isOnTimeCompletionUploaded(job);
 const needsOntimeUpload = isDeliveryComplete && !isOntimeUploaded;
 
 
@@ -5421,13 +5471,23 @@ const isOntimeAccepted = isOntimeMobileDispatch && ontimeDispatchStatus === "acc
 const hasOntimeEta = isOntimeAccepted && Boolean(normalizeOntimeEtaDisplay(job.ontime_dispatch_eta_text));
 const hasOntimeArrival = isOntimeAccepted && Boolean(job.ontime_dispatch_arrival_at);
 
+const isTelegramDeliveryComplete =
+  telegramDispatch?.workflow_step === "delivery_complete";
+
+const hasCompletedOntimeUpload = isOnTimeCompletionUploaded(job);
+
 const ontimeButtonState = getOntimeMobileButtonState(job, {
   text: driverButtonText,
   className: driverButtonClass
 });
 
-const finalDriverButtonText = ontimeButtonState.text;
-const finalDriverButtonClass = ontimeButtonState.className;
+const finalDriverButtonText = isTelegramDeliveryComplete
+  ? (hasCompletedOntimeUpload ? "COMPLETE" : "UPLOAD TO ONTIME")
+  : ontimeButtonState.text;
+
+const finalDriverButtonClass = isTelegramDeliveryComplete
+  ? (hasCompletedOntimeUpload ? "accepted" : "upload-ontime")
+  : ontimeButtonState.className;
 
 
 
@@ -5602,7 +5662,7 @@ row.querySelector('.driver-change-btn')?.addEventListener('click', async (e) => 
 }
 
   if (telegramDispatch?.workflow_step === "delivery_complete") {
-    if (job.ontime_completion_upload_status === "uploaded") {
+    if (isOnTimeCompletionUploaded(job)) {
       return;
     }
 
@@ -6097,40 +6157,44 @@ menu.querySelector('.menu-filter-btn').addEventListener('click', async () => {
     });
 menu.querySelector('.menu-reset-driver')?.addEventListener('click', async () => {
   const confirmReset = confirm(
-    `Reset driver/workflow for job #${job.title || job.id}?\n\nThis will keep the job data, but clear the assigned driver and restart the dashboard button back to ASSIGN DRIVER.`
+    `Reset driver/workflow for job #${job.title || job.id}?\n\nThis will remove the driver, cancel the Telegram workflow, remove the job from the driver's active jobs, delete the known Telegram workflow messages, and restart the dashboard button back to ASSIGN DRIVER.`
   );
 
   if (!confirmReset) return;
 
-  const { error } = await sb
-    .from('jobs')
-    .update({
-  driver: 'Unassigned',
-  driver_guid: null,
-  dispatch_method: null,
-  ontime_dispatch_status: null,
-  ontime_dispatch_step: null,
-  ontime_dispatch_driver_name: null,
-  ontime_dispatch_driver_guid: null,
-  ontime_dispatch_sent_at: null,
-  ontime_dispatch_accepted_at: null,
-  ontime_dispatch_eta_text: null,
-  ontime_dispatch_eta_entered_at: null,
-  ontime_dispatch_arrival_date_text: null,
-  ontime_dispatch_arrival_time_text: null,
-  ontime_dispatch_arrival_at: null,
-  ontime_dispatch_box_photos_uploaded_at: null,
-  ontime_dispatch_delivery_eta_text: null,
-  ontime_dispatch_delivery_eta_entered_at: null,
-  ontime_dispatch_delivered_at: null,
-  ontime_dispatch_delivered_to_name: null,
-  ontime_dispatch_completed_at: null,
-  ontime_dispatch_cancelled_at: null
-})
-    .eq('id', job.id);
+  const resetBtn = menu.querySelector('.menu-reset-driver');
+  resetBtn.disabled = true;
+  resetBtn.textContent = "Resetting...";
 
-  if (error) {
-    alert(`Reset failed: ${error.message}`);
+  const res = await fetch(RESET_TELEGRAM_WORKFLOW_FUNCTION_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "apikey": SUPABASE_ANON_KEY
+    },
+    body: JSON.stringify({
+      job_id: String(job.id || "")
+    })
+  });
+
+  const rawText = await res.text();
+
+  let result = {};
+  try {
+    result = rawText ? JSON.parse(rawText) : {};
+  } catch (e) {
+    resetBtn.disabled = false;
+    resetBtn.textContent = "Reset Driver / Workflow";
+    alert(`Reset failed. Non-JSON response: ${rawText}`);
+    return;
+  }
+
+  resetBtn.disabled = false;
+  resetBtn.textContent = "Reset Driver / Workflow";
+
+  if (!res.ok || result.error || result.success === false) {
+    alert(`Reset failed: ${result.error || "Unknown error"}`);
     return;
   }
 
@@ -6138,8 +6202,15 @@ menu.querySelector('.menu-reset-driver')?.addEventListener('click', async () => 
   delete TELEGRAM_DISPATCH_BY_JOB_ID[String(job.id)];
 
   menu.hidden = true;
+
   await loadJobs();
+  await loadNeedsAttention();
 });
+
+
+
+
+
     menu.querySelector('.menu-delete').addEventListener('click', async () => {
       const oldDate = new Date();
       oldDate.setDate(oldDate.getDate() - 6);
@@ -7090,16 +7161,27 @@ console.log("REALTIME TELEGRAM DISPATCH PAYLOAD:", payload);
   if (!jobId) return;
 
   if (payload.eventType === "DELETE") {
-    delete TELEGRAM_DISPATCH_BY_JOB_ID[jobId];
-  } else if (row.status === "accepted" || row.status === "pending") {
+  delete TELEGRAM_DISPATCH_BY_JOB_ID[jobId];
+} else {
+  const status = String(row.status || "");
+  const step = String(row.workflow_step || "");
+
+  const shouldKeepForDashboard =
+    status === "pending" ||
+    status === "accepted" ||
+    status === "completed" ||
+    step === "delivery_complete";
+
+  if (shouldKeepForDashboard) {
     TELEGRAM_DISPATCH_BY_JOB_ID[jobId] = row;
 
-    if (row.status === "accepted") {
+    if (status !== "pending") {
       clearPendingDispatch(jobId);
     }
   } else {
     delete TELEGRAM_DISPATCH_BY_JOB_ID[jobId];
   }
+}
 
   const job = (ALL_JOBS || []).find(j => String(j.id) === jobId);
   if (!job) return;
