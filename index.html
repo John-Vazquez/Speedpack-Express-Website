@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Speedpack Express</title>
+  <meta name="description" content="Speedpack Express provides 24/7 courier operations, same-day delivery, airport recoveries, and time-critical logistics support across South Florida." />
+<title>Speedpack Express | 24/7 Courier & Time-Critical Logistics</title>
   <link rel="stylesheet" href="styles.css" />
 
    <!-- Favicons -->
@@ -40,25 +41,121 @@
     background: #fff !important;               /* <- white bars */
     box-shadow: 0 0 6px rgba(255,255,255,.45); /* subtle glow */
   }
+
+    /* Homepage professional/compliance additions */
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 12px;
+    background: #fff;
+    color: #111827;
+    padding: 10px 14px;
+    border-radius: 8px;
+    z-index: 10000;
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  .skip-link:focus {
+    top: 12px;
+  }
+
+  .trust-section,
+  .service-note {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 28px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.92);
+    color: #111827;
+    box-shadow: 0 12px 35px rgba(0,0,0,.22);
+  }
+
+  .trust-section h2,
+  .service-note h2 {
+    margin-top: 0;
+    text-align: center;
+  }
+
+  .trust-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 22px;
+  }
+
+  .trust-card {
+    padding: 20px;
+    border-radius: 14px;
+    background: #f8fafc;
+    border: 1px solid rgba(17,24,39,.12);
+  }
+
+  .trust-card h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+  }
+
+  .trust-card p,
+  .service-note p {
+    line-height: 1.6;
+  }
+
+  .legal-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .legal-footer a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .footer-small-print {
+    max-width: 900px;
+    margin: 10px auto 0;
+    font-size: .85rem;
+    line-height: 1.5;
+    opacity: .85;
+  }
+
+  @media (max-width: 800px) {
+    .trust-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .trust-section,
+    .service-note {
+      margin: 24px 16px;
+      padding: 22px;
+    }
+  }
 </style>
 
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
   
 </head>
 <body>
-  <video class="homepage-bg-video" autoplay muted loop playsinline>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+  <video class="homepage-bg-video" autoplay muted loop playsinline aria-hidden="true">
     <source src="website videos/homepage-video.mp4" type="video/mp4" />
   </video>
-  <nav>
+  <nav aria-label="Main navigation">
     <div class="nav-spacer" aria-hidden="true"></div>
 
     <div class="navbar-container">
       <div class="navbar-logo-container">
-        <img src="website images/SPEEDPACK-EXPRESS-AI-LOGO.png" alt="Speedpack Express Logo" class="navbar-logo" />
-    
-      </div>
+  <a href="index.html" aria-label="Speedpack Express home">
+    <img src="website images/SPEEDPACK-EXPRESS-AI-LOGO.png" alt="Speedpack Express Logo" class="navbar-logo" />
+  </a>
+</div>
       <ul>
-        <li><a class="active" href="index.html">Home</a></li>
+        <li><a class="active" href="index.html" aria-current="page">Home</a></li>
         <li><a href="about.html">About</a></li>
         <li><a href="services.html">Services</a></li>
         <li class="dropdown">
@@ -75,55 +172,57 @@
   </nav>
 
   <!-- everything except the footer lives in main -->
-  <main>
+  <main id="main-content">
     <!-- Hero Section -->
-    <section class="hero">
+    <section class="hero" aria-labelledby="home-hero-title">
   <div class="hero-content">
-    <h1>We don’t stop. Neither do your shipments.</h1>
-    <p>24/7 courier operations built for time-critical logistics.</p>
+    <h1 id="home-hero-title">We don’t stop. Neither do your shipments.</h1>
+    <p>24/7 courier operations built for same-day, airport, and time-critical logistics.</p>
 
     <div class="hero-buttons">
-      <a href="contact.html" class="primary-btn">Start Shipping</a>
+      <a href="contact.html" class="primary-btn">Request Service</a>
       <a href="services.html" class="secondary-btn">View Services</a>
     </div>
   </div>
 </section>
 
-<section class="metrics">
+<section class="metrics" aria-label="Speedpack Express service highlights">
   <div class="metric">
     <h2>24/7</h2>
-    <p>Operations</p>
-  </div>
-  <div class="metric">
-    <h2>100%</h2>
-    <p>Time-critical focus</p>
+    <p>Dispatch support</p>
   </div>
   <div class="metric">
     <h2>Same-day</h2>
-    <p>Delivery capability</p>
+    <p>Courier capability</p>
+  </div>
+  <div class="metric">
+    <h2>Airport</h2>
+    <p>Recovery support</p>
   </div>
 </section>
 
-<section class="services-preview">
-  <h2>Our Services</h2>
+<section class="services-preview" aria-labelledby="services-preview-title">
+  <h2 id="services-preview-title">Our Services</h2>
 
   <div class="services-grid">
     <div class="service-card">
       <h3>Airport Recoveries</h3>
-      <p>Immediate pickup and delivery from airline cargo facilities.</p>
+      <p>Pickup and delivery support from airline cargo facilities for urgent freight and time-sensitive shipments.</p>
     </div>
 
     <div class="service-card">
       <h3>Local Deliveries</h3>
-      <p>Fast same-day courier services across South Florida.</p>
+      <p>Same-day courier services for businesses that need clear communication and dependable handling.</p>
     </div>
 
     <div class="service-card">
       <h3>Transfers</h3>
-      <p>Secure and time-sensitive cargo movement between locations.</p>
+      <p>Secure cargo movement between locations, facilities, and transportation points when timing matters.</p>
     </div>
   </div>
 </section>
+
+
 
 <section class="cta">
   <h2>Need a shipment handled now?</h2>
@@ -134,12 +233,28 @@
 
   <!-- Footer -->
   <footer>
-    <p>
-      Copyright © 2024 Speedpack Express Inc. All Rights Reserved. |
-      Designed & Developed by
-      <a href="https://www.linkedin.com/in/john-r-vazquez">John R Vazquez</a>
-    </p>
-  </footer>
+  <p>
+    Copyright © 2026 Speedpack Express Inc. All Rights Reserved. |
+    Designed &amp; Developed by
+    <a href="https://www.linkedin.com/in/john-r-vazquez">John R Vazquez</a>
+  </p>
+
+  <p class="legal-footer" aria-label="Legal links">
+    <a href="privacy.html">Privacy Policy</a>
+    <span aria-hidden="true">|</span>
+    <a href="terms.html">Terms &amp; Conditions</a>
+    <span aria-hidden="true">|</span>
+    <a href="accessibility.html">Accessibility Statement</a>
+    <span aria-hidden="true">|</span>
+    <a href="contact.html">Contact</a>
+  </p>
+
+  <p class="footer-small-print">
+    Information on this website is provided for general business purposes only. Quotes, deadlines, and service availability
+    must be confirmed directly with Speedpack Express. Customers are responsible for providing accurate shipment details
+    and complying with applicable laws and shipment restrictions.
+  </p>
+</footer>
 
   <script src="scripts.js"></script>
 </body>

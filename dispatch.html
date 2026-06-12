@@ -3909,7 +3909,7 @@ document.getElementById("telegram-cancel-yes")?.addEventListener("click", async 
   clearPendingDispatch(job.id);
   delete TELEGRAM_DISPATCH_BY_JOB_ID[String(job.id)];
   closeTelegramCancelModal();
-  await loadJobs();
+  await refreshJobRowOnly(job.id);
 });
 
 async function loadOntimeDrivers() {
@@ -4037,8 +4037,7 @@ async function sendJobToOntimeMobile() {
 
   alert(result.message || `Job sent to ${selectedDriver.name} in OnTime360 Mobile.`);
   closeDispatchMethodModal();
-await loadJobs();
-await loadNeedsAttention();
+  await refreshJobRowOnly(job.id);
 }
 
 
@@ -4164,7 +4163,7 @@ async function rejectOntimeDriverAccepted() {
   }
 
   closeOntimeAcceptModal();
-  await loadJobs();
+  await refreshJobRowOnly(job.id);
 }
 
 function openOntimeEtaModal(job, mode = "pickup") {
@@ -5030,8 +5029,10 @@ async function reviewTelegramPhotos(decision) {
     return;
   }
 
-  closePhotoReviewModal();
-  loadJobs();
+  const reviewedDispatchId = dispatchRow.id;
+
+closePhotoReviewModal();
+await refreshTelegramDispatchRowOnly(reviewedDispatchId);
 }
 
 document.getElementById("photo-review-accept")?.addEventListener("click", () => {
@@ -5863,7 +5864,9 @@ async function uploadCompletedJobToOntime(job, dispatchRow, buttonEl) {
   }
 
   alert(`Job #${jobNumber} uploaded to OnTime successfully.`);
-  await loadJobs();
+  buttonEl.disabled = false;
+  buttonEl.textContent = "COMPLETE";
+  await refreshJobRowOnly(job.id);
 }
 
 
@@ -5918,8 +5921,10 @@ async function saveAwbChange(job, newAwb, saveBtn, forceLocalOnly = false) {
     return;
   }
 
+  saveBtn.disabled = false;
+  saveBtn.textContent = "Save";
   alert(result.message || "AWB updated successfully.");
-  await loadJobs();
+  await refreshJobRowOnly(job.id);
 }
 
 
@@ -6026,7 +6031,7 @@ deleteBtn.addEventListener('click', async () => {
       return;
     }
 
-    loadJobs();
+    await refreshJobRowOnly(job.id);
     return;
   }
 
@@ -6043,7 +6048,7 @@ deleteBtn.addEventListener('click', async () => {
     return;
   }
 
-  loadJobs();
+  await refreshJobRowOnly(job.id);
 });
 
     row.querySelector('.menu-trigger').addEventListener('click', (e) => {
@@ -6146,14 +6151,25 @@ menu.querySelector('.menu-filter-btn').addEventListener('click', async () => {
     return;
   }
 
-  loadJobs();
+  menu.hidden = true;
+  await refreshJobRowOnly(job.id);
 });
     menu.querySelector('.menu-select').addEventListener('change', async (e) => {
       const dest = e.target.value;
       if (!CATEGORIES.includes(dest)) return;
-      const { error } = await sb.from('jobs').update({ category: dest }).eq('id', job.id);
-      if (error) alert('Move failed.');
-      loadJobs();
+
+      const { error } = await sb
+        .from('jobs')
+        .update({ category: dest })
+        .eq('id', job.id);
+
+      if (error) {
+        alert('Move failed.');
+        return;
+      }
+
+      menu.hidden = true;
+      await refreshJobRowOnly(job.id);
     });
 menu.querySelector('.menu-reset-driver')?.addEventListener('click', async () => {
   const confirmReset = confirm(
@@ -6203,8 +6219,7 @@ menu.querySelector('.menu-reset-driver')?.addEventListener('click', async () => 
 
   menu.hidden = true;
 
-  await loadJobs();
-  await loadNeedsAttention();
+  await refreshJobRowOnly(job.id);
 });
 
 
@@ -6215,8 +6230,14 @@ menu.querySelector('.menu-reset-driver')?.addEventListener('click', async () => 
       const oldDate = new Date();
       oldDate.setDate(oldDate.getDate() - 6);
       const { error } = await sb.from('jobs').update({ is_archived: true }).eq('id', job.id);
-      if (error) alert('Archive failed.');
-      loadJobs();
+
+      if (error) {
+        alert('Archive failed.');
+        return;
+      }
+
+      menu.hidden = true;
+      await refreshJobRowOnly(job.id);
     });
 
     document.addEventListener('click', (evt) => { if (!row.contains(evt.target)) menu.hidden = true; });
@@ -6899,13 +6920,110 @@ async function searchOntimeLocations(filters) {
   }
 }
 let CURRENT_SELECTED_LOCATION = null;
+
+
+
+
+function buildAddressFromOntimeLocation(location) {
+  return {
+    name: location.name || location.company_name || location.CompanyName || "",
+    contact: location.contact || location.contact_name || location.ContactName || "",
+    phone: location.phone || location.Phone || "",
+    email: location.email || location.Email || "",
+    address_line_1: location.address_line_1 || location.AddressLine1 || "",
+    address_line_2: location.address_line_2 || location.AddressLine2 || "",
+    city: location.city || location.City || "",
+    state: location.state || location.State || "",
+    postal_code: location.postal_code || location.PostalCode || "",
+    country: location.country || location.Country || "USA",
+    latitude: location.latitude || location.Latitude || null,
+    longitude: location.longitude || location.Longitude || null
+  };
+}
+
+function buildLocationBarTextFromOntimeLocation(location) {
+  const name = location.name || location.company_name || location.CompanyName || "";
+  const address1 = location.address_line_1 || location.AddressLine1 || "";
+
+  if (name && address1) return `${name} - ${address1}`;
+  if (name) return name;
+  if (address1) return address1;
+
+  return "None";
+}
+
+async function updateJobAddressLocallyFromOntimeLocation(jobId, addressType, location) {
+  const address = buildAddressFromOntimeLocation(location);
+  const locationText = buildLocationBarTextFromOntimeLocation(location);
+  const locationId = location.id || location.location_id || location.ID || null;
+
+  const updatePayload = addressType === "pickup"
+    ? {
+        pickup_address: address,
+        pickup_location: locationText,
+        pickup_location_guid: locationId
+      }
+    : {
+        delivery_address: address,
+        delivery_location: locationText,
+        delivery_location_guid: locationId
+      };
+
+  const { error } = await sb
+    .from("jobs")
+    .update(updatePayload)
+    .eq("id", jobId);
+
+  if (error) {
+    throw error;
+  }
+}
+
+
+
 async function assignExistingOntimeLocation(location, forceLocalOnly = false) {
-  if (!CURRENT_ADDRESS_JOB_ID || !CURRENT_ADDRESS_TYPE || !location?.id) return;
+  const locationId = location?.id || location?.location_id || location?.ID || null;
+
+  if (!CURRENT_ADDRESS_JOB_ID || !CURRENT_ADDRESS_TYPE || !locationId) return;
+
   CURRENT_SELECTED_LOCATION = location;
 
-  const confirmPick = confirm(`Use this address?\n\n${location.name || ''}\n${location.address_line_1 || ''}\n${location.city || ''}, ${location.state || ''} ${location.postal_code || ''}`);
+  const lat = location.latitude || location.Latitude || null;
+  const lng = location.longitude || location.Longitude || null;
+  const coordsText = lat && lng ? `${lat}, ${lng}` : "None";
+
+  const confirmPick = confirm(
+    `Use this address?\n\n` +
+    `${location.name || location.company_name || location.CompanyName || ""}\n` +
+    `${location.address_line_1 || location.AddressLine1 || ""}\n` +
+    `${location.city || location.City || ""}, ${location.state || location.State || ""} ${location.postal_code || location.PostalCode || ""}\n\n` +
+    `Coordinates: ${coordsText}`
+  );
 
   if (!confirmPick) return;
+
+  const updatedJobId = CURRENT_ADDRESS_JOB_ID;
+  const updatedAddressType = CURRENT_ADDRESS_TYPE;
+
+  let localUpdated = false;
+  let ontimeUpdated = false;
+  let ontimeErrorMessage = "";
+
+  try {
+    await updateJobAddressLocallyFromOntimeLocation(
+      updatedJobId,
+      updatedAddressType,
+      {
+        ...location,
+        id: locationId
+      }
+    );
+
+    localUpdated = true;
+  } catch (err) {
+    alert(`Local address update failed: ${err.message || err}`);
+    return;
+  }
 
   try {
     const res = await fetch(ONTIME_LOCATIONS_FUNCTION_URL, {
@@ -6917,10 +7035,13 @@ async function assignExistingOntimeLocation(location, forceLocalOnly = false) {
       },
       body: JSON.stringify({
         mode: "assign",
-        jobId: CURRENT_ADDRESS_JOB_ID,
-        addressType: CURRENT_ADDRESS_TYPE,
-        locationId: location.id,
-        location,
+        jobId: updatedJobId,
+        addressType: updatedAddressType,
+        locationId,
+        location: {
+          ...location,
+          id: locationId
+        },
         forceLocalOnly
       })
     });
@@ -6931,33 +7052,49 @@ async function assignExistingOntimeLocation(location, forceLocalOnly = false) {
     try {
       result = rawText ? JSON.parse(rawText) : {};
     } catch {
-      alert(`Address update failed. Non-JSON response: ${rawText}`);
-      return;
+      ontimeErrorMessage = `Non-JSON response: ${rawText}`;
+      result = {};
     }
 
     if (!res.ok || result.error) {
-      if (result.error === "MISSING_ONTIME_ORDER_ID") {
+      if (result.error === "MISSING_ONTIME_ORDER_ID" && !forceLocalOnly) {
         const continueLocalOnly = confirm(
-          "This job is not linked to OnTime. Updates on this job will NOT sync with OnTime Management Suite. Continue local only?"
+          "This address was saved locally on the dashboard, but this job is not linked to OnTime.\n\nIt will NOT sync with OnTime Management Suite.\n\nContinue local only?"
         );
 
-        if (!continueLocalOnly) return;
+        if (continueLocalOnly) {
+          return assignExistingOntimeLocation(location, true);
+        }
 
-        return assignExistingOntimeLocation(location, true);
+        ontimeErrorMessage = "Job is not linked to OnTime.";
+      } else {
+        ontimeErrorMessage = result.error || rawText || "Unknown OnTime error";
       }
-
-      alert(`Address update failed: ${result.error || rawText}`);
-      return;
+    } else {
+      ontimeUpdated = true;
     }
-
-    alert(result.message || "Address updated.");
-    closeAddressModal();
-    await loadJobs();
-
   } catch (err) {
-    alert(`Address update failed: ${err.message || err}`);
+    ontimeErrorMessage = err.message || String(err);
+  }
+
+  closeAddressModal();
+  await refreshJobRowOnly(updatedJobId);
+
+  if (localUpdated && ontimeUpdated) {
+    alert("Address updated locally and synced to OnTime360.");
+    return;
+  }
+
+  if (localUpdated && !ontimeUpdated) {
+    alert(
+      `Address updated locally on the dashboard.\n\n` +
+      `OnTime360 update failed: ${ontimeErrorMessage || "Unknown error"}`
+    );
   }
 }
+
+
+
 function closeAddressModal() {
   CURRENT_ADDRESS_JOB_ID = null;
   CURRENT_ADDRESS_TYPE = null;
@@ -7091,6 +7228,171 @@ function removeActiveJobRow(jobId) {
   updateBulkArchiveButton();
 }
 
+function mergeJobIntoMemory(job) {
+  if (!job?.id) return null;
+
+  const existingIndex = (ALL_JOBS || []).findIndex(j => String(j.id) === String(job.id));
+
+  if (existingIndex >= 0) {
+    ALL_JOBS[existingIndex] = {
+      ...ALL_JOBS[existingIndex],
+      ...job
+    };
+  } else {
+    ALL_JOBS.unshift(job);
+  }
+
+  return ALL_JOBS.find(j => String(j.id) === String(job.id)) || job;
+}
+
+function renderBoardFromMemory() {
+  activeJobsList.replaceChildren();
+
+  getCurrentActiveJobsFromMemory().forEach(job => {
+    activeJobsList.appendChild(createJobRowElement(job));
+  });
+
+  renderArchivedJobs(ALL_JOBS);
+  populateDriverFilter(ALL_JOBS);
+  refreshShipmentCountOnly();
+  updateBulkArchiveButton();
+  updateAllUnreadMessageBadges();
+  updateWaitTimers();
+}
+
+async function refreshJobRowOnly(jobId) {
+  if (!jobId) return;
+
+  const { data: freshJob, error } = await sb
+    .from("jobs")
+    .select("*")
+    .eq("id", jobId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Failed to refresh job row:", error);
+    return;
+  }
+
+  if (!freshJob) {
+    ALL_JOBS = (ALL_JOBS || []).filter(job => String(job.id) !== String(jobId));
+    removeActiveJobRow(jobId);
+    renderArchivedJobs(ALL_JOBS);
+    populateDriverFilter(ALL_JOBS);
+    await loadNeedsAttention();
+    return;
+  }
+
+  const updatedJob = mergeJobIntoMemory(freshJob);
+
+  populateDriverFilter(ALL_JOBS);
+  upsertActiveJobRow(updatedJob);
+  renderArchivedJobs(ALL_JOBS);
+  await loadNeedsAttention();
+  updateWaitTimers();
+}
+
+async function refreshJobsRowsOnly(jobIds) {
+  const cleanIds = [...new Set((jobIds || []).map(id => String(id || "")).filter(Boolean))];
+  if (!cleanIds.length) return;
+
+  const { data, error } = await sb
+    .from("jobs")
+    .select("*")
+    .in("id", cleanIds);
+
+  if (error) {
+    console.error("Failed to refresh job rows:", error);
+    return;
+  }
+
+  const foundIds = new Set((data || []).map(job => String(job.id)));
+
+  cleanIds.forEach(id => {
+    if (!foundIds.has(id)) {
+      ALL_JOBS = (ALL_JOBS || []).filter(job => String(job.id) !== id);
+    }
+  });
+
+  (data || []).forEach(job => mergeJobIntoMemory(job));
+
+  renderBoardFromMemory();
+  await loadNeedsAttention();
+}
+
+async function refreshJobByTitleOnly(title) {
+  const cleanTitle = String(title || "").trim();
+  if (!cleanTitle) return;
+
+  const { data: freshJob, error } = await sb
+    .from("jobs")
+    .select("*")
+    .eq("title", cleanTitle)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Failed to refresh job by title:", error);
+    return;
+  }
+
+  if (!freshJob) return;
+
+  mergeJobIntoMemory(freshJob);
+  renderBoardFromMemory();
+  await loadNeedsAttention();
+}
+
+async function refreshTelegramDispatchRowOnly(dispatchId) {
+  if (!dispatchId) return;
+
+  const { data: row, error } = await sb
+    .from("telegram_job_dispatches")
+    .select("*")
+    .eq("id", dispatchId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Failed to refresh Telegram dispatch row:", error);
+    return;
+  }
+
+  if (!row?.job_id) {
+    await loadNeedsAttention();
+    return;
+  }
+
+  const jobId = String(row.job_id || "");
+  const status = String(row.status || "");
+  const step = String(row.workflow_step || "");
+
+  const shouldKeepForDashboard =
+    status === "pending" ||
+    status === "accepted" ||
+    status === "completed" ||
+    step === "delivery_complete";
+
+  if (shouldKeepForDashboard) {
+    TELEGRAM_DISPATCH_BY_JOB_ID[jobId] = row;
+
+    if (status !== "pending") {
+      clearPendingDispatch(jobId);
+    }
+  } else {
+    delete TELEGRAM_DISPATCH_BY_JOB_ID[jobId];
+  }
+
+  const job = (ALL_JOBS || []).find(j => String(j.id || "") === jobId);
+
+  if (job) {
+    upsertActiveJobRow(job);
+  }
+
+  await loadNeedsAttention();
+  updateWaitTimers();
+}
+
 function handleRealtimeJobChange(payload) {
   const eventType = payload.eventType;
   const newJob = payload.new;
@@ -7151,6 +7453,53 @@ function handleRealtimeJobMessageChange(payload) {
   }
 }
 
+async function refreshTelegramDispatchRowOnly(dispatchId) {
+  if (!dispatchId) return;
+
+  const { data: row, error } = await sb
+    .from("telegram_job_dispatches")
+    .select("*")
+    .eq("id", dispatchId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Failed to refresh Telegram dispatch row:", error);
+    return;
+  }
+
+  if (!row?.job_id) return;
+
+  const jobId = String(row.job_id || "");
+  const status = String(row.status || "");
+  const step = String(row.workflow_step || "");
+
+  const shouldKeepForDashboard =
+    status === "pending" ||
+    status === "accepted" ||
+    status === "completed" ||
+    step === "delivery_complete";
+
+  if (shouldKeepForDashboard) {
+    TELEGRAM_DISPATCH_BY_JOB_ID[jobId] = row;
+
+    if (status !== "pending") {
+      clearPendingDispatch(jobId);
+    }
+  } else {
+    delete TELEGRAM_DISPATCH_BY_JOB_ID[jobId];
+  }
+
+  const job = (ALL_JOBS || []).find(j => String(j.id || "") === jobId);
+
+  if (job) {
+    upsertActiveJobRow(job);
+    renderArchivedJobs(ALL_JOBS);
+    populateDriverFilter(ALL_JOBS);
+  }
+
+  await loadNeedsAttention();
+  updateWaitTimers();
+}
 
 function handleRealtimeTelegramDispatchChange(payload) {
   loadNeedsAttention();
@@ -7521,7 +7870,7 @@ if (Array.isArray(result.failures) && result.failures.length) {
       alert(`Sync complete. Updated ${totalUpdated} jobs.`);
     }
 
-    await loadJobs();
+    await refreshJobsRowsOnly(selectedIds);
 
   } catch (err) {
     alert(`Sync failed: ${err.message || err}`);
@@ -7556,9 +7905,9 @@ document.getElementById('bulk-archive-btn').addEventListener('click', async () =
     return;
   }
 
-  loadJobs();
+  await refreshJobsRowsOnly(selectedIds);
 });
-document.getElementById('address-modal-close').addEventListener('click', closeAddressModal);
+document.getElementById('address-modal-close')
 document.getElementById('messages-modal-close').addEventListener('click', closeMessagesModal);
 
 document.getElementById('messages-modal-backdrop').addEventListener('click', (e) => {
@@ -7614,8 +7963,10 @@ document.getElementById('address-modal-save').addEventListener('click', async ()
     return;
   }
 
+  const updatedJobId = CURRENT_ADDRESS_JOB_ID;
+
   closeAddressModal();
-  loadJobs();
+  await refreshJobRowOnly(updatedJobId);
 });
 
 document.getElementById('time-modal-close').addEventListener('click', closeTimeModal);
@@ -7648,8 +7999,10 @@ document.getElementById('time-modal-save').addEventListener('click', async () =>
     return;
   }
 
+  const updatedJobId = CURRENT_TIME_JOB_ID;
+
   closeTimeModal();
-  loadJobs();
+  await refreshJobRowOnly(updatedJobId);
 });
 
 window.addEventListener('dragover', (e) => {
@@ -7691,7 +8044,7 @@ document.querySelectorAll('.top-other-choice').forEach(choice => {
     }
 
     updateTopOtherFilterLabel();
-    loadJobs();
+    renderBoardFromMemory();
   });
 });
 
@@ -7705,14 +8058,18 @@ document.addEventListener('click', (e) => {
     panel.hidden = true;
   }
 });
-document.getElementById('job-search').addEventListener('input', loadJobs);
+document.getElementById('job-search').addEventListener('input', renderBoardFromMemory);
   document.querySelector('.archive-title').addEventListener('click', () => document.querySelector('.archive-card').classList.toggle('expanded'));
   document.getElementById('archive-search').addEventListener('click', e => e.stopPropagation());
-  document.getElementById('archive-search').addEventListener('input', loadJobs);
+  document.getElementById('archive-search').addEventListener('input', renderBoardFromMemory);
   ['driver-filter', 'delivery-date-filter', 'category-filter', 'client-filter'].forEach(id => {
-  document.getElementById(id)?.addEventListener('change', loadJobs);
+  document.getElementById(id)?.addEventListener('change', renderBoardFromMemory);
 });
-  document.getElementById('reset-search').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('job-search').value=''; loadJobs(); });
+  document.getElementById('reset-search').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('job-search').value = '';
+    renderBoardFromMemory();
+  });
 document.getElementById('show-pull-ontime-panel')?.addEventListener('click', () => {
   document.getElementById('pull-ontime-panel').hidden = false;
   document.getElementById('job-form').hidden = true;
@@ -7783,7 +8140,19 @@ document.getElementById('pull-ontime-job-btn')?.addEventListener('click', async 
 
   alert(result.message || `Pulled job ${trackingNumber} from OnTime.`);
   input.value = '';
-  await loadJobs();
+
+  const pulledJobId =
+    result.job_id ||
+    result.id ||
+    result.job?.id ||
+    result.data?.id ||
+    null;
+
+  if (pulledJobId) {
+    await refreshJobRowOnly(pulledJobId);
+  } else {
+    await refreshJobByTitleOnly(trackingNumber);
+  }
 });
   document.getElementById('job-form').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -7825,7 +8194,11 @@ delivery_address: blankAddress(),
     is_archived: false
   };
 
-  const { error } = await sb.from('jobs').insert(payload);
+  const { data: insertedJob, error } = await sb
+    .from('jobs')
+    .insert(payload)
+    .select("*")
+    .single();
 
   if (error) {
     console.error('Insert error:', error);
@@ -7834,7 +8207,12 @@ delivery_address: blankAddress(),
   }
 
   ADD_SELECTED_DRIVER_NAME = "";
-  await loadJobs();
+
+  if (insertedJob) {
+    mergeJobIntoMemory(insertedJob);
+    renderBoardFromMemory();
+  }
+
   e.target.reset();
   document.getElementById('jobCategory').value = 'bullshit';
 });
