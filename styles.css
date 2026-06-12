@@ -793,3 +793,32 @@ body > nav.nav-hidden {
   opacity: 0 !important;
   pointer-events: none !important;
 }
+
+
+/* Shared legal footer */
+.site-footer {
+  text-align: center;
+  padding: 24px 16px;
+}
+
+.legal-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.legal-footer a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footer-small-print {
+  max-width: 900px;
+  margin: 10px auto 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  opacity: 0.85;
+}
