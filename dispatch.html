@@ -347,6 +347,32 @@ nav.hide-on-scroll {
   background: #f59e0b;
   color: #111827;
 }
+
+.needs-attention-row.wait-override {
+  background: #fff7ed;
+  border-left: 5px solid #ea580c;
+  cursor: pointer;
+}
+
+.needs-attention-row.wait-override:nth-child(odd) {
+  background: #ffedd5;
+}
+
+.needs-attention-row.wait-override .needs-attention-problem {
+  color: #9a3412;
+}
+
+.needs-attention-type.wait-override {
+  background: #ea580c;
+  color: #fff;
+}
+
+.driver-change-btn.wt-override {
+  background: #ea580c;
+  color: #fff;
+  border-color: #ea580c;
+  animation: attentionPulse .8s infinite alternate;
+}
 .needs-attention-row.photo-review {
   background: #faf5ff;
   border-left: 5px solid #7c3aed;
@@ -757,6 +783,27 @@ nav.hide-on-scroll {
   background: #eff6ff;
   outline: 1px solid #93c5fd;
 }
+
+.place.missing-coordinates {
+  background: #fff1f1;
+  border: 1px solid #fecaca;
+}
+
+.place.missing-coordinates b,
+.place.missing-coordinates .place-text {
+  color: #dc2626;
+  font-weight: 900;
+}
+
+.missing-coordinate-note {
+  display: block;
+  margin-top: 5px;
+  color: #dc2626;
+  font-size: 10.5px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
 .awb-box {
   margin-top: 6px;
   padding: 6px;
@@ -2468,6 +2515,25 @@ nav.hide-on-scroll {
     </div>
   </div>
 </div>
+
+<div id="wait-override-backdrop" class="telegram-confirm-backdrop">
+  <div class="telegram-confirm-modal">
+    <h3>Wait Time Override Request</h3>
+    <p id="wait-override-text"></p>
+
+    <div class="telegram-confirm-actions">
+      <button type="button" id="wait-override-cancel" class="telegram-modal-cancel">Cancel</button>
+      <button type="button" id="wait-override-deny" class="telegram-modal-confirm" style="background:#dc2626;">
+        Deny Override
+      </button>
+      <button type="button" id="wait-override-approve" class="telegram-modal-confirm" style="background:#16a34a;">
+        Approve Override
+      </button>
+    </div>
+  </div>
+</div>
+
+
 <div id="photo-lightbox-backdrop" class="photo-lightbox-backdrop">
   <div class="photo-lightbox-inner">
     <button type="button" id="photo-lightbox-close" class="photo-lightbox-close">×</button>
@@ -2623,6 +2689,7 @@ nav.hide-on-scroll {
   const REVIEW_TELEGRAM_PHOTOS_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/review-telegram-photos";
   const UPLOAD_COMPLETED_JOB_TO_ONTIME_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/upload-completed-job-to-ontime";
   const SEND_DISPATCH_JOB_MESSAGE_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/send-dispatch-job-message";
+  const REVIEW_WAIT_TIME_OVERRIDE_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/review-wait-time-override";
   const DRIVERS_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/drivers";
   const SYNC_ONTIME_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/sync-ontime-jobs";
   const PULL_ONTIME_JOB_FUNCTION_URL = "https://dbpcuimbxdqlknqvpmbb.supabase.co/functions/v1/pull-ontime-job";
@@ -2631,6 +2698,7 @@ nav.hide-on-scroll {
   let ONTIME_LOCATION_RESULTS = [];
   let ALL_ONTIME_LOCATIONS = [];
   let ONTIME_LOCATION_QUERY_CACHE = {};
+  let SHOW_ONTIME_LOCATIONS_WITHOUT_COORDS = false;
   let ONTIME_DRIVERS = [];
   let ACTIVE_TELEGRAM_DRIVERS = [];
   let NEEDS_ATTENTION_ITEMS = [];
@@ -2815,7 +2883,7 @@ async function loadTelegramDispatchesForJobs(jobs) {
 
     const { data, error } = await sb
       .from("telegram_job_dispatches")
-      .select("id, job_id, job_number, driver_id, driver_name, status, eta_status, eta_text, eta_received_at, delivery_eta_status, delivery_eta_text, delivery_eta_requested_at, delivery_eta_received_at, accepted_at, declined_at, arrival_confirmed_at, waiting_time_started_at, waiting_time_ended_at, arrived_dropoff_at, delivered_at, delivered_to_name, delivery_receipt_status, delivery_receipt_submitted_at, delivery_receipt_reviewed_at, workflow_step, photo_review_status, photos_submitted_at, created_at")
+      .select("id, job_id, job_number, driver_job_number, driver_id, driver_name, status, eta_status, eta_text, eta_received_at, delivery_eta_status, delivery_eta_text, delivery_eta_requested_at, delivery_eta_received_at, accepted_at, declined_at, arrival_confirmed_at, waiting_time_started_at, waiting_time_ended_at, arrived_dropoff_at, delivered_at, delivered_to_name, delivery_receipt_status, delivery_receipt_submitted_at, delivery_receipt_reviewed_at, workflow_step, photo_review_status, photos_submitted_at, wait_time_override_status, wait_time_override_side, wait_time_override_requested_at, wait_time_override_reviewed_at, wait_time_override_distance_miles, created_at")
       .order("created_at", { ascending: false })
       .limit(300);
 
@@ -2945,7 +3013,9 @@ function renderNeedsAttention() {
           ? "driver-message"
           : item.type === "ontime_pending"
             ? "ontime-pending"
-            : "";
+            : item.type === "wait_override"
+              ? "wait-override"
+              : "";
 
     const typeLabel =
       item.type === "photo_review"
@@ -2954,10 +3024,12 @@ function renderNeedsAttention() {
           ? "MESSAGE"
           : item.type === "ontime_pending"
             ? "PENDING"
-            : "ERROR";
+            : item.type === "wait_override"
+              ? "WT"
+              : "ERROR";
 
     return `
-      <div class="needs-attention-row ${rowClass}">
+      <div class="needs-attention-row ${rowClass}" data-attention-id="${escapeHtml(item.id || "")}">
         <div class="needs-attention-job">${escapeHtml(item.job_number || "Unknown")}</div>
         <div class="needs-attention-driver">${escapeHtml(item.driver_name || "Unknown Driver")}</div>
         <div class="needs-attention-problem">
@@ -2969,8 +3041,19 @@ function renderNeedsAttention() {
       </div>
     `;
   }).join("");
-}
 
+  document.querySelectorAll(".needs-attention-row.wait-override").forEach(row => {
+    row.addEventListener("click", () => {
+      const item = NEEDS_ATTENTION_ITEMS.find(x => String(x.id || "") === String(row.dataset.attentionId || ""));
+      if (!item) return;
+
+      const job = (ALL_JOBS || []).find(j => String(j.id || "") === String(item.job_id || ""));
+      const dispatch = getLatestTelegramDispatchForJobId(item.job_id) || item.raw_dispatch || null;
+
+      openWaitTimeOverrideModal(job, dispatch || item);
+    });
+  });
+}
 
 
 
@@ -2983,10 +3066,9 @@ async function loadNeedsAttention() {
 
   const { data, error } = await sb
     .from("telegram_job_dispatches")
-    .select("id, job_id, job_number, driver_name, pieces, pieces_confirmed_text, status, workflow_step, photo_review_status, photos_submitted_at, delivery_receipt_status, delivery_receipt_submitted_at, updated_at, created_at")
-    .not("pieces_confirmed_text", "is", null)
+    .select("id, job_id, job_number, driver_job_number, driver_name, pieces, pieces_confirmed_text, status, workflow_step, photo_review_status, photos_submitted_at, delivery_receipt_status, delivery_receipt_submitted_at, wait_time_override_status, wait_time_override_side, wait_time_override_requested_at, wait_time_override_distance_miles, updated_at, created_at")
     .order("updated_at", { ascending: false })
-    .limit(200);
+    .limit(300);
 
   if (error) {
     console.error("Failed to load needs attention:", error);
@@ -2998,10 +3080,33 @@ async function loadNeedsAttention() {
     return;
   }
 
-    const attentionItems = [];
+  const attentionItems = [];
 
   (data || []).forEach(row => {
     if (row.status === "cancelled") return;
+
+    if (row.wait_time_override_status === "requested") {
+      const distanceText = Number.isFinite(Number(row.wait_time_override_distance_miles))
+        ? `${Number(row.wait_time_override_distance_miles).toFixed(2)} miles away`
+        : "distance unknown";
+
+      const sideText = row.wait_time_override_side === "delivery"
+        ? "delivery"
+        : "pickup";
+
+      attentionItems.push({
+        id: `wait-override-${row.id}`,
+        dispatch_id: row.id,
+        job_id: row.job_id,
+        job_number: row.job_number,
+        driver_job_number: row.driver_job_number,
+        driver_name: row.driver_name,
+        type: "wait_override",
+        raw_dispatch: row,
+        updated_at: row.wait_time_override_requested_at || row.updated_at || row.created_at,
+        problem: `Wait time override requested for Job ${row.driver_job_number || "?"} / Job #: ${row.job_number || "Unknown"} at ${sideText}. Driver appears ${distanceText}. Click to approve or deny.`
+      });
+    }
 
     const expectedPieces = normalizePieceCountForAttention(row.pieces);
     const actualPieces = normalizePieceCountForAttention(row.pieces_confirmed_text);
@@ -3045,7 +3150,8 @@ async function loadNeedsAttention() {
       });
     }
   });
-      const { data: ontimeWorkflowJobs, error: ontimeWorkflowError } = await sb
+
+  const { data: ontimeWorkflowJobs, error: ontimeWorkflowError } = await sb
     .from("jobs")
     .select("*")
     .eq("dispatch_method", "ontime_mobile")
@@ -3912,6 +4018,19 @@ document.getElementById("telegram-cancel-yes")?.addEventListener("click", async 
   await refreshJobRowOnly(job.id);
 });
 
+
+document.getElementById("wait-override-cancel")?.addEventListener("click", () => {
+  closeWaitTimeOverrideModal();
+});
+
+document.getElementById("wait-override-approve")?.addEventListener("click", async () => {
+  await reviewWaitTimeOverride("approved");
+});
+
+document.getElementById("wait-override-deny")?.addEventListener("click", async () => {
+  await reviewWaitTimeOverride("denied");
+});
+
 async function loadOntimeDrivers() {
   const res = await fetch(DRIVERS_FUNCTION_URL, {
     method: "GET",
@@ -3950,6 +4069,8 @@ let ONTIME_ETA_MODE = "pickup";
 let ONTIME_BOX_PHOTOS_CONTEXT = null;
 let ONTIME_DELIVERY_CONFIRM_CONTEXT = null;
 let ONTIME_DELIVERED_TO_CONTEXT = null;
+
+let WAIT_OVERRIDE_CONTEXT = null;
 let ONTIME_ARRIVAL_CONTEXT = null;
 function getPendingDispatch(jobId) {
   try {
@@ -4845,7 +4966,95 @@ function closeTelegramCancelModal() {
   document.getElementById("telegram-cancel-backdrop").classList.remove("show");
 }
 
+function openWaitTimeOverrideModal(job, dispatchRow) {
+  if (!dispatchRow?.id) {
+    alert("Missing Telegram dispatch row for this wait time override.");
+    return;
+  }
 
+  WAIT_OVERRIDE_CONTEXT = {
+    job,
+    dispatchRow
+  };
+
+  const distanceText = Number.isFinite(Number(dispatchRow.wait_time_override_distance_miles))
+    ? `${Number(dispatchRow.wait_time_override_distance_miles).toFixed(2)} miles`
+    : "Unknown distance";
+
+  const sideText = dispatchRow.wait_time_override_side === "delivery"
+    ? "delivery"
+    : "pickup";
+
+  document.getElementById("wait-override-text").innerHTML =
+    `<b>Job ${escapeHtml(dispatchRow.driver_job_number || "?")}</b><br>` +
+    `<b>Job #: ${escapeHtml(dispatchRow.job_number || job?.title || "Unknown")}</b><br><br>` +
+    `<b>Driver:</b> ${escapeHtml(dispatchRow.driver_name || job?.driver || "Unknown Driver")}<br>` +
+    `<b>Location:</b> ${escapeHtml(sideText)}<br>` +
+    `<b>Distance:</b> ${escapeHtml(distanceText)}<br><br>` +
+    `Approve this wait time override?`;
+
+  document.getElementById("wait-override-backdrop").classList.add("show");
+}
+
+function closeWaitTimeOverrideModal() {
+  WAIT_OVERRIDE_CONTEXT = null;
+  document.getElementById("wait-override-backdrop").classList.remove("show");
+}
+
+async function reviewWaitTimeOverride(decision) {
+  if (!WAIT_OVERRIDE_CONTEXT?.dispatchRow?.id) return;
+
+  const dispatchRow = WAIT_OVERRIDE_CONTEXT.dispatchRow;
+  const approveBtn = document.getElementById("wait-override-approve");
+  const denyBtn = document.getElementById("wait-override-deny");
+
+  approveBtn.disabled = true;
+  denyBtn.disabled = true;
+
+  approveBtn.textContent = decision === "approved" ? "Approving..." : "Approve Override";
+  denyBtn.textContent = decision === "denied" ? "Denying..." : "Deny Override";
+
+  const res = await fetch(REVIEW_WAIT_TIME_OVERRIDE_FUNCTION_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "apikey": SUPABASE_ANON_KEY
+    },
+    body: JSON.stringify({
+      dispatch_id: dispatchRow.id,
+      decision
+    })
+  });
+
+  const rawText = await res.text();
+
+  let result = {};
+  try {
+    result = rawText ? JSON.parse(rawText) : {};
+  } catch (e) {
+    approveBtn.disabled = false;
+    denyBtn.disabled = false;
+    approveBtn.textContent = "Approve Override";
+    denyBtn.textContent = "Deny Override";
+    alert(`Wait time override failed. Non-JSON response: ${rawText}`);
+    return;
+  }
+
+  approveBtn.disabled = false;
+  denyBtn.disabled = false;
+  approveBtn.textContent = "Approve Override";
+  denyBtn.textContent = "Deny Override";
+
+  if (!res.ok || result.error || result.success === false) {
+    alert(`Wait time override failed: ${result.error || "Unknown error"}`);
+    return;
+  }
+
+  closeWaitTimeOverrideModal();
+
+  await refreshTelegramDispatchRowOnly(dispatchRow.id);
+}
 
 let PHOTO_ZOOM = 1;
 
@@ -5176,6 +5385,38 @@ function getDisplayDelivery(job) {
   return addressToText(job.delivery_address, job.delivery_location || 'None');
 }
 
+function hasJobSideCoordinates(job, side) {
+  const guid = side === "pickup"
+    ? job.pickup_location_guid
+    : job.delivery_location_guid;
+
+  if (guid) return true;
+
+  const address = side === "pickup"
+    ? job.pickup_address
+    : job.delivery_address;
+
+  const lat = address?.latitude ?? address?.Latitude ?? null;
+  const lng = address?.longitude ?? address?.Longitude ?? null;
+
+  return (
+    lat !== null &&
+    lat !== undefined &&
+    lng !== null &&
+    lng !== undefined &&
+    String(lat).trim() !== "" &&
+    String(lng).trim() !== "" &&
+    Number.isFinite(Number(lat)) &&
+    Number.isFinite(Number(lng))
+  );
+}
+
+function missingCoordinateNote(job, side) {
+  return hasJobSideCoordinates(job, side)
+    ? ""
+    : `<span class="missing-coordinate-note">Missing coordinate information, please update address.</span>`;
+}
+
 let ADD_SELECTED_DRIVER_NAME = "";
 
 function setupAddJobDriverSearch() {
@@ -5407,61 +5648,65 @@ const isAwaitingReceipt = telegramDispatch?.workflow_step === "awaiting_delivery
 const isDeliveryComplete = telegramDispatch?.workflow_step === "delivery_complete";
 const isOntimeUploaded = isOnTimeCompletionUploaded(job);
 const needsOntimeUpload = isDeliveryComplete && !isOntimeUploaded;
-
+const needsWaitTimeOverride = telegramDispatch?.wait_time_override_status === "requested";
 
 const driverButtonText =
-  needsReceiptReview
-    ? "VERIFY RECEIPT"
-    : needsPhotoReview
-      ? "VERIFY PHOTOS"
-      : isDeliveryComplete
-        ? (needsOntimeUpload ? "UPLOAD TO ONTIME" : "COMPLETE")
-        : isAwaitingReceipt
-          ? "RECEIPT"
-          : isAwaitingDeliveredToName
-            ? "NEEDS NAME"
-            : isAtDelivery
-              ? "AT DELIVERY"
-              : isAwaitingDeliveryArrival
-                ? "DELIVERING"
-                : isDelivering
+  needsWaitTimeOverride
+    ? "WT OVERRIDE?"
+    : needsReceiptReview
+      ? "VERIFY RECEIPT"
+      : needsPhotoReview
+        ? "VERIFY PHOTOS"
+        : isDeliveryComplete
+          ? (needsOntimeUpload ? "UPLOAD TO ONTIME" : "COMPLETE")
+          : isAwaitingReceipt
+            ? "RECEIPT"
+            : isAwaitingDeliveredToName
+              ? "NEEDS NAME"
+              : isAtDelivery
+                ? "AT DELIVERY"
+                : isAwaitingDeliveryArrival
                   ? "DELIVERING"
-                  : isAwaitingDeliveryEta
-                    ? "WAITING DELIVERY ETA"
-                    : hasArrived
-                      ? "ARRIVED"
-                      : telegramStatus === "accepted"
-                        ? "ACCEPTED"
-                        : telegramStatus === "pending"
-                          ? "PENDING"
-                          : ((!job.driver || job.driver === "Unassigned") ? "ASSIGN DRIVER" : "CHANGE DRIVER");
+                  : isDelivering
+                    ? "DELIVERING"
+                    : isAwaitingDeliveryEta
+                      ? "WAITING DELIVERY ETA"
+                      : hasArrived
+                        ? "ARRIVED"
+                        : telegramStatus === "accepted"
+                          ? "ACCEPTED"
+                          : telegramStatus === "pending"
+                            ? "PENDING"
+                            : ((!job.driver || job.driver === "Unassigned") ? "ASSIGN DRIVER" : "CHANGE DRIVER");
 
 const driverButtonClass =
-  needsReceiptReview
-    ? "verify-photos"
-    : needsPhotoReview
+  needsWaitTimeOverride
+    ? "wt-override"
+    : needsReceiptReview
       ? "verify-photos"
-      : isDeliveryComplete
-        ? (needsOntimeUpload ? "upload-ontime" : "accepted")
-        : isAwaitingReceipt
-          ? "pending"
-          : isAwaitingDeliveredToName
+      : needsPhotoReview
+        ? "verify-photos"
+        : isDeliveryComplete
+          ? (needsOntimeUpload ? "upload-ontime" : "accepted")
+          : isAwaitingReceipt
             ? "pending"
-            : isAtDelivery
-              ? "arrived"
-              : isAwaitingDeliveryArrival
-                ? "delivery"
-                : isDelivering
+            : isAwaitingDeliveredToName
+              ? "pending"
+              : isAtDelivery
+                ? "arrived"
+                : isAwaitingDeliveryArrival
                   ? "delivery"
-                  : isAwaitingDeliveryEta
-                    ? "pending"
-                    : hasArrived
-                      ? "arrived"
-                      : telegramStatus === "accepted"
-                        ? "accepted"
-                        : telegramStatus === "pending"
-                          ? "pending"
-                          : ((!job.driver || job.driver === "Unassigned") ? "assign" : "");
+                  : isDelivering
+                    ? "delivery"
+                    : isAwaitingDeliveryEta
+                      ? "pending"
+                      : hasArrived
+                        ? "arrived"
+                        : telegramStatus === "accepted"
+                          ? "accepted"
+                          : telegramStatus === "pending"
+                            ? "pending"
+                            : ((!job.driver || job.driver === "Unassigned") ? "assign" : "");
 
 const driverEtaHtml = "";
 const isOntimeMobileDispatch = job.dispatch_method === "ontime_mobile";
@@ -5528,10 +5773,11 @@ const notesHtml = job.notes
       </div>
       <div class="route-cell">
               <div class="place-stack">
-  <div class="place editable-place pickup-edit" title="Click to edit pickup address">
-    <b>Pickup</b>
-    <span class="place-text">${escapeHtml(getDisplayPickup(job))}</span>
-  </div>
+  <div class="place editable-place pickup-edit ${hasJobSideCoordinates(job, "pickup") ? "" : "missing-coordinates"}" title="Click to edit pickup address">
+  <b>Pickup</b>
+  <span class="place-text">${escapeHtml(getDisplayPickup(job))}</span>
+  ${missingCoordinateNote(job, "pickup")}
+</div>
   ${shouldShowPickupAwb(job) ? `<div class="awb-box awb-edit" title="Click to edit AWB"><b>AWB:</b> ${escapeHtml(getAwbText(job))}</div>` : ''}
 </div>
         <div class="timeline drag-handle">
@@ -5547,10 +5793,11 @@ ${workflowLogHtml}
 
 
 <div class="place-stack">
-  <div class="place editable-place delivery-edit" title="Click to edit delivery address">
-    <b>Delivery</b>
-    <span class="place-text">${escapeHtml(getDisplayDelivery(job))}</span>
-  </div>
+  <div class="place editable-place delivery-edit ${hasJobSideCoordinates(job, "delivery") ? "" : "missing-coordinates"}" title="Click to edit delivery address">
+  <b>Delivery</b>
+  <span class="place-text">${escapeHtml(getDisplayDelivery(job))}</span>
+  ${missingCoordinateNote(job, "delivery")}
+</div>
   ${shouldShowDeliveryAwb(job) ? `<div class="awb-box awb-edit" title="Click to edit AWB"><b>AWB:</b> ${escapeHtml(getAwbText(job))}</div>` : ''}
 </div>
         <div class="place"><b>Notes</b>${notesHtml}</div>
@@ -5648,19 +5895,25 @@ const inlineDriverSave = row.querySelector('.inline-driver-save');
 row.querySelector('.driver-change-btn')?.addEventListener('click', async (e) => {
   e.stopPropagation();
 
+  const telegramDispatch = getTelegramDispatchForJob(job);
+
+  if (telegramDispatch?.wait_time_override_status === "requested") {
+    openWaitTimeOverrideModal(job, telegramDispatch);
+    return;
+  }
+
   if (isOntimeMobileDispatch) {
     handleOntimeMobileButtonClick(job);
     return;
   }
 
-  const telegramDispatch = getTelegramDispatchForJob(job);
   if (
-  telegramDispatch?.photo_review_status === "pending_review" ||
-  telegramDispatch?.delivery_receipt_status === "pending_review"
-) {
-  openPhotoReviewModal(job, telegramDispatch);
-  return;
-}
+    telegramDispatch?.photo_review_status === "pending_review" ||
+    telegramDispatch?.delivery_receipt_status === "pending_review"
+  ) {
+    openPhotoReviewModal(job, telegramDispatch);
+    return;
+  }
 
   if (telegramDispatch?.workflow_step === "delivery_complete") {
     if (isOnTimeCompletionUploaded(job)) {
@@ -5703,6 +5956,9 @@ row.querySelector('.driver-change-btn')?.addEventListener('click', async (e) => 
     inlineDriverInput.focus();
   }
 });
+
+
+
 
 inlineDriverInput?.addEventListener('input', () => {
   const q = inlineDriverInput.value.trim().toLowerCase();
@@ -6765,6 +7021,144 @@ function openAddressModal(job, type) {
 
   document.getElementById('address-modal-backdrop').classList.add('show');
 }
+
+function getOntimeLocationCoords(loc) {
+  let lat = loc?.latitude ?? loc?.Latitude ?? null;
+  let lng = loc?.longitude ?? loc?.Longitude ?? null;
+
+  const rawLatLng =
+    loc?.raw_location?.LatitudeLongitude ||
+    loc?.raw_location?.latitudeLongitude ||
+    loc?.LatitudeLongitude ||
+    "";
+
+  if ((!lat || !lng) && rawLatLng && String(rawLatLng).includes(",")) {
+    const parts = String(rawLatLng).split(",");
+    lat = parts[0]?.trim() || lat;
+    lng = parts[1]?.trim() || lng;
+  }
+
+  const has =
+    lat !== null &&
+    lat !== undefined &&
+    lng !== null &&
+    lng !== undefined &&
+    String(lat).trim() !== "" &&
+    String(lng).trim() !== "" &&
+    Number.isFinite(Number(lat)) &&
+    Number.isFinite(Number(lng));
+
+  return { lat, lng, has };
+}
+
+function updateOntimeLocationCoordinateFilterUi() {
+  const btn = document.getElementById("ontime-coordinate-filter-toggle");
+  const label = document.getElementById("ontime-coordinate-filter-label");
+
+  if (!btn || !label) return;
+
+  if (SHOW_ONTIME_LOCATIONS_WITHOUT_COORDS) {
+    label.textContent = "Showing all addresses, including addresses without coordinates.";
+    btn.textContent = "Hide addresses without coordinates";
+  } else {
+    label.textContent = "Showing GPS-enabled addresses only.";
+    btn.textContent = "Show addresses without coordinates";
+  }
+}
+
+function renderOntimeLocationResults(resultsBox) {
+  const allLocations = ONTIME_LOCATION_RESULTS || [];
+
+  if (!allLocations.length) {
+    resultsBox.innerHTML = `<div style="padding:10px;">No locations found</div>`;
+    updateOntimeLocationCoordinateFilterUi();
+    return;
+  }
+
+  const visibleLocations = allLocations
+    .map((loc, originalIndex) => ({ loc, originalIndex }))
+    .filter(item => {
+      if (SHOW_ONTIME_LOCATIONS_WITHOUT_COORDS) return true;
+      return getOntimeLocationCoords(item.loc).has;
+    });
+
+  const hiddenCount = allLocations.length - visibleLocations.length;
+
+  if (!visibleLocations.length) {
+    resultsBox.innerHTML = `
+      <div style="padding:12px; border:1px solid #f59e0b; background:#fffbeb; color:#92400e; font-size:13px;">
+        No GPS-enabled addresses found in these results.<br><br>
+        <button type="button" id="show-all-no-coords-results" class="address-modal-save" style="margin:0; width:auto; padding:8px 11px; background:#1e3a8a;">
+          Show addresses without coordinates
+        </button>
+      </div>
+    `;
+
+    document.getElementById("show-all-no-coords-results")?.addEventListener("click", () => {
+      SHOW_ONTIME_LOCATIONS_WITHOUT_COORDS = true;
+      updateOntimeLocationCoordinateFilterUi();
+      renderOntimeLocationResults(resultsBox);
+    });
+
+    updateOntimeLocationCoordinateFilterUi();
+    return;
+  }
+
+  const filterNotice = !SHOW_ONTIME_LOCATIONS_WITHOUT_COORDS && hiddenCount > 0
+    ? `
+      <div style="padding:9px; background:#eff6ff; border:1px solid #bfdbfe; color:#1e3a8a; font-size:12px; font-weight:800; margin-bottom:8px;">
+        ${hiddenCount} address${hiddenCount === 1 ? "" : "es"} without coordinates hidden.
+      </div>
+    `
+    : "";
+
+  resultsBox.innerHTML = filterNotice + visibleLocations
+    .slice(0, 100)
+    .map(({ loc, originalIndex }) => {
+      const coords = getOntimeLocationCoords(loc);
+
+      return `
+        <div class="ontime-location-row" data-index="${originalIndex}" style="
+          display:grid;
+          grid-template-columns: 1.3fr 1.8fr .7fr .5fr .6fr .9fr 90px;
+          gap:8px;
+          align-items:center;
+          padding:9px;
+          border-bottom:1px solid #e5e7eb;
+          font-size:12px;
+          cursor:pointer;
+        ">
+          <div><b>${escapeHtml(loc.name || loc.company_name || loc.CompanyName || 'No Name')}</b></div>
+          <div>${escapeHtml(loc.address_line_1 || loc.AddressLine1 || '')} ${escapeHtml(loc.address_line_2 || loc.AddressLine2 || '')}</div>
+          <div>${escapeHtml(loc.city || loc.City || '')}</div>
+          <div>${escapeHtml(loc.state || loc.State || '')}</div>
+          <div>${escapeHtml(loc.postal_code || loc.PostalCode || '')}</div>
+
+          <div style="font-size:11px;color:#334155;line-height:1.25;">
+            ${coords.has
+              ? `
+                <b>Coordinates:</b><br>
+                ${escapeHtml(String(coords.lat))}, ${escapeHtml(String(coords.lng))}
+              `
+              : `<span style="color:#dc2626;font-weight:900;">Coordinates: None</span>`
+            }
+          </div>
+
+          <button type="button" class="address-modal-save" style="margin:0;padding:7px;">Select</button>
+        </div>
+      `;
+    }).join('');
+
+  document.querySelectorAll('.ontime-location-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const loc = ONTIME_LOCATION_RESULTS[Number(row.dataset.index)];
+      assignExistingOntimeLocation(loc);
+    });
+  });
+
+  updateOntimeLocationCoordinateFilterUi();
+}
+
 function openExistingAddressSearch() {
   const label = CURRENT_ADDRESS_TYPE === 'pickup' ? 'Pickup' : 'Delivery';
 
@@ -6783,6 +7177,16 @@ function openExistingAddressSearch() {
 
 
 
+<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:14px; padding:10px; background:#f8fafc; border:1px solid #e5e7eb;">
+  <div id="ontime-coordinate-filter-label" style="font-size:12px; font-weight:900; color:#1e3a8a;">
+    Showing GPS-enabled addresses only.
+  </div>
+
+  <button type="button" id="ontime-coordinate-filter-toggle" class="address-modal-save" style="margin:0; width:auto; padding:8px 11px; background:#1e3a8a;">
+    Show addresses without coordinates
+  </button>
+</div>
+
 <div id="ontime-location-results" style="margin-top:14px; max-height:60vh; overflow-y:auto;"></div>
   `;
 
@@ -6796,7 +7200,14 @@ const addressInput = document.getElementById('ontime-location-address-search');
 const cityInput = document.getElementById('ontime-location-city-search');
 const zipInput = document.getElementById('ontime-location-zip-search');
 const resultsBox = document.getElementById('ontime-location-results');
+SHOW_ONTIME_LOCATIONS_WITHOUT_COORDS = false;
+updateOntimeLocationCoordinateFilterUi();
 
+document.getElementById("ontime-coordinate-filter-toggle")?.addEventListener("click", () => {
+  SHOW_ONTIME_LOCATIONS_WITHOUT_COORDS = !SHOW_ONTIME_LOCATIONS_WITHOUT_COORDS;
+  updateOntimeLocationCoordinateFilterUi();
+  renderOntimeLocationResults(resultsBox);
+});
 let searchTimer = null;
 
 function queueLocationSearch() {
@@ -6870,50 +7281,7 @@ async function searchOntimeLocations(filters) {
     ONTIME_LOCATION_RESULTS = result.locations || [];
     console.log("FIRST LOCATION RESULT:", ONTIME_LOCATION_RESULTS[0]);
 
-    if (!ONTIME_LOCATION_RESULTS.length) {
-      resultsBox.innerHTML = `<div style="padding:10px;">No locations found</div>`;
-      return;
-    }
-
-    resultsBox.innerHTML = ONTIME_LOCATION_RESULTS
-      .slice(0, 100)
-      .map((loc, index) => `
-        <div class="ontime-location-row" data-index="${index}" style="
-          display:grid;
-          grid-template-columns: 1.3fr 1.8fr .7fr .5fr .6fr .9fr 90px;
-          gap:8px;
-          align-items:center;
-          padding:9px;
-          border-bottom:1px solid #e5e7eb;
-          font-size:12px;
-          cursor:pointer;
-        ">
-          <div><b>${escapeHtml(loc.name || 'No Name')}</b></div>
-          <div>${escapeHtml(loc.address_line_1 || '')} ${escapeHtml(loc.address_line_2 || '')}</div>
-          <div>${escapeHtml(loc.city || '')}</div>
-          <div>${escapeHtml(loc.state || '')}</div>
-          <div>${escapeHtml(loc.postal_code || '')}</div>
-
-<div style="font-size:11px;color:#334155;line-height:1.25;">
-  ${loc.latitude && loc.longitude
-    ? `
-      <b>Lat:</b> ${escapeHtml(String(loc.latitude))}<br>
-      <b>Lng:</b> ${escapeHtml(String(loc.longitude))}
-    `
-    : `<span style="color:#dc2626;">No coords</span>`
-  }
-</div>
-
-<button type="button" class="address-modal-save" style="margin:0;padding:7px;">Select</button>
-        </div>
-      `).join('');
-
-    document.querySelectorAll('.ontime-location-row').forEach(row => {
-      row.addEventListener('click', () => {
-        const loc = ONTIME_LOCATION_RESULTS[Number(row.dataset.index)];
-        assignExistingOntimeLocation(loc);
-      });
-    });
+    renderOntimeLocationResults(resultsBox);
 
   } catch (err) {
     resultsBox.innerHTML = `<div style="padding:10px;color:red;">Search failed: ${escapeHtml(err.message || err)}</div>`;
