@@ -136,8 +136,7 @@
     }
   }
 
-  /* ==== REAL MOBILE NAV FIX - INDEX PAGE ONLY ==== */
-/* ==== MOBILE NAV FIX - INDEX PAGE ONLY ==== */
+  /* ==== MOBILE NAV FIX - INDEX PAGE ONLY ==== */
 @media (max-width: 700px) {
   html,
   body {
@@ -151,58 +150,48 @@
 
   nav {
     position: relative !important;
-    top: auto !important;
-    left: auto !important;
-    right: auto !important;
+    display: block !important;
     width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    padding: calc(env(safe-area-inset-top, 0px) + 14px) 0 8px !important;
+    height: 245px !important;
+    min-height: 245px !important;
+    padding: 0 !important;
+    margin: 0 !important;
     overflow: visible !important;
-    z-index: 10 !important;
+    z-index: 20 !important;
   }
 
   nav .navbar-container {
-    position: static !important;
+    position: relative !important;
+    display: block !important;
     width: 100% !important;
     max-width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
+    height: 245px !important;
+    min-height: 245px !important;
+    padding: 0 !important;
+    margin: 0 !important;
     box-sizing: border-box !important;
 
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-
-    gap: 4px !important;
-    padding: 0 10px !important;
-    margin: 0 !important;
-
     transform: none !important;
+    top: auto !important;
     left: auto !important;
     right: auto !important;
-    top: auto !important;
+    bottom: auto !important;
   }
 
   nav .navbar-logo-container {
-    position: static !important;
+    position: absolute !important;
+    top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
+    left: 0 !important;
+    right: 0 !important;
     width: 100% !important;
     height: auto !important;
-    max-height: none !important;
-
     display: flex !important;
-    align-items: center !important;
     justify-content: center !important;
-
-    margin: 0 !important;
+    align-items: center !important;
     padding: 0 !important;
+    margin: 0 !important;
     overflow: visible !important;
-
     transform: none !important;
-    left: auto !important;
-    right: auto !important;
-    top: auto !important;
   }
 
   nav .navbar-logo-container a {
@@ -211,51 +200,45 @@
     align-items: center !important;
     width: 100% !important;
     height: auto !important;
-    overflow: visible !important;
   }
 
   nav .navbar-logo {
     position: static !important;
     display: block !important;
-
     width: 85vw !important;
     max-width: 430px !important;
     min-width: 300px !important;
     height: auto !important;
     max-height: none !important;
-
     object-fit: contain !important;
     margin: 0 auto !important;
     padding: 0 !important;
-
     transform: none !important;
-    left: auto !important;
-    right: auto !important;
-    top: auto !important;
   }
 
   nav ul {
-    position: static !important;
+    position: absolute !important;
+    top: 170px !important;
+    left: 0 !important;
+    right: 0 !important;
+
     width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
 
     display: flex !important;
-    flex-wrap: wrap !important;
+    flex-wrap: nowrap !important;
     justify-content: center !important;
     align-items: center !important;
 
-    gap: 6px !important;
+    gap: 12px !important;
     margin: 0 !important;
-    padding: 0 4px !important;
+    padding: 0 8px !important;
+    box-sizing: border-box !important;
 
     overflow: visible !important;
-    white-space: normal !important;
-
+    white-space: nowrap !important;
     transform: none !important;
-    left: auto !important;
-    right: auto !important;
-    top: auto !important;
   }
 
   nav ul li {
@@ -267,9 +250,9 @@
 
   nav ul li a {
     display: block !important;
-    font-size: 0.78rem !important;
+    font-size: 0.82rem !important;
     line-height: 1 !important;
-    padding: 7px 8px !important;
+    padding: 8px 4px !important;
     margin: 0 !important;
     white-space: nowrap !important;
   }
@@ -278,18 +261,26 @@
     display: none !important;
   }
 
+  main {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+
   .hero {
     min-height: auto !important;
-    padding: 55px 22px 75px !important;
+    padding: 70px 22px 75px !important;
+    margin: 0 !important;
   }
 
   .hero-content {
     padding-top: 0 !important;
+    margin-top: 0 !important;
   }
 
   .hero-content h1 {
     font-size: clamp(32px, 10vw, 48px) !important;
     line-height: 1.05 !important;
+    margin-top: 0 !important;
   }
 
   .hero-content p {
