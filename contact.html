@@ -291,6 +291,15 @@ body::before {
   font-size: 13px !important;
   line-height: 1.4 !important;
 }
+
+.hp-field {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+  width: 0;
+}
 </style>
 </head>
 <body>
@@ -344,7 +353,9 @@ body::before {
     <section class="contact-panel">
       <h2>Send a request</h2>
 
-      <form class="contact-form" action="https://formspree.io/f/xzzpglan" method="POST">
+      <form class="contact-form" id="contactForm" action="https://formspree.io/f/xzzpglan" method="POST">
+  <input type="text" name="_gotcha" class="hp-field" tabindex="-1" autocomplete="off">
+  <input type="hidden" name="form_started_at" id="formStartedAt">
         <div class="form-group">
           <label for="fname">First Name *</label>
           <input type="text" id="fname" name="firstname" required>
@@ -387,7 +398,8 @@ body::before {
         <div class="form-group full checkbox-group">
           <input type="checkbox" id="agree" name="agree" required>
           <label for="agree">
-            I agree to the terms of the <a href="#">privacy policy</a>.
+            I agree to the terms of the 
+<a href="privacy.html" target="_blank" rel="noopener noreferrer">privacy policy</a>.
           </label>
         </div>
 
@@ -395,7 +407,7 @@ body::before {
 
         <div class="form-group full">
           <div class="g-recaptcha" data-sitekey="6LePB9EsAAAAALOX7rMHRKJRlKyXxd1d3carsIYX"></div>
-          <button type="submit">Submit your request</button>
+          <button type="submit" id="contactSubmitBtn">Submit your request</button>
         </div>
       </form>
     </section>
@@ -408,6 +420,38 @@ body::before {
   </footer>
 
   <script src="scripts.js"></script>
- 
+ <script>
+  (function () {
+    const form = document.getElementById("contactForm");
+    const submitBtn = document.getElementById("contactSubmitBtn");
+    const startedAtInput = document.getElementById("formStartedAt");
+
+    if (!form || !submitBtn || !startedAtInput) return;
+
+    startedAtInput.value = Date.now();
+
+    form.addEventListener("submit", function (event) {
+      const startedAt = Number(startedAtInput.value || Date.now());
+      const timeOnPage = Date.now() - startedAt;
+
+      // Blocks bots that instantly submit the form.
+      if (timeOnPage < 3000) {
+        event.preventDefault();
+        return;
+      }
+
+      const recaptchaResponse = document.querySelector('[name="g-recaptcha-response"]');
+
+      if (!recaptchaResponse || !recaptchaResponse.value.trim()) {
+        event.preventDefault();
+        alert("Please complete the reCAPTCHA before submitting.");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Submitting...";
+    });
+  })();
+</script>
 </body>
 </html>
