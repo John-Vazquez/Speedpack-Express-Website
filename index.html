@@ -136,7 +136,7 @@
     }
   }
 
-  /* ==== MOBILE NAV FIX - INDEX PAGE ONLY ==== */
+  /* ==== REAL MOBILE NAV FIX - INDEX PAGE ONLY ==== */
 @media (max-width: 700px) {
   html,
   body {
@@ -144,73 +144,129 @@
     overflow-x: hidden;
   }
 
+  .nav-spacer {
+    display: none !important;
+  }
+
   nav {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
-    padding: 10px 0 8px !important;
+    padding: 8px 0 10px !important;
     overflow: visible !important;
+    z-index: 9999 !important;
   }
 
   nav .navbar-container {
+    position: static !important;
     width: 100% !important;
     max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
     box-sizing: border-box !important;
+
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 8px !important;
-    padding: 0 12px !important;
+
+    gap: 6px !important;
+    padding: 0 10px !important;
+    margin: 0 !important;
+
+    transform: none !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
   }
 
   nav .navbar-logo-container {
+    position: static !important;
     width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    transform: none !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+  }
+
+  nav .navbar-logo-container a {
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
+    width: auto !important;
+  }
+
+  nav .navbar-logo {
+    position: static !important;
+    display: block !important;
+
+    width: auto !important;
+    max-width: 150px !important;
+    height: auto !important;
+    max-height: 50px !important;
+
+    object-fit: contain !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+
+    transform: none !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+  }
+
+  nav ul {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+
+    gap: 6px !important;
+    margin: 0 !important;
+    padding: 0 4px !important;
+
+    overflow: visible !important;
+    white-space: normal !important;
+
+    transform: none !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+  }
+
+  nav ul li {
+    position: static !important;
+    flex: 0 0 auto !important;
     margin: 0 !important;
     padding: 0 !important;
   }
 
-  nav .navbar-logo {
-    width: auto !important;
-    max-width: 180px !important;
-    max-height: 58px !important;
-    object-fit: contain !important;
-    display: block !important;
-  }
-
-  nav ul {
-    width: 100% !important;
-    max-width: 100% !important;
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    justify-content: flex-start !important;
-    align-items: center !important;
-    gap: 6px !important;
-    margin: 0 !important;
-    padding: 4px 8px 6px !important;
-    overflow-x: auto !important;
-    overflow-y: visible !important;
-    white-space: nowrap !important;
-    -webkit-overflow-scrolling: touch !important;
-    scrollbar-width: none;
-  }
-
-  nav ul::-webkit-scrollbar {
-    display: none;
-  }
-
-  nav ul li {
-    flex: 0 0 auto !important;
-    margin: 0 !important;
-  }
-
   nav ul li a {
     display: block !important;
-    font-size: 0.85rem !important;
-    padding: 8px 10px !important;
-    line-height: 1.1 !important;
+    font-size: 0.78rem !important;
+    line-height: 1 !important;
+    padding: 7px 8px !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
   }
 
   nav .dropdown-content {
@@ -219,11 +275,15 @@
 
   .hero {
     min-height: auto !important;
-    padding: 180px 22px 80px !important;
+    padding: 170px 22px 75px !important;
+  }
+
+  .hero-content {
+    padding-top: 0 !important;
   }
 
   .hero-content h1 {
-    font-size: clamp(34px, 11vw, 52px) !important;
+    font-size: clamp(32px, 10vw, 48px) !important;
     line-height: 1.05 !important;
   }
 
@@ -232,6 +292,7 @@
   }
 
   .hero-buttons {
+    display: flex !important;
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 12px !important;
@@ -239,8 +300,8 @@
 
   .hero-buttons a {
     width: 100% !important;
-    text-align: center !important;
     box-sizing: border-box !important;
+    text-align: center !important;
   }
 }
 </style>
