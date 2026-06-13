@@ -137,6 +137,7 @@
   }
 
   /* ==== REAL MOBILE NAV FIX - INDEX PAGE ONLY ==== */
+/* ==== MOBILE NAV FIX - INDEX PAGE ONLY ==== */
 @media (max-width: 700px) {
   html,
   body {
@@ -149,17 +150,17 @@
   }
 
   nav {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  width: 100% !important;
-  height: auto !important;
-  min-height: 0 !important;
-  padding: 34px 0 12px !important;
-  overflow: visible !important;
-  z-index: 9999 !important;
-}
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: calc(env(safe-area-inset-top, 0px) + 14px) 0 8px !important;
+    overflow: visible !important;
+    z-index: 10 !important;
+  }
 
   nav .navbar-container {
     position: static !important;
@@ -174,7 +175,7 @@
     align-items: center !important;
     justify-content: center !important;
 
-    gap: 6px !important;
+    gap: 4px !important;
     padding: 0 10px !important;
     margin: 0 !important;
 
@@ -185,54 +186,53 @@
   }
 
   nav .navbar-logo-container {
-  position: static !important;
-  width: 100% !important;
-  height: auto !important;
-  max-height: none !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
 
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 
-  margin: 0 !important;
-  padding: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
 
-  overflow: visible !important;
+    transform: none !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+  }
 
-  transform: none !important;
-  left: auto !important;
-  right: auto !important;
-  top: auto !important;
-}
+  nav .navbar-logo-container a {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
 
-nav .navbar-logo-container a {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  width: 100% !important;
-  height: auto !important;
-  overflow: visible !important;
-}
+  nav .navbar-logo {
+    position: static !important;
+    display: block !important;
 
-nav .navbar-logo {
-  position: static !important;
-  display: block !important;
+    width: 85vw !important;
+    max-width: 430px !important;
+    min-width: 300px !important;
+    height: auto !important;
+    max-height: none !important;
 
-  width: 85vw !important;
-  max-width: 430px !important;
-  min-width: 300px !important;
-  height: auto !important;
-  max-height: none !important;
+    object-fit: contain !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
 
-  object-fit: contain !important;
-  margin: 14px auto 0 !important;
-  padding: 0 !important;
-
-  transform: none !important;
-  left: auto !important;
-  right: auto !important;
-  top: auto !important;
-}
+    transform: none !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+  }
 
   nav ul {
     position: static !important;
@@ -279,9 +279,9 @@ nav .navbar-logo {
   }
 
   .hero {
-  min-height: auto !important;
-  padding: 335px 22px 75px !important;
-}
+    min-height: auto !important;
+    padding: 55px 22px 75px !important;
+  }
 
   .hero-content {
     padding-top: 0 !important;
@@ -308,10 +308,10 @@ nav .navbar-logo {
     box-sizing: border-box !important;
     text-align: center !important;
   }
-}
 
-.homepage-bg-video {
-  pointer-events: none !important;
+  .homepage-bg-video {
+    pointer-events: none !important;
+  }
 }
 </style>
 
