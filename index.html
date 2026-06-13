@@ -135,6 +135,114 @@
       padding: 22px;
     }
   }
+
+  /* ==== MOBILE NAV FIX - INDEX PAGE ONLY ==== */
+@media (max-width: 700px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  nav {
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 10px 0 8px !important;
+    overflow: visible !important;
+  }
+
+  nav .navbar-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 0 12px !important;
+  }
+
+  nav .navbar-logo-container {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  nav .navbar-logo {
+    width: auto !important;
+    max-width: 180px !important;
+    max-height: 58px !important;
+    object-fit: contain !important;
+    display: block !important;
+  }
+
+  nav ul {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin: 0 !important;
+    padding: 4px 8px 6px !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none;
+  }
+
+  nav ul::-webkit-scrollbar {
+    display: none;
+  }
+
+  nav ul li {
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+  }
+
+  nav ul li a {
+    display: block !important;
+    font-size: 0.85rem !important;
+    padding: 8px 10px !important;
+    line-height: 1.1 !important;
+  }
+
+  nav .dropdown-content {
+    display: none !important;
+  }
+
+  .hero {
+    min-height: auto !important;
+    padding: 180px 22px 80px !important;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(34px, 11vw, 52px) !important;
+    line-height: 1.05 !important;
+  }
+
+  .hero-content p {
+    font-size: 1rem !important;
+  }
+
+  .hero-buttons {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  .hero-buttons a {
+    width: 100% !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+}
 </style>
 
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />

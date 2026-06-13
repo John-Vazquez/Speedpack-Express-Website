@@ -184,6 +184,41 @@ body::before {
     padding: 28px;
   }
 }
+
+.hp-field {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+  width: 0;
+}
+
+.careers-form .checkbox-group {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  margin-top: 4px !important;
+}
+
+.careers-form .checkbox-group input[type="checkbox"] {
+  width: 16px !important;
+  height: 16px !important;
+  flex: 0 0 16px !important;
+  margin: 0 !important;
+}
+
+.careers-form .checkbox-group label {
+  margin: 0 !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+}
+
+.careers-form .checkbox-group a {
+  color: #f4f40c;
+  text-decoration: none;
+}
 </style>
 </head>
 
@@ -239,7 +274,10 @@ body::before {
     <section class="careers-panel">
       <h2>Submit your resume</h2>
 
-      <form class="careers-form" action="https://formspree.io/f/xzzpglan" method="post" enctype="multipart/form-data">
+      <form class="careers-form" id="careersForm" action="https://formspree.io/f/xzzpglan" method="post" enctype="multipart/form-data">
+  <input type="text" name="_gotcha" class="hp-field" tabindex="-1" autocomplete="off">
+  <input type="hidden" name="form_started_at" id="careersFormStartedAt">
+  <input type="hidden" name="_subject" value="New Careers Application - Speedpack Express">
         <div class="form-group">
           <label for="name">Full Name *</label>
           <input type="text" id="name" name="name" required>
@@ -281,10 +319,16 @@ body::before {
         </div>
 
         
-
+<div class="form-group full checkbox-group">
+  <input type="checkbox" id="agree" name="agree" required>
+  <label for="agree">
+    I agree to the terms of the 
+    <a href="privacy.html" target="_blank" rel="noopener noreferrer">privacy policy</a>.
+  </label>
+</div>
         <div class="form-group full">
             <div class="g-recaptcha" data-sitekey="6LePB9EsAAAAALOX7rMHRKJRlKyXxd1d3carsIYX"></div>
-          <button type="submit" class="submit-btn">Submit resume</button>
+          <button type="submit" class="submit-btn" id="careersSubmitBtn">Submit resume</button>
         </div>
       </form>
     </section>
@@ -298,6 +342,71 @@ body::before {
 
 <script src="scripts.js"></script>
 
+<script>
+  (function () {
+    const form = document.getElementById("careersForm");
+    const submitBtn = document.getElementById("careersSubmitBtn");
+    const startedAtInput = document.getElementById("careersFormStartedAt");
+    const resumeInput = document.getElementById("resume");
 
+    if (!form || !submitBtn || !startedAtInput || !resumeInput) return;
+
+    startedAtInput.value = Date.now();
+
+    form.addEventListener("submit", function (event) {
+      const startedAt = Number(startedAtInput.value || Date.now());
+      const timeOnPage = Date.now() - startedAt;
+
+      if (timeOnPage < 3000) {
+        event.preventDefault();
+        return;
+      }
+
+      const recaptchaResponse = document.querySelector('[name="g-recaptcha-response"]');
+
+      if (!recaptchaResponse || !recaptchaResponse.value.trim()) {
+        event.preventDefault();
+        alert("Please complete the reCAPTCHA before submitting.");
+        return;
+      }
+
+      const file = resumeInput.files[0];
+
+      if (!file) {
+        event.preventDefault();
+        alert("Please upload your resume.");
+        return;
+      }
+
+      const allowedTypes = [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ];
+
+      const allowedExtensions = [".pdf", ".doc", ".docx"];
+      const fileName = file.name.toLowerCase();
+      const hasAllowedExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+
+      if (!allowedTypes.includes(file.type) && !hasAllowedExtension) {
+        event.preventDefault();
+        alert("Please upload a PDF, DOC, or DOCX resume.");
+        return;
+      }
+
+      const maxSizeMB = 10;
+      const maxSizeBytes = maxSizeMB * 1024 * 1024;
+
+      if (file.size > maxSizeBytes) {
+        event.preventDefault();
+        alert("Resume file is too large. Please upload a file under 10 MB.");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Submitting...";
+    });
+  })();
+</script>
 </body>
 </html>
